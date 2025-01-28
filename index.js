@@ -23,68 +23,78 @@ let cola = [];
 // Conectar el cliente
 client.connect();
 
+const handleCommand = async (callback) => {
+    try {
+        await callback();
+    } catch (err) {
+        console.error('Error al ejecutar comando:', err);
+    }
+};
+
 // Manejar eventos de mensajes
 client.on('message', (channel, tags, message, self) => {
-    if (self) return; // Ignora los mensajes del bot
+    if (self) return;
 
-    // Mostrar enlace de Discord
-    if (message.toLowerCase().includes('discord')) {
-        client.say(channel, `¡Únete a nuestro Discord! ${process.env.DISCORD_LINK}`);
-    }
-
-    // Comando de ayuda
-    if (message.toLowerCase() === '!cola') {
-        client.say(channel, 'Comandos disponibles: !cola:unirme, !cola:salir, !cola:ver, !cola:pop (solo broadcaster), !cola:limpiar (solo broadcaster)');
-    }
-
-    // Comando para unirse a la cola
-    if (message.toLowerCase() === '!cola:unirme') {
-        if (!cola.includes(tags.username)) {
-            cola.push(tags.username);
-            client.say(channel, `@${tags.username}, has sido añadido/a a la cola. Actualmente hay ${cola.length} persona(s) en la cola.`);
-        } else {
-            client.say(channel, `@${tags.username}, ya estás en la cola. Te encuentras en la posición ${cola.indexOf(tags.username) + 1}.`);
+    handleCommand(async () => {
+        // Mostrar enlace de Discord
+        if (message.toLowerCase().includes('discord')) {
+            client.say(channel, `¡Únete a nuestro Discord! ${process.env.DISCORD_LINK}`);
         }
-    }
 
-    // Comando para ver la cola y la posición del usuario
-    if (message.toLowerCase() === '!cola:ver') {
-        if (cola.length === 0) {
-            client.say(channel, 'La cola está vacía ahora mismo.');
-        } else {
-            const posicion = cola.indexOf(tags.username) + 1;
-            if (posicion > 0) {
-                client.say(channel, `@${tags.username}, estás en la posición ${posicion} de la cola. La cola actual es: ${cola.join(', ')}`);
+        // Comando de ayuda
+        if (message.toLowerCase() === '!cola') {
+            client.say(channel, 'Comandos disponibles: !cola:unirme, !cola:salir, !cola:ver, !cola:pop (solo broadcaster), !cola:limpiar (solo broadcaster)');
+        }
+
+        // Comando para unirse a la cola
+        if (message.toLowerCase() === '!cola:unirme') {
+            if (!cola.includes(tags.username)) {
+                cola.push(tags.username);
+                client.say(channel, `@${tags.username}, has sido añadido/a a la cola. Actualmente hay ${cola.length} persona(s) en la cola.`);
             } else {
-                client.say(channel, `La cola actual es: ${cola.join(', ')}`);
+                client.say(channel, `@${tags.username}, ya estás en la cola. Te encuentras en la posición ${cola.indexOf(tags.username) + 1}.`);
             }
         }
-    }
 
-    // Comando para salir de la cola
-    if (message.toLowerCase() === '!cola:salir') {
-        const index = cola.indexOf(tags.username);
-        if (index !== -1) {
-            cola.splice(index, 1);
-            client.say(channel, `@${tags.username}, has salido de la cola.`);
-        } else {
-            client.say(channel, `@${tags.username}, no estás en la cola.`);
+        // Comando para ver la cola y la posición del usuario
+        if (message.toLowerCase() === '!cola:ver') {
+            if (cola.length === 0) {
+                client.say(channel, 'La cola está vacía ahora mismo.');
+            } else {
+                const posicion = cola.indexOf(tags.username) + 1;
+                if (posicion > 0) {
+                    client.say(channel, `@${tags.username}, estás en la posición ${posicion} de la cola. La cola actual es: ${cola.join(', ')}`);
+                } else {
+                    client.say(channel, `La cola actual es: ${cola.join(', ')}`);
+                }
+            }
         }
-    }
 
-    // Comando para limpiar la cola (solo para el broadcaster)
-    if (message.toLowerCase() === '!cola:limpiar' && tags.badges && tags.badges.broadcaster) {
-        cola = [];
-        client.say(channel, 'La cola ha sido limpiada.');
-    }
-
-    // Comando para eliminar al primero de la cola (solo broadcaster)
-    if (message.toLowerCase() === '!cola:siguiente' && tags.badges && tags.badges.broadcaster) {
-        if (cola.length === 0) {
-            client.say(channel, 'La cola está vacía, no hay nadie contra quien jugar.');
-        } else {
-            const next = cola.shift();
-            client.say(channel, `El siguiente en la cola es @${next}. (@${next} ya no está en la cola)`);
+        // Comando para salir de la cola
+        if (message.toLowerCase() === '!cola:salir') {
+            const index = cola.indexOf(tags.username);
+            if (index !== -1) {
+                cola.splice(index, 1);
+                client.say(channel, `@${tags.username}, has salido de la cola.`);
+            } else {
+                client.say(channel, `@${tags.username}, no estás en la cola.`);
+            }
         }
-    }
+
+        // Comando para limpiar la cola (solo para el broadcaster)
+        if (message.toLowerCase() === '!cola:limpiar' && tags.badges && tags.badges.broadcaster) {
+            cola = [];
+            client.say(channel, 'La cola ha sido limpiada.');
+        }
+
+        // Comando para eliminar al primero de la cola (solo broadcaster)
+        if (message.toLowerCase() === '!cola:siguiente' && tags.badges && tags.badges.broadcaster) {
+            if (cola.length === 0) {
+                client.say(channel, 'La cola está vacía, no hay nadie contra quien jugar.');
+            } else {
+                const next = cola.shift();
+                client.say(channel, `El siguiente en la cola es @${next}. (@${next} ya no está en la cola)`);
+            }
+        }
+    });
 });
