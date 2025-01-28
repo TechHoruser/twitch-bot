@@ -1,0 +1,29 @@
+{
+  "name": "twitch-bot",
+  "version": "1.0.0",
+  "description": "Proyecto de bot de twitch",
+  "main": "index.js",
+  "scripts": {
+    "start": "node -r dotenv/config index.js dotenv_config_path=.env.local",
+    "start:dev": "nodemon -r dotenv/config index.js dotenv_config_path=.env.local",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Francisco Ponce (bitsman)",
+  "license": "ISC",
+  "dependencies": {
+    "tmi.js": "^1.8.5",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "settings": {
+    "nodemon.restartable": "rs",
+    "nodemon.delay": "1000",
+    "nodemon.verbose": true,
+    "nodemon.watch": [
+      "*.js",
+      "*.json"
+    ]
+  }
+}

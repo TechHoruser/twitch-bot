@@ -1,0 +1,10 @@
+{
+  "restartable": "rs",
+  "delay": "1000",
+  "verbose": true,
+  "watch": [
+    "*.js",
+    "*.json"
+  ],
+  "ext": "js,json"
+}
