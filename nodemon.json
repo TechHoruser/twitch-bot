@@ -4,7 +4,8 @@
   "verbose": true,
   "watch": [
     "*.js",
-    "*.json"
+    "*.json",
+    ".env.local"
   ],
   "ext": "js,json"
 }
