@@ -1,7 +1,7 @@
 // Importa la librería tmi.js
 const tmi = require('tmi.js');
 
-const KICK_TIME = 10; // Tiempo de timeout en segundos
+const KICK_TIME = 30; // Tiempo de timeout en segundos
 
 // Configuración del cliente de Twitch
 const client = new tmi.Client({
@@ -95,6 +95,23 @@ client.on('message', (channel, tags, message, self) => {
                 const next = cola.shift();
                 client.say(channel, `El siguiente en la cola es @${next}. (@${next} ya no está en la cola)`);
             }
+        }
+
+        if (message.startsWith('!banear')) {
+            const args = message.split(' ');
+            if (args.length < 2) {
+                client.say(channel, `@${tags.username}, usa el comando así: !banear <usuario>`);
+                return;
+            }
+    
+            const usuario = args[1];
+    
+            // Borrar mensajes del usuario (si el bot tiene permisos de moderador)
+            client.say(channel, `/clear ${usuario}`);
+    
+            client.say(channel, `/timeout ${usuario} ${KICK_TIME}`);
+    
+            client.say(channel, `@${usuario} ha sido silenciado por ${KICK_TIME} segundos.`);
         }
     });
 });
