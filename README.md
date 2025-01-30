@@ -19,6 +19,12 @@ Te redirigirá a http://localhost#access_token=TOKEN_GENERADO.
 
 Ese access_token es el que debes usar en el código.
 
+## Aclaraciones
+
+  * La primera vez que se inicia el bot genera un fichero data.json con el broadcast_id del canal. Posteriormente se podrán almacenar algún dato extra interesante. Ese valor se almacena para no tener que hacer una petición a la API de Twitch cada vez que se inicia el bot.
+  * La cola de mensajes, está en memoria. Si se reinicia el bot, se pierden los mensajes pendientes.
+  * El bot está configurado con nodemon, por lo que se reiniciará automáticamente al guardar cambios en los ficheros. Más info en el fichero `nodemon.json`.
+
 
 ## Iniciar
 

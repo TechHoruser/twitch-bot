@@ -1,7 +1,10 @@
 // Importa la librería tmi.js
 const tmi = require('tmi.js');
+const fetch = require('node-fetch');
+const fs = require('fs');
+const path = require('path');
 
-const KICK_TIME = 30; // Tiempo de timeout en segundos
+const KICK_TIME = 5; // Tiempo de timeout en segundos
 
 // Configuración del cliente de Twitch
 const client = new tmi.Client({
@@ -11,7 +14,7 @@ const client = new tmi.Client({
         secure: true
     },
     identity: {
-        username: process.env.TWITCH_BOT_USERNAME,
+        username: process.env.TWITCH_CHANNEL_NAME,
         password: `oauth:${process.env.TWITCH_OAUTH_TOKEN}`
     },
     channels: [ process.env.TWITCH_CHANNEL_NAME ]
@@ -30,6 +33,80 @@ const handleCommand = async (callback) => {
         console.error('Error al ejecutar comando:', err);
     }
 };
+
+async function getBroadcasterId(channelName) {
+    const response = await fetch(
+        `https://api.twitch.tv/helix/users?login=${process.env.TWITCH_CHANNEL_NAME}`,
+        {
+            headers: {
+                'Client-ID': process.env.TWITCH_CLIENT_ID,
+                'Authorization': `Bearer ${process.env.TWITCH_OAUTH_TOKEN}`
+            }
+        }
+    );
+
+    const data = await response.json();
+    console.log(data);
+    return data.data[0].id; // Este es el broadcaster_id
+}
+
+// Cargar y gestionar el broadcaster_id desde data.json
+const dataPath = path.join(__dirname, 'data.json');
+
+let broadcasterData;
+try {
+    broadcasterData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+} catch {
+    broadcasterData = {};
+}
+
+if (!broadcasterData.broadcaster_id) {
+    getBroadcasterId(process.env.TWITCH_CHANNEL_NAME).then(id => {
+        broadcasterData.broadcaster_id = id;
+        fs.writeFileSync(dataPath, JSON.stringify(broadcasterData, null, 2));
+    });
+}
+
+// Función para obtener el ID de usuario de Twitch
+async function getUserId(username) {
+    const response = await fetch(`https://api.twitch.tv/helix/users?login=${username}`, {
+        headers: {
+            'Client-ID': process.env.TWITCH_CLIENT_ID,
+            'Authorization': `Bearer ${process.env.TWITCH_OAUTH_TOKEN}`
+        }
+    });
+
+    const data = await response.json();
+    if (data.data && data.data.length > 0) {
+        return data.data[0].id;
+    } else {
+        return null;
+    }
+}
+
+// Función para banear temporalmente a un usuario
+async function banUser(userId, duration, reason) {
+    const response = await fetch(`https://api.twitch.tv/helix/moderation/bans?broadcaster_id=${process.env.TWITCH_BROADCASTER_ID}&moderator_id=${process.env.TWITCH_BROADCASTER_ID}`, {
+        method: 'POST',
+        headers: {
+            'Client-ID': process.env.TWITCH_CLIENT_ID,
+            'Authorization': `Bearer ${process.env.TWITCH_OAUTH_TOKEN}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            data: {
+                user_id: userId,
+                duration: duration,
+                reason: reason
+            }
+        })
+    });
+
+    if (!response.ok) {
+        console.error(response);
+        throw new Error('Error al banear al usuario');
+    }
+}
 
 // Manejar eventos de mensajes
 client.on('message', (channel, tags, message, self) => {
@@ -100,18 +177,25 @@ client.on('message', (channel, tags, message, self) => {
         if (message.startsWith('!banear')) {
             const args = message.split(' ');
             if (args.length < 2) {
-                client.say(channel, `@${tags.username}, usa el comando así: !banear <usuario>`);
+                client.say(channel, `@${tags.username}, usa el comando así: !banear <usuario> [duración]`);
                 return;
             }
-    
-            const usuario = args[1];
-    
-            // Borrar mensajes del usuario (si el bot tiene permisos de moderador)
-            client.say(channel, `/clear ${usuario}`);
-    
-            client.say(channel, `/timeout ${usuario} ${KICK_TIME}`);
-    
-            client.say(channel, `@${usuario} ha sido silenciado por ${KICK_TIME} segundos.`);
+            const nombreUser = args[1].replace('@','');
+            const duracion = args[2] ? parseInt(args[2]) : KICK_TIME;
+            const userId = await getUserId(nombreUser);
+
+            if (!userId) {
+                client.say(channel, `No se encontró el usuario @${nombreUser}.`);
+                return;
+            }
+
+            try {
+                await banUser(userId, duracion, 'Baneado temporalmente');
+                client.say(channel, `@${nombreUser} ha sido baneado por ${duracion} segundos.`);
+            } catch (error) {
+                console.error(error);
+                client.say(channel, `No se pudo banear a @${nombreUser}.`);
+            }
         }
     });
 });
