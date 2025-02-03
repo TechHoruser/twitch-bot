@@ -19,10 +19,14 @@ const logUserRating = (username, ratings) => {
 }
 
 const logDiffBetweenRatings = (username, oldRatings, newRatings) => {
+  const getDiffIfDifferent = (oldRating, newRating) => (
+    oldRating !== newRating ? `${oldRating} -> ${newRating}` : oldRating
+  )
+
   console.log(`Chess.com username: ${username}:
-    - rapid: ${oldRatings.rapid.last.rating} -> ${newRatings.rapid.last.rating} (MAX: ${oldRatings.rapid.best.rating} -> ${newRatings.rapid.best.rating})
-    - blitz: ${oldRatings.blitz.last.rating} -> ${newRatings.blitz.last.rating} (MAX: ${oldRatings.blitz.best.rating} -> ${newRatings.blitz.best.rating})
-    - bullet: ${oldRatings.bullet.last.rating} -> ${newRatings.bullet.last.rating} (MAX: ${oldRatings.bullet.best.rating} -> ${newRatings.bullet.best.rating})
+    - rapid: ${getDiffIfDifferent(oldRatings.rapid.last.rating, newRatings.rapid.last.rating)} (MAX: ${getDiffIfDifferent(oldRatings.rapid.best.rating, newRatings.rapid.best.rating)})
+    - blitz: ${getDiffIfDifferent(oldRatings.blitz.last.rating, newRatings.blitz.last.rating)} (MAX: ${getDiffIfDifferent(oldRatings.blitz.best.rating, newRatings.blitz.best.rating)})
+    - bullet: ${getDiffIfDifferent(oldRatings.bullet.last.rating, newRatings.bullet.last.rating)} (MAX: ${getDiffIfDifferent(oldRatings.bullet.best.rating, newRatings.bullet.best.rating)})
   `);
 
   const asString = (oldRating, newRating) => {
@@ -63,14 +67,16 @@ const getChessStats = async (username) => {
       rapid: stats.body.chess_rapid || defaultRatings,
     }
 
+    console.log('-----------------------------\n');
     if (!cache[username]) {
-      console.log('Nuevo usuario de Chess.com:', username);
+      console.log('NUEVO USUARIO CHESSCOM\n');
       logUserRating(username, ratings);
     } else {
-      console.log('Usuario de Chess.com actualizado:', username);
+      console.log('USUARIO ACTUALIZADO CHESSCOM\n');
       const oldRatings = cache[username].ratings;
       logDiffBetweenRatings(username, oldRatings, ratings);
     }
+    console.log('-----------------------------\n');
 
     try {
       cache[username] = {
