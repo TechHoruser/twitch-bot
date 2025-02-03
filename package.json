@@ -11,8 +11,9 @@
   "author": "Francisco Ponce (bitsman)",
   "license": "ISC",
   "dependencies": {
-    "tmi.js": "^1.8.5",
-    "dotenv": "^16.4.7"
+    "chess-web-api": "^1.2.0",
+    "dotenv": "^16.4.7",
+    "tmi.js": "^1.8.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
