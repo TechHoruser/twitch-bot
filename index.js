@@ -1,10 +1,13 @@
 // Importa la librería tmi.js
 const tmi = require('tmi.js');
 const fetch = require('node-fetch');
-const fs = require('fs');
 const path = require('path');
+const { getChessStats, logUserRating } = require('./src/chess');
+const { getJson, saveJson } = require('./src/savedData');
 
-const KICK_TIME = 5; // Tiempo de timeout en segundos
+const KICK_TIME = 300; // Tiempo de timeout en segundos
+
+const MAP_TWITCH_CHESS_FILE = 'twitch-chess';
 
 // Configuración del cliente de Twitch
 const client = new tmi.Client({
@@ -51,19 +54,12 @@ async function getBroadcasterId(channelName) {
 }
 
 // Cargar y gestionar el broadcaster_id desde data.json
-const dataPath = path.join(__dirname, 'data.json');
+const appData = getJson('app');
 
-let broadcasterData;
-try {
-    broadcasterData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-} catch {
-    broadcasterData = {};
-}
-
-if (!broadcasterData.broadcaster_id) {
+if (!appData.broadcaster_id) {
     getBroadcasterId(process.env.TWITCH_CHANNEL_NAME).then(id => {
-        broadcasterData.broadcaster_id = id;
-        fs.writeFileSync(dataPath, JSON.stringify(broadcasterData, null, 2));
+        appData.broadcaster_id = id;
+        saveJson('app', appData);
     });
 }
 
@@ -118,21 +114,88 @@ client.on('message', (channel, tags, message, self) => {
             client.say(channel, `¡Únete a nuestro Discord! ${process.env.DISCORD_LINK}`);
         }
 
+        if (message.toLowerCase().includes('!chess')) {
+            client.say(channel, `¡Agrégame a ChessCom! ${process.env.CHESSCOM_LINK}`);
+        }
+
         // Comando de ayuda
         if (message.toLowerCase() === '!cola') {
-            client.say(channel, 'Comandos disponibles: !cola:unirme, !cola:salir, !cola:ver, !cola:pop (solo broadcaster), !cola:limpiar (solo broadcaster)');
+            client.say(channel, `Comandos disponibles:
+                \n!cola:unirme <usuario de Chess.com>;
+                \n!cola:limpiar-usuario;
+                \n!cola:salir;
+                \n!cola:ver;
+                \n!cola:pop (solo broadcaster);
+                \n!cola:limpiar (solo broadcaster);
+            `);
         }
 
         // Comando para unirse a la cola
-        if (message.toLowerCase() === '!cola:unirme') {
-            if (!cola.includes(tags.username)) {
-                cola.push(tags.username);
-                client.say(channel, `@${tags.username}, has sido añadido/a a la cola. Actualmente hay ${cola.length} persona(s) en la cola.`);
-            } else {
-                client.say(channel, `@${tags.username}, ya estás en la cola. Te encuentras en la posición ${cola.indexOf(tags.username) + 1}.`);
+        if (message.toLowerCase().startsWith('!cola:unirme')) {
+            console.log('Comando !cola:unirme detectado');
+            
+            // Extraer username de chess.com
+            const parts = message.split(' ');
+            const chesscomUser = parts[1];
+            
+            // Validar si ya está en la cola
+            if (cola.some(entry => entry.username === tags.username)) {
+                const existingEntry = cola.find(entry => entry.username === tags.username);
+                client.say(channel, `@${tags.username}, ya estás en la cola con usuario de Chess.com: ${existingEntry.chesscom}`);
+                console.log(`Usuario ${tags.username} intentó unirse nuevamente`);
+                return;
+            }
+            
+            // Load mapping from file or initialize empty
+            const mapping = getJson(MAP_TWITCH_CHESS_FILE);
+
+            if (mapping[tags.username] && chesscomUser && mapping[tags.username] != chesscomUser) {
+                client.say(channel, `@${tags.username}, tienes un usuario de Chess.com guardado: ${mapping[tags.username]}. Si deseas cambiarlo, usa !cola:limpiar.`);
+                return;
+            }
+
+            const saveChesscomUser = mapping[tags.username] || chesscomUser;
+            if (!saveChesscomUser) {
+                client.say(channel, `@${tags.username}, por favor proporciona tu usuario de Chess.com. Ejemplo: !cola:unirme TuUsuarioChess`);
+                console.log('Intento de unirse sin proporcionar usuario de Chess.com');
+                return;
+            }
+        
+            try {
+                const chesscomUserRating = await getChessStats(saveChesscomUser);
+                if (!chesscomUserRating) {
+                    client.say(channel, `@${tags.username}, no se encontró el usuario de Chess.com ${saveChesscomUser}.`);
+                    console.log(`Usuario de Chess.com no encontrado: ${saveChesscomUser}`);
+                    return;
+                }
+
+                if (!mapping[tags.username]) {
+                    mapping[tags.username] = saveChesscomUser;
+                    saveJson(MAP_TWITCH_CHESS_FILE, mapping);
+                }
+
+                cola.push({ username: tags.username, chesscom: saveChesscomUser, chesscomRating: chesscomUserRating });
+                
+                const respuesta = `@${tags.username}, has sido añadido/a a la cola con usuario de Chess.com: ${saveChesscomUser}. Actualmente hay ${cola.length} persona(s) en la cola.`;
+                client.say(channel, respuesta);
+                console.log(`Usuario ${tags.username} añadido a la cola con Chess.com: ${saveChesscomUser}`);
+            } catch (error) {
+                console.error('Error al procesar la solicitud:', error);
+                client.say(channel, `@${tags.username}, ocurrió un error al procesar tu solicitud. Por favor, intenta nuevamente.`);
             }
         }
 
+        if (message.toLowerCase() === '!cola:limpiar-usuario') {
+            const mapping = getJson(MAP_TWITCH_CHESS_FILE);
+
+            if (mapping[tags.username]) {
+                delete mapping[tags.username];
+                saveJson(MAP_TWITCH_CHESS_FILE, mapping);
+            }
+
+            client.say(channel, `@${tags.username}, tu usuario de Chess.com ha sido eliminado.`);
+        }
+        
         // Comando para ver la cola y la posición del usuario
         if (message.toLowerCase() === '!cola:ver') {
             if (cola.length === 0) {
@@ -170,11 +233,13 @@ client.on('message', (channel, tags, message, self) => {
                 client.say(channel, 'La cola está vacía, no hay nadie contra quien jugar.');
             } else {
                 const next = cola.shift();
-                client.say(channel, `El siguiente en la cola es @${next}. (@${next} ya no está en la cola)`);
+                console.log('Vas a jugar  contra:');
+                logUserRating(next.chesscom, next.chesscomRating);
+                client.say(channel, `El siguiente en la cola es @${next.username}. Usuario de Chess.com: ${next.chesscom}. ¡Buena suerte!`);
             }
         }
 
-        if (message.startsWith('!banear')) {
+        if (message.startsWith('!banear') && tags.badges && tags.badges.broadcaster) {
             const args = message.split(' ');
             if (args.length < 2) {
                 client.say(channel, `@${tags.username}, usa el comando así: !banear <usuario> [duración]`);
