@@ -201,18 +201,19 @@ client.on('message', (channel, tags, message, self) => {
             if (cola.length === 0) {
                 client.say(channel, 'La cola está vacía ahora mismo.');
             } else {
-                const posicion = cola.indexOf(tags.username) + 1;
+                const posicion = cola.map(entry => entry.username).indexOf(tags.username) + 1;
+                const queueLengthString = `Actualmente hay ${cola.length} persona(s) en la cola.`;
                 if (posicion > 0) {
-                    client.say(channel, `@${tags.username}, estás en la posición ${posicion} de la cola. La cola actual es: ${cola.join(', ')}`);
+                    client.say(channel, `@${tags.username}, estás en la posición ${posicion} de la cola. ${queueLengthString}`);
                 } else {
-                    client.say(channel, `La cola actual es: ${cola.join(', ')}`);
+                    client.say(channel, queueLengthString);
                 }
             }
         }
 
         // Comando para salir de la cola
         if (message.toLowerCase() === '!cola:salir') {
-            const index = cola.indexOf(tags.username);
+            const index = cola.map(entry => entry.username).indexOf(tags.username);
             if (index !== -1) {
                 cola.splice(index, 1);
                 client.say(channel, `@${tags.username}, has salido de la cola.`);

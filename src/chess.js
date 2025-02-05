@@ -43,6 +43,24 @@ const logDiffBetweenRatings = (username, oldRatings, newRatings) => {
   `);
 }
 
+const completeRatings = (ratings) => {
+  const completeRating = (rating) => {
+    if (!rating) {
+      return defaultRatings;
+    }
+    return {
+      last: rating.last || defaultRatings.last,
+      best: rating.best || defaultRatings.best,
+    }
+  }
+
+  return {
+    bullet: completeRating(ratings.bullet),
+    blitz: completeRating(ratings.blitz),
+    rapid: completeRating(ratings.rapid),
+  }
+}
+
 const getChessStats = async (username) => {
   console.log('Getting chess stats for', username);
   if (!username) {
@@ -62,10 +80,12 @@ const getChessStats = async (username) => {
     const stats = await chessAPI.getPlayerStats(username);
 
     ratings = {
-      bullet: stats.body.chess_bullet || defaultRatings,
-      blitz: stats.body.chess_blitz || defaultRatings,
-      rapid: stats.body.chess_rapid || defaultRatings,
+      bullet: stats?.body?.chess_bullet || defaultRatings,
+      blitz: stats?.body?.chess_blitz || defaultRatings,
+      rapid: stats?.body?.chess_rapid || defaultRatings,
     }
+
+    ratings = completeRatings(ratings);
 
     console.log('-----------------------------\n');
     if (!cache[username]) {
