@@ -3,7 +3,8 @@ const tmi = require('tmi.js');
 const fetch = require('node-fetch');
 const path = require('path');
 const { getChessStats, logUserRating } = require('./src/chess');
-const { getJson, saveJson } = require('./src/savedData');
+const { getJson, saveJson, deleteJson } = require('./src/savedData');
+const { nextOverload } = require('./src/stream-overload');
 
 const KICK_TIME = 300; // Tiempo de timeout en segundos
 
@@ -235,6 +236,7 @@ client.on('message', (channel, tags, message, self) => {
             } else {
                 const next = cola.shift();
                 console.log('Vas a jugar  contra:');
+                nextOverload('next-match', NEXT_MATCH_TIMEOUT, next, 2);
                 logUserRating(next.chesscom, next.chesscomRating);
                 client.say(channel, `El siguiente en la cola es @${next.username}. Usuario de Chess.com: ${next.chesscom}. ¡Buena suerte!`);
             }

@@ -1,9 +1,30 @@
 services:
-  node:
+  bot:
     image: node:20-alpine
     working_dir: /app
     volumes:
-      - .:/app:delegated
+      - ./bot:/app
+      - data:/data
     environment:
       - CHOKIDAR_USEPOLLING=true
     command: sh -c "npm install && npm run start:dev"
+
+  web:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./web:/app
+      - data:/data
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install && npm run dev"
+
+volumes:
+  data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data

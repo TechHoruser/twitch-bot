@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const BASE_PATH = `${__dirname}/../data`;
+const BASE_PATH = `/data`;
 
 const getJson = (filename) => {
   const file = `${BASE_PATH}/${filename}.json`;
@@ -12,7 +12,13 @@ const saveJson = (filename, data) => {
   fs.writeFileSync(file, JSON.stringify(data, null, 2));
 }
 
+const deleteJson = (filename) => {
+  const file = `${BASE_PATH}/${filename}.json`;
+  fs.unlinkSync(file);
+}
+
 module.exports = {
   getJson,
   saveJson,
+  deleteJson,
 }
