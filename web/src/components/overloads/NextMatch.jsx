@@ -13,7 +13,7 @@ export default function NextMatch({data}) {
       <h1>{data.username}</h1>
       <h3>{data.chesscom}</h3>
       <div className="text-center flex flex-row justify-around">
-        <div className="flex flex-col items-center">
+        {/* <div className="flex flex-col items-center">
           <BulletSvg />
           <p>{data.ratings.bullet.last.rating}</p>
         </div>
@@ -24,7 +24,7 @@ export default function NextMatch({data}) {
         <div className="flex flex-col items-center">
           <RapidSvg />
           <p>{data.ratings.rapid.last.rating}</p>
-        </div>
+        </div> */}
       </div>
     </div>
   );

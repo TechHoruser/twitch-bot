@@ -12,6 +12,11 @@ const saveJson = (filename, data) => {
   fs.writeFileSync(file, JSON.stringify(data, null, 2));
 }
 
+const clearJson = (filename) => {
+  const file = `${BASE_PATH}/${filename}.json`;
+  fs.writeFileSync(file, '{}');
+}
+
 const deleteJson = (filename) => {
   const file = `${BASE_PATH}/${filename}.json`;
   fs.unlinkSync(file);
@@ -20,5 +25,6 @@ const deleteJson = (filename) => {
 module.exports = {
   getJson,
   saveJson,
+  clearJson,
   deleteJson,
 }

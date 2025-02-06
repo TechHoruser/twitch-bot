@@ -15,6 +15,7 @@ export async function GET() {
           const data = fs.readFileSync(filePath, 'utf8');
           const payload = JSON.parse(data);
           if (JSON.stringify(payload) === JSON.stringify(lastData)) return;
+          lastData = payload;
           controller.enqueue(`event: newOverload\ndata: ${JSON.stringify(payload)}\n\n`);
         } catch (error) {
           if (!isControllerClosed) {
@@ -29,8 +30,9 @@ export async function GET() {
         isControllerClosed = true;
       });
 
-      fs.watchFile(filePath, sendChange);
-      sendChange();
+      setInterval(sendChange, 1000);
+      // fs.watchFile(filePath, sendChange);
+      // sendChange();
     },
     cancel() {
       isControllerClosed = true;
