@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import NextMatch from './overloads/NextMatch';
+import { QueueOfPawns } from './overloads/QueueOfPawns';
 
 export default function Overload() {
   const [data, setData] = useState(null);
@@ -23,6 +24,11 @@ export default function Overload() {
         && data.type === 'next-match'
         && <NextMatch data={data.payload} />
       }
+      <div
+        className='absolute left-8 bottom-2'
+      >
+        <QueueOfPawns />
+      </div>
     </main>
   );
 }

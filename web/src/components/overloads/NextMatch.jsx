@@ -13,18 +13,18 @@ export default function NextMatch({data}) {
       <h1>{data.username}</h1>
       <h3>{data.chesscom}</h3>
       <div className="text-center flex flex-row justify-around">
-        {/* <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center">
           <BulletSvg />
-          <p>{data.ratings.bullet.last.rating}</p>
+          <p>{data.chesscomRating.bullet.last.rating}</p>
         </div>
         <div className="flex flex-col items-center">
           <BlitzSvg />
-          <p>{data.ratings.blitz.last.rating}</p>
+          <p>{data.chesscomRating.blitz.last.rating}</p>
         </div>
         <div className="flex flex-col items-center">
           <RapidSvg />
-          <p>{data.ratings.rapid.last.rating}</p>
-        </div> */}
+          <p>{data.chesscomRating.rapid.last.rating}</p>
+        </div>
       </div>
     </div>
   );
