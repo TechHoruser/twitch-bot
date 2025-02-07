@@ -2,7 +2,7 @@ const { clearJson, saveJson } = require("./savedData")
 
 const queue = []
 
-const OVERLOAD_FILE = 'overload'
+const OVERLOAD_FILE = 'overload-center'
 const DEFAULT_DURATION = 10000
 
 const nextOverload = (
