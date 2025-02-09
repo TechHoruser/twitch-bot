@@ -1,20 +1,56 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-const Pawn = ({ position, name }) => (
-  <div
-    className="m-2 animate-slideLeft w-12 h-16 flex flex-col items-center justify-between"
+const Pawn = ({ name, state, whenHide, whenDestroy }) => {
+  useEffect(() => {
+    if (state === 'hide') {
+      setTimeout(() => {
+        whenHide();
+      }, 1000);
+      return;
+    }
+
+    if (state === 'destroy') {
+      setTimeout(() => {
+        whenDestroy();
+      }, 1000);
+      return;
+    }
+  }, [state]);
+
+  const animation = useMemo(() => (
+    state === 'hide'
+      ? 'animateDisappear 1s ease-out forwards'
+      : (
+        state === 'destroy'
+          ? 'animateDestroy 1s ease-out forwards'
+          : 'slideLeft 1s ease-out forwards'
+      )
+  ), [state]);
+
+  return <div
+    className={`
+      relative
+      opacity-0
+      w-[6rem]
+      flex
+      flex-col
+      items-center
+      justify-between
+      mr-2
+    `}
     style={{
-      animation: `slideLeft 1s ease-out forwards`,
-      animationDelay: `${position * 0.2}s`
+      animation,
     }}
   >
-    <img
-      src={`/images/pawn-queue.png`}
-      alt={name}
-    />
-    <p>{name}</p>
+    <div className="w-full h-full z-10">
+      <img
+        src={`/images/pawn-queue.png`}
+        alt={name}
+      />
+      <p className="w-full text-center">{name}</p>
+    </div>
   </div>
-);
+}
 
 export const QueueOfPawns = () => {
   const [data, setData] = useState([]);
@@ -23,11 +59,16 @@ export const QueueOfPawns = () => {
     const evtSource = new EventSource('/api/overload');
     evtSource.addEventListener('newQueueElement', (event) => {
       const payload = JSON.parse(event.data);
-      setData(prev => [...prev, payload]);
+      setData(prev => [...prev, { ...payload, state: 'alive'}]);
     });
     evtSource.addEventListener('dropQueueElement', (event) => {
       const uuid = event.data;
-      setData(prev => prev.filter(item => item.uuid !== uuid));
+      setData(prev => prev.map(item => {
+        if (item.uuid === uuid) {
+          return { ...item, state: 'hide' };
+        }
+        return item;
+      }));
     });
     return () => {
       evtSource.close();
@@ -35,11 +76,36 @@ export const QueueOfPawns = () => {
   }, []);
 
   return (
-    <div className="w-full overflow-hidden">
-      <div className="flex flex-row items-center justify-start">
-        {data.map((item, i) => (
-          <Pawn key={i} position={i} name={item.chesscom} />
-        ))}
+    <div
+      className='absolute w-full bottom-2'
+    >
+      <div className="w-full flex justify-center">
+        <div className="relative w-[50%] overflow-hidden">
+          <div
+            className="absolute w-full h-24 bg-white/5 rounded-xl"
+          >
+          </div>
+          <div className="flex flex-row items-center justify-start">
+            {data.map((item) => (
+              <Pawn
+                key={item.uuid}
+                name={item.chesscom}
+                state={item.state}
+                whenHide={
+                  () => setData(prev => prev.map(p => {
+                    if (p.uuid === item.uuid) {
+                      return { ...p, state: 'destroy' };
+                    }
+                    return p;
+                  }))
+                }
+                whenDestroy={
+                  () => setData(prev => prev.filter(p => p.uuid !== item.uuid))
+                }
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

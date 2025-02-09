@@ -31,6 +31,22 @@ body {
   }
 }
 
-.animate-slideLeft {
-  opacity: 0;
+@keyframes animateDisappear {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes animateDestroy {
+  from {
+    width: 6rem;
+    margin-right: 0.5rem;
+  }
+  to {
+    width: 0;
+    margin-right: 0;
+  }
 }

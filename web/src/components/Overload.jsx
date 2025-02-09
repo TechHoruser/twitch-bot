@@ -24,11 +24,7 @@ export default function Overload() {
         && data.type === 'next-match'
         && <NextMatch data={data.payload} />
       }
-      <div
-        className='absolute left-8 bottom-2'
-      >
-        <QueueOfPawns />
-      </div>
+      <QueueOfPawns />
     </main>
   );
 }

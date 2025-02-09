@@ -16,42 +16,17 @@ export async function GET() {
       };
 
       const checkQueueOverload = (queue) => {
-        if (lastQueue.length === 0) {
-          for (const item of queue) {
-            controller.enqueue(`event: newQueueElement\ndata: ${JSON.stringify(item)}\n\n`);
-          }
-          return;
-        }
-
-        if (queue.length === 0) {
-          for (const item of lastQueue) {
-            controller.enqueue(`event: dropQueueElement\ndata: ${item.uuid}\n\n`);
-          }
-          return;
-        }
-
-        let breakIndex = 0;
-        for (let i = 0; i < lastQueue.length; i++) {
-          const item = lastQueue[i];
-          const found = item.uuid === queue[0]?.uuid;
+        for (const item of lastQueue) {
+          const found = queue.find((element) => element.uuid === item.uuid);
           if (!found) {
             controller.enqueue(`event: dropQueueElement\ndata: ${item.uuid}\n\n`);
-          } else {
-            breakIndex = i;
-            break;
           }
         }
 
-        for (let i = 0; i < queue.length; i++) {
-          const item = queue[i];
-          const isSimilar = item.uuid === lastQueue[breakIndex + i]?.uuid;
-          if (!isSimilar) {
-            do {
-              const item = queue[i];
-              controller.enqueue(`event: newQueueElement\ndata: ${JSON.stringify(item)}\n\n`);
-              i++;
-            } while (i < queue.length);
-            break;
+        for (const item of queue) {
+          const found = lastQueue.find((element) => element.uuid === item.uuid);
+          if (!found) {
+            controller.enqueue(`event: newQueueElement\ndata: ${JSON.stringify(item)}\n\n`);
           }
         }
       }
