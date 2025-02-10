@@ -79,13 +79,13 @@ export const QueueOfPawns = () => {
     <div
       className='absolute w-full bottom-2'
     >
-      <div className="w-full flex justify-center">
-        <div className="relative w-[50%] overflow-hidden">
+      <div className="w-full flex ml-[32rem]">
+        <div className="relative w-[84rem] overflow-hidden">
           <div
             className="absolute w-full h-24 bg-white/5 rounded-xl"
           >
           </div>
-          <div className="flex flex-row items-center justify-start">
+          <div className="w-full flex flex-row items-center justify-start">
             {data.map((item) => (
               <Pawn
                 key={item.uuid}
