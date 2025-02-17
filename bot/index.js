@@ -1,9 +1,8 @@
 // Importa la librería tmi.js
 const tmi = require('tmi.js');
 const fetch = require('node-fetch');
-const path = require('path');
-const { getJson, saveJson, saveIntoArray } = require('./src/savedData');
-const { handleCommandByQueue } = require('./src/queueCommands');
+const { getJson, saveJson } = require('/common-js/savedData');
+const { handleCommandByQueue } = require('/common-js/queueCommands');
 
 const KICK_TIME = 300; // Tiempo de timeout en segundos
 

@@ -9,6 +9,7 @@ export default function Overload() {
   useEffect(() => {
     const evtSource = new EventSource('/api/overload');
     evtSource.addEventListener('newOverload', (event) => {
+      console.log('event', event);
       const payload = JSON.parse(event.data);
       setData(payload);
     });
@@ -16,6 +17,11 @@ export default function Overload() {
       evtSource.close();
     };
   }, []);
+
+
+  useEffect(() => {
+    console.log('data', data);
+  }, [data]);
 
   return (
     <main className='flex h-screen justify-center items-center'>

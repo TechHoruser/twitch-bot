@@ -1,3 +1,4 @@
+import { useQueue } from "@/src/shared/hooks/useQueue";
 import { useEffect, useMemo, useState } from "react";
 
 const Pawn = ({ name, state, whenHide, whenDestroy }) => {
@@ -53,27 +54,7 @@ const Pawn = ({ name, state, whenHide, whenDestroy }) => {
 }
 
 export const QueueOfPawns = () => {
-  const [data, setData] = useState([]);
-
-  useEffect(() => {
-    const evtSource = new EventSource('/api/overload');
-    evtSource.addEventListener('newQueueElement', (event) => {
-      const payload = JSON.parse(event.data);
-      setData(prev => [...prev, { ...payload, state: 'alive'}]);
-    });
-    evtSource.addEventListener('dropQueueElement', (event) => {
-      const uuid = event.data;
-      setData(prev => prev.map(item => {
-        if (item.uuid === uuid) {
-          return { ...item, state: 'hide' };
-        }
-        return item;
-      }));
-    });
-    return () => {
-      evtSource.close();
-    };
-  }, []);
+  const { data, setData } = useQueue();
 
   return (
     <div

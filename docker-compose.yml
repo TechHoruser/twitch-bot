@@ -1,20 +1,36 @@
 services:
+  common-js:
+    image: node:20-alpine
+    working_dir: /common-js
+    volumes:
+      - common-js:/common-js
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    command: sh -c "npm install"
+  
   bot:
     image: node:20-alpine
+    depends_on:
+      - common-js
     working_dir: /app
     volumes:
       - ./bot:/app
       - data:/data
+      - common-js:/common-js
     environment:
       - CHOKIDAR_USEPOLLING=true
     command: sh -c "npm install && npm run start:dev"
 
+
   web:
     image: node:20-alpine
+    depends_on:
+      - common-js
     working_dir: /app
     volumes:
       - ./web:/app
       - data:/data
+      - common-js:/common-js
       - /app/node_modules
       - /app/.next
     environment:
@@ -31,3 +47,9 @@ volumes:
       type: none
       o: bind
       device: ${PWD}/data
+  common-js:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/common-js

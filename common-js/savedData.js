@@ -44,13 +44,29 @@ const getElementInQueue = (filename, getKeyFromObject, key) => {
   return returnElement;
 }
 
-const saveIntoQueue = (filename, object) => {
+const pushIntoQueue = (filename, object, priority = null) => {
   if (!object.uuid) {
     object.uuid = crypto.randomUUID();
   }
   const file = `${BASE_PATH}/${filename}.json`;
   const data = getQueue(filename);
-  data.push(object);
+  
+  if (!priority) {
+    priority = 1;
+  }
+  const findPosition = data.findIndex((item) => item.priority < priority);
+  if (findPosition === -1) {
+    data.push({
+      ...object,
+      priority,
+    });
+  } else {
+    data.splice(findPosition, 0, {
+      ...object,
+      priority,
+    });
+  }
+
   fs.writeFileSync(file, JSON.stringify(data, null, 2));
 }
 
@@ -92,7 +108,7 @@ module.exports = {
   saveJson,
   clearJson,
   deleteJson,
-  saveIntoQueue,
+  pushIntoQueue,
   popFromQueue,
   getQueue,
   getQueueLength,

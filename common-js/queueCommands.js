@@ -1,7 +1,7 @@
 
 const { getChessStats, logUserRating } = require('./chess');
-const { getElementInQueue, getQueueLength, clearQueue, getJson, saveIntoQueue, popFromQueue, removeFromQueue, saveJson } = require('./savedData');
-const { nextOverload } = require('./stream-overload');
+const { getElementInQueue, getQueueLength, clearQueue, getJson, pushIntoQueue, popFromQueue, removeFromQueue, saveJson } = require('./savedData');
+const { nextOverload } = require('./centerOverload');
 
 const MAP_TWITCH_CHESS_FILE = 'twitch-chess';
 
@@ -16,8 +16,6 @@ const handleCommandByQueue = async (client, channel, tags, message) => {
         \n!cola:limpiar-usuario;
         \n!cola:salir;
         \n!cola:ver;
-        \n!cola:pop (solo broadcaster);
-        \n!cola:limpiar (solo broadcaster);
     `);
   }
 
@@ -67,7 +65,7 @@ const handleCommandByQueue = async (client, channel, tags, message) => {
           }
           
           const queueElement = { username: tags.username, chesscom: saveChesscomUser, chesscomRating: chesscomUserRating };
-          saveIntoQueue(queue, queueElement);
+          pushIntoQueue(queue, queueElement);
           const respuesta = `@${tags.username}, has sido añadido/a a la cola con usuario de Chess.com: ${saveChesscomUser}. Actualmente hay ${getQueueLength(queue)} persona(s) en la cola.`;
           client.say(channel, respuesta);
           console.log(`Usuario ${tags.username} añadido a la cola con Chess.com: ${saveChesscomUser}`);

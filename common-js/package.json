@@ -1,0 +1,10 @@
+{
+  "name": "twitch-bot-common-js",
+  "version": "1.0.0",
+  "description": "Common JS for twitch bot and web",
+  "author": "Francisco Ponce (bitsman)",
+  "license": "ISC",
+  "dependencies": {
+    "chess-web-api": "^1.2.0"
+  }
+}

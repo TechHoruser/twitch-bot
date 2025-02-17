@@ -6,6 +6,7 @@ const twitchIcon = "https://cdn-icons-png.flaticon.com/512/5968/5968819.png";
 const chesscomIcon = "/images/chesscom-icon.png";
 
 export default function NextMatch({data}) {
+  console.log('NextMatch', data);
   return (
     <div className="w-fit aspect-square rounded-3xl flex flex-col items-center justify-between bg-[#302e2b] bg-opacity-95 px-16 py-4">
       <MainImage

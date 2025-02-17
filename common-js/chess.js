@@ -1,6 +1,6 @@
 const ChessWebAPI = require('chess-web-api');
 
-const { getJson, saveJson } = require('./savedData');
+const { getJson, saveJson } = require('/common-js/savedData');
 const chessAPI = new ChessWebAPI();
 
 const CHESS_STATS_CACHE = 'chess-stats';
