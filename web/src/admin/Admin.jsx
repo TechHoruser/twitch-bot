@@ -29,7 +29,7 @@ export default function Admin() {
     <main className='flex h-screen v-screen'>
       <div className='w-3/5 flex flex-col justify-center items-center'>
         <div
-          className='flex justify-center items-center h-1/2 w-full bg-white/5'
+          className='flex justify-center items-center h-full w-full bg-white/5'
         >
           <GroupButtons
             title='Cola'
@@ -62,15 +62,10 @@ export default function Admin() {
             ]}
           />
         </div>
-        <div
-          className='flex justify-center items-center h-1/2 w-full'
-        >
-          
-        </div>
       </div>
       <div className='w-2/5 flex flex-col justify-center items-center'>
         <div
-          className='flex h-1/2 w-full'
+          className='flex h-full w-full'
         >
           <ul>
             {
@@ -95,10 +90,6 @@ export default function Admin() {
               })
             }
           </ul>
-        </div>
-        <div
-          className='flex justify-center items-center h-1/2 w-full bg-white/5'
-        >
         </div>
       </div>
     </main>
