@@ -13,24 +13,47 @@ const nextOverload = (
   pushIntoQueue(OVERLOAD_CENTER_QUEUE_FILE, { type, payload, duration }, priority)
 }
 
-const processQueue = async () => {
-  interval = setInterval(() => {
-    const nextItem = popFromQueue(OVERLOAD_CENTER_QUEUE_FILE)
+// Procesa un único elemento de la cola de overloads. Devuelve el elemento
+// procesado (o null si la cola estaba vacía). Lo muestra en el centro y lo
+// limpia pasada su duración.
+const processNext = () => {
+  const nextItem = popFromQueue(OVERLOAD_CENTER_QUEUE_FILE)
 
-    if (!nextItem) return
+  if (!nextItem) return null
 
-    const { type, duration, payload } = nextItem
-    
-    saveJson(OVERLOAD_CENTER_FILE, { type, payload })
-    setTimeout(() => {
-      clearJson(OVERLOAD_CENTER_FILE)
-    }, duration)
+  const { type, duration, payload } = nextItem
 
-  }, 1000)
+  saveJson(OVERLOAD_CENTER_FILE, { type, payload })
+  setTimeout(() => {
+    clearJson(OVERLOAD_CENTER_FILE)
+  }, duration)
+
+  return nextItem
 }
 
-processQueue()
+let interval = null
+const processQueue = () => {
+  interval = setInterval(processNext, 1000)
+  return interval
+}
+
+const stopProcessingQueue = () => {
+  if (interval) {
+    clearInterval(interval)
+    interval = null
+  }
+}
+
+// Evita arrancar el bucle (y su setInterval) durante la ejecución de tests.
+if (process.env.NODE_ENV !== 'test') {
+  processQueue()
+}
 
 module.exports = {
   nextOverload,
+  processNext,
+  processQueue,
+  stopProcessingQueue,
+  OVERLOAD_CENTER_FILE,
+  OVERLOAD_CENTER_QUEUE_FILE,
 }

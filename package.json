@@ -1,0 +1,15 @@
+{
+  "name": "twitch-bot-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Test suite (Playwright) para el bot de stream de ajedrez",
+  "scripts": {
+    "test": "playwright test",
+    "test:logic": "playwright test --project=logic",
+    "test:e2e": "playwright test --project=e2e",
+    "test:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.0"
+  }
+}

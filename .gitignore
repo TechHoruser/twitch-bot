@@ -3,3 +3,9 @@ node_modules
 .env.local
 
 data.json
+
+# Test artifacts
+.test-data/
+test-results/
+playwright-report/
+blob-report/

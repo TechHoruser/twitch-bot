@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const BASE_PATH = `/data`;
+const BASE_PATH = process.env.DATA_PATH || `/data`;
 
 const getContent = (filename) => {
   const file = `${BASE_PATH}/${filename}.json`;
