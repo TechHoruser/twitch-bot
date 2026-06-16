@@ -76,7 +76,12 @@ async function getUserId(username) {
 
 // Función para banear temporalmente a un usuario
 async function banUser(userId, duration, reason) {
-    const response = await fetch(`https://api.twitch.tv/helix/moderation/bans?broadcaster_id=${process.env.TWITCH_BROADCASTER_ID}&moderator_id=${process.env.TWITCH_BROADCASTER_ID}`, {
+    const broadcasterId = appData.broadcaster_id;
+    if (!broadcasterId) {
+        throw new Error('No se conoce el broadcaster_id todavía. Reinicia el bot e inténtalo de nuevo.');
+    }
+
+    const response = await fetch(`https://api.twitch.tv/helix/moderation/bans?broadcaster_id=${broadcasterId}&moderator_id=${broadcasterId}`, {
         method: 'POST',
         headers: {
             'Client-ID': process.env.TWITCH_CLIENT_ID,
@@ -111,7 +116,11 @@ client.on('message', (channel, tags, message, self) => {
         }
 
         if (message.toLowerCase().includes('!chess')) {
-            client.say(channel, `¡Agrégame a ChessCom! ${process.env.CHESSCOM_LINK}`);
+            client.say(channel, `¡Agrégame a ChessCom! ${process.env.CHESSCOM_PROFILE_LINK}`);
+        }
+
+        if (message.toLowerCase().includes('!club')) {
+            client.say(channel, `¡Únete a nuestro club de Chess.com! ${process.env.CHESSCOM_CLUB_LINK}`);
         }
 
         if (message.startsWith('!banear') && tags.badges && tags.badges.broadcaster) {

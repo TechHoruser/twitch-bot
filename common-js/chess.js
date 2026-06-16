@@ -79,7 +79,7 @@ const getChessStats = async (username) => {
 
     const stats = await chessAPI.getPlayerStats(username);
 
-    ratings = {
+    let ratings = {
       bullet: stats?.body?.chess_bullet || defaultRatings,
       blitz: stats?.body?.chess_blitz || defaultRatings,
       rapid: stats?.body?.chess_rapid || defaultRatings,

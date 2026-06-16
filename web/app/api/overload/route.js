@@ -8,6 +8,8 @@ export async function GET() {
   let lastPayload = {};
   let lastQueue = [];
 
+  let intervalId = null;
+
   const stream = new ReadableStream({
     start(controller) {
       const checkCenterOverload = (payload) => {
@@ -54,14 +56,16 @@ export async function GET() {
 
       controller.signal?.addEventListener('abort', () => {
         isControllerClosed = true;
+        if (intervalId) clearInterval(intervalId);
       });
 
-      setInterval(sendChange, 1000);
+      intervalId = setInterval(sendChange, 1000);
       // fs.watchFile(filePath, sendChange);
       // sendChange();
     },
     cancel() {
       isControllerClosed = true;
+      if (intervalId) clearInterval(intervalId);
     }
   });
 

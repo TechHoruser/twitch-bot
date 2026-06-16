@@ -1,3 +1,5 @@
+import { clearQueue } from '/common-js/savedData';
+
 const overloadQueueFilePath = 'queue';
 
 export async function DELETE() {
