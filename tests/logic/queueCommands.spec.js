@@ -2,12 +2,15 @@ const { test, expect } = require('@playwright/test');
 const { resetData, makeClient, broadcasterTags, viewerTags } = require('../helpers/data');
 // El mock de chess debe cargarse antes que queueCommands (requiere chess).
 const chessMock = require('../helpers/chessMock');
-const { handleCommandByQueue } = require('../../common-js/queueCommands');
-const saved = require('../../common-js/savedData');
+const { handleCommandByQueue } = require('@chess-stream/common/queueCommands');
+const saved = require('@chess-stream/common/savedData');
 
 const CHANNEL = '#canal';
 
 test.beforeEach(() => {
+  // Estos tests usan el mock de chess-web-api, así que fijamos chesscom como
+  // proveedor (los mensajes hablan de "Chess.com").
+  process.env.CHESS_PROVIDER = 'chesscom';
   resetData();
   chessMock.resetCalls();
   chessMock.setStats();
@@ -27,7 +30,41 @@ test.describe('!cola:unirme', () => {
     await run(client, viewerTags('bob'), '!cola:unirme BobChess');
     expect(client.last()).toContain('añadido/a a la cola');
     expect(saved.getQueueLength('queue')).toBe(1);
-    expect(saved.getJson('twitch-chess').bob).toBe('BobChess');
+    // El mapping se guarda por proveedor (default chesscom en estos tests).
+    expect(saved.getJson('twitch-chess').bob.chesscom).toBe('BobChess');
+  });
+
+  test('acepta el prefijo de proveedor (chesscom:Foo)', async () => {
+    const client = makeClient();
+    await run(client, viewerTags('bob'), '!cola:unirme chesscom:Foo');
+    expect(client.last()).toContain('añadido/a a la cola');
+    const element = saved.getQueue('queue')[0];
+    expect(element.accounts).toHaveLength(1);
+    expect(element.accounts[0].providerKey).toBe('chesscom');
+    expect(element.accounts[0].chessUser).toBe('Foo');
+  });
+
+  test('permite unirse con ambos proveedores a la vez', async () => {
+    // chesscom usa el mock de chess-web-api; lichess usa fetch, que stubbeamos.
+    const realFetch = global.fetch;
+    global.fetch = async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ perfs: {
+        bullet: { games: 5, rating: 2000, prog: 3 },
+        blitz: { games: 5, rating: 1900, prog: 0 },
+        rapid: { games: 5, rating: 1800, prog: 0 },
+      } }),
+    });
+    try {
+      const client = makeClient();
+      await run(client, viewerTags('bob'), '!cola:unirme chesscom:BobCC lichess:BobLi');
+      const element = saved.getQueue('queue')[0];
+      expect(element.accounts.map((a) => a.providerKey).sort()).toEqual(['chesscom', 'lichess']);
+      expect(saved.getJson('twitch-chess').bob).toEqual({ chesscom: 'BobCC', lichess: 'BobLi' });
+    } finally {
+      global.fetch = realFetch;
+    }
   });
 
   test('pide el usuario de Chess.com si no se proporciona y no hay mapping', async () => {
@@ -145,6 +182,6 @@ test.describe('!cola:siguiente (solo broadcaster)', () => {
     const overloadQueue = saved.getQueue('overload-center-queue');
     expect(overloadQueue).toHaveLength(1);
     expect(overloadQueue[0].type).toBe('next-match');
-    expect(overloadQueue[0].payload.chesscom).toBe('BobChess');
+    expect(overloadQueue[0].payload.accounts[0].chessUser).toBe('BobChess');
   });
 });

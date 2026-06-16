@@ -1,15 +1,39 @@
 {
-  "name": "twitch-bot-tests",
+  "name": "chess-stream-monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "Test suite (Playwright) para el bot de stream de ajedrez",
+  "description": "Monorepo del bot de stream de ajedrez: apps (bot, web, overlays) + paquetes compartidos + tests",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "test": "playwright test",
-    "test:logic": "playwright test --project=logic",
-    "test:e2e": "playwright test --project=e2e",
-    "test:report": "playwright show-report"
+    "setup": "node setup.js",
+
+    "bot": "npm --workspace apps/bot run start",
+    "bot:dev": "npm --workspace apps/bot run start:dev",
+
+    "web:dev": "npm --workspace apps/web run dev",
+    "web:build": "npm --workspace apps/web run build",
+    "web:start": "npm --workspace apps/web run start",
+    "web:lint": "npm --workspace apps/web run lint",
+
+    "overlays": "npm --workspace apps/overlays run dev",
+
+    "test": "cross-env PLAYWRIGHT_FORCE_ASYNC_LOADER=1 playwright test",
+    "test:logic": "cross-env PLAYWRIGHT_FORCE_ASYNC_LOADER=1 playwright test --project=logic",
+    "test:e2e": "cross-env PLAYWRIGHT_FORCE_ASYNC_LOADER=1 playwright test --project=e2e",
+    "test:ui": "cross-env PLAYWRIGHT_FORCE_ASYNC_LOADER=1 playwright test --ui",
+    "test:report": "playwright show-report",
+    "pw:install": "playwright install chromium",
+
+    "up": "docker compose up",
+    "up:build": "docker compose up --build",
+    "up:web": "docker compose up web",
+    "down": "docker compose down"
   },
   "devDependencies": {
-    "@playwright/test": "^1.50.0"
+    "@playwright/test": "^1.50.0",
+    "cross-env": "^7.0.3"
   }
 }

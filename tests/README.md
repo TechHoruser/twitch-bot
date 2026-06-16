@@ -11,10 +11,15 @@ runner unificado, con dos proyectos:
 ## Instalación
 
 ```bash
-npm install          # en la raíz del repo: instala @playwright/test
-npm --prefix web install
-(cd common-js && npm install)   # necesario para el mock de chess-web-api
+npm run setup        # instala todos los workspaces y prepara el entorno
+# o, si solo quieres las dependencias:  npm install
 ```
+
+> ⚠️ Ejecuta los tests **siempre con los scripts `npm run test:*`**, que activan
+> `PLAYWRIGHT_FORCE_ASYNC_LOADER=1` (vía `cross-env`). Es necesario por una
+> incompatibilidad entre el cargador síncrono de Playwright 1.61 y Node ≥ 22.15:
+> sin el flag, los specs fallan al cargar con
+> `TypeError: context.conditions?.includes is not a function`.
 
 ## Ejecutar las pruebas de lógica (no necesitan navegador)
 
@@ -40,11 +45,12 @@ Estas pruebas:
    npx playwright install chromium
    ```
 
-2. Levanta la web. La forma más sencilla es con Docker, que ya monta
-   `/common-js` y `/data`:
+2. Levanta la web (con Docker o en local):
 
    ```bash
-   docker compose up web
+   npm run up:web      # = docker compose up web
+   # o, en local:
+   npm run web:dev
    ```
 
    (o descomenta el bloque `webServer` de `playwright.config.js` para que

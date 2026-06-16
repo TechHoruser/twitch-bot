@@ -1,10 +1,11 @@
-// Mock de la librería chess-web-api. DEBE requerirse ANTES que common-js/chess
-// para que el override del prototipo afecte a la instancia creada en chess.js.
-const path = require('path');
-
-// Resolvemos el MISMO fichero que carga common-js/chess.js (su node_modules),
-// de modo que Node devuelva el módulo cacheado y compartamos el prototipo.
-const ChessWebAPI = require(path.join(__dirname, '../../common-js/node_modules/chess-web-api'));
+// Mock de la librería chess-web-api. DEBE requerirse ANTES que
+// @chess-stream/common/chess para que el override del prototipo afecte a la
+// instancia creada en chess.js.
+//
+// Con npm workspaces, chess-web-api se hoistea al node_modules de la raíz, así
+// que este `require('chess-web-api')` resuelve el MISMO módulo cacheado que
+// carga common/chess.js → compartimos el prototipo.
+const ChessWebAPI = require('chess-web-api');
 
 let nextStats = null;
 let shouldThrow = false;

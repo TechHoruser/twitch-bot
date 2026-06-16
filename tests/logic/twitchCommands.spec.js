@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { makeClient, broadcasterTags, viewerTags } = require('../helpers/data');
-const twitch = require('../../common-js/twitchCommands');
+const twitch = require('@chess-stream/common/twitchCommands');
 
 const CHANNEL = '#canal';
 const ENV = {
@@ -8,6 +8,7 @@ const ENV = {
   TWITCH_OAUTH_TOKEN: 'tok',
   TWITCH_CHANNEL_NAME: 'streamer',
   DISCORD_LINK: 'https://discord.gg/x',
+  CHESS_PROVIDER: 'chesscom',
   CHESSCOM_PROFILE_LINK: 'https://chess.com/member/streamer',
   CHESSCOM_CLUB_LINK: 'https://chess.com/club/x',
 };

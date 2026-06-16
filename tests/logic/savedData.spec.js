@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { resetData } = require('../helpers/data');
-const saved = require('../../common-js/savedData');
+const saved = require('@chess-stream/common/savedData');
 
 test.beforeEach(() => resetData());
 

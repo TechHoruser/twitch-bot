@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { resetData } = require('../helpers/data');
-const overload = require('../../common-js/centerOverload');
-const saved = require('../../common-js/savedData');
+const overload = require('@chess-stream/common/centerOverload');
+const saved = require('@chess-stream/common/savedData');
 
 test.beforeEach(() => resetData());
 

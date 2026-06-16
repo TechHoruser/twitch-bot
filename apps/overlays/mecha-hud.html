@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<!--
+  MECCHA CHAMELEON · HUD de Gameplay (overlay transparente 1920x1080)
+  Tema: pintura / camuflaje / camaleón simpático.
+  Edita CONFIG abajo (nombre del canal, ticker).
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap');
+  :root{
+    --ink:#2a2433; --paper:#fffaf2;
+    --c1:#ff6ec7; --c2:#ffd23f; --c3:#3ddc97; --c4:#4ea8ff; --c5:#b06bff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;background:transparent;overflow:hidden;
+    font-family:'Nunito',sans-serif;color:var(--ink)}
+  /* el camaleón cambia de color: los acentos rotan su tono en bucle */
+  .cham{animation:cham 12s linear infinite}@keyframes cham{to{filter:hue-rotate(360deg)}}
+
+  /* manchas de pintura en las esquinas */
+  .blob{position:absolute;width:120px;height:120px;border-radius:46% 54% 60% 40%/50% 44% 56% 50%;
+    opacity:.92;filter:drop-shadow(0 3px 0 rgba(0,0,0,.06));animation:wobble 7s ease-in-out infinite}
+  @keyframes wobble{50%{border-radius:54% 46% 40% 60%/44% 56% 50% 50%;transform:rotate(8deg)}}
+  .b-tl{top:-30px;left:-30px;background:var(--c1)}
+  .b-tr{top:-34px;right:-30px;background:var(--c4);animation-delay:-2s}
+  .b-bl{bottom:-30px;left:-34px;background:var(--c3);animation-delay:-4s}
+  .b-br{bottom:-32px;right:-32px;background:var(--c5);animation-delay:-1s}
+
+  /* barra superior */
+  #top{position:absolute;top:30px;left:46px;right:46px;height:70px;
+    display:flex;align-items:center;justify-content:space-between}
+  .pill{display:flex;align-items:center;gap:14px;height:100%;padding:0 24px;
+    background:rgba(255,250,242,.94);border:3px solid #fff;border-radius:40px;
+    box-shadow:0 8px 0 rgba(42,36,51,.10), inset 0 0 0 2px rgba(176,107,255,.10)}
+  .badge{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:26px;
+    background:conic-gradient(var(--c1),var(--c2),var(--c3),var(--c4),var(--c5),var(--c1));
+    box-shadow:0 3px 0 rgba(0,0,0,.10)}
+  .name{font-family:'Fredoka';font-weight:700;font-size:26px;letter-spacing:.5px;color:var(--ink);line-height:1}
+  .sub{font-size:14px;font-weight:700;color:var(--c5)}
+  .sep{width:3px;height:30px;border-radius:3px;background:rgba(42,36,51,.12)}
+  .live{display:flex;align-items:center;gap:9px;font-family:'Fredoka';font-weight:600;font-size:18px}
+  .dot{width:13px;height:13px;border-radius:50%;background:#ff5470;
+    box-shadow:0 0 0 4px rgba(255,84,112,.25);animation:blink 1.1s steps(1) infinite}
+  @keyframes blink{50%{opacity:.25}}
+  #clock{font-family:'Fredoka';font-size:20px;color:var(--c4)}
+  .pal{display:flex;gap:6px}.pal i{width:13px;height:13px;border-radius:50%}
+  .pal i:nth-child(1){background:var(--c1)}.pal i:nth-child(2){background:var(--c2)}
+  .pal i:nth-child(3){background:var(--c3)}.pal i:nth-child(4){background:var(--c4)}
+
+  /* ticker inferior */
+  #bot{position:absolute;bottom:30px;left:46px;right:46px;height:54px;display:flex;align-items:stretch;
+    background:rgba(255,250,242,.94);border:3px solid #fff;border-radius:30px;overflow:hidden;
+    box-shadow:0 8px 0 rgba(42,36,51,.10)}
+  .tag{display:flex;align-items:center;gap:8px;padding:0 22px;font-family:'Fredoka';font-weight:600;font-size:18px;
+    color:#fff;background:conic-gradient(var(--c1),var(--c4),var(--c3),var(--c2),var(--c1));border-radius:27px 0 0 27px}
+  .track{flex:1;overflow:hidden;display:flex;align-items:center}
+  .scroll{white-space:nowrap;font-family:'Fredoka';font-weight:500;font-size:21px;color:var(--ink);
+    animation:slide 24s linear infinite;padding-left:100%}
+  .scroll b{color:var(--c1)}
+  @keyframes slide{to{transform:translateX(-100%)}}
+</style>
+</head>
+<body>
+  <div class="blob b-tl cham"></div><div class="blob b-tr cham"></div>
+  <div class="blob b-bl cham"></div><div class="blob b-br cham"></div>
+
+  <div id="top">
+    <div class="pill">
+      <div class="badge">🦎</div>
+      <div>
+        <div class="name" id="chName">HORUSER</div>
+        <div class="sub">¡en modo camuflaje!</div>
+      </div>
+    </div>
+    <div class="pill">
+      <div class="live"><span class="dot"></span>EN VIVO</div>
+      <div class="sep"></div>
+      <div id="clock">00:00:00</div>
+      <div class="sep"></div>
+      <div class="pal"><i></i><i></i><i></i><i></i></div>
+    </div>
+  </div>
+
+  <div id="bot">
+    <div class="tag">🎨 EN PARTIDA</div>
+    <div class="track"><span class="scroll" id="ticker"></span></div>
+  </div>
+
+<script>
+  // ====== CONFIG ======
+  const CHANNEL = "HORUSER";
+  const GAME    = "MECCHA CHAMELEON";
+  const TICKER  = "Jugando: <b>"+GAME+"</b> 🦎  ¿me encontrarás camuflado?  ✦  ¡síguenos si te mola el directo!  ✦  !redes  !discord  ✦  ";
+  // ====================
+  document.getElementById('chName').textContent = CHANNEL;
+  document.getElementById('ticker').innerHTML = (TICKER+" ").repeat(3);
+  const clk=document.getElementById('clock');
+  setInterval(()=>clk.textContent=new Date().toLocaleTimeString('es-ES',{hour12:false}),1000);
+</script>
+</body>
+</html>
