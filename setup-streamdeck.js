@@ -8,6 +8,14 @@
  * de TV de Lichess, el panel de admin, el servidor de overlays, tu Discord, tu
  * canal de Twitch y tu perfil/club de ajedrez.
  *
+ * El perfil está pensado para el Stream Deck de 15 teclas (3x5): la fila de
+ * arriba abre las piezas del stream (overlay de OBS, TV de Lichess, panel admin,
+ * servidor de overlays, Twitch); la del medio agrupa comunidad y herramientas
+ * (Discord, perfil/club de ajedrez, Twitch Dev y abrir Voicemeeter); y la fila
+ * de abajo controla el audio de Voicemeeter (silenciar Micro, Juego, Música,
+ * Cascos A1 y el bus B1 que va al stream) mediante el plugin de Voicemeeter para
+ * Stream Deck.
+ *
  * Las URLs del perfil se rellenan a partir de tu configuración real
  * (apps/bot/.env.local y apps/web/.env.local) más las rutas locales por defecto
  * (localhost:3000 / :4000). Es idempotente: reutiliza siempre el mismo perfil,
@@ -19,6 +27,12 @@
  *                         clásico de 15 teclas (20GAA9901). Otros comunes:
  *                         20GAT9901 (Mini), 20GBA9901 (XL).
  *   --profiles-dir <ruta> Fuerza la carpeta ProfilesV2 de Stream Deck.
+ *   --vm-action <uuid>    UUID de la acción del plugin de Voicemeeter para los
+ *                         botones de audio (por defecto el "Advanced Toggle" de
+ *                         BarRaider).
+ *   --vm-exe <ruta>       Ruta del ejecutable de Voicemeeter para el botón
+ *                         "Abrir Voicemeeter" (por defecto Banana en su ruta
+ *                         habitual).
  *   --dry-run             No escribe nada; solo muestra lo que haría.
  *   --help                Muestra esta ayuda.
  */
@@ -97,6 +111,12 @@ function buildReplacements() {
   const provider = (env.CHESS_PROVIDER || 'lichess').toLowerCase();
   const channel = env.TWITCH_CHANNEL_NAME || '';
 
+  // Ruta del ejecutable de Voicemeeter. Va dentro de una cadena JSON, así que
+  // escapamos los backslashes de Windows (\ -> \\) para no romper el manifest.
+  const vmExe = flagValue('--vm-exe')
+    || 'C:\\Program Files (x86)\\VB\\Voicemeeter\\voicemeeterpro.exe';
+  const vmExeJson = vmExe.replace(/\\/g, '\\\\');
+
   const chessProfile = provider === 'chesscom'
     ? env.CHESSCOM_PROFILE_LINK
     : env.LICHESS_PROFILE_LINK;
@@ -115,6 +135,11 @@ function buildReplacements() {
     URL_CHESS: chessProfile || (provider === 'chesscom' ? 'https://chess.com' : 'https://lichess.org'),
     URL_CLUB: chessClub || (provider === 'chesscom' ? 'https://chess.com/clubs' : 'https://lichess.org/team'),
     URL_TWITCH_CONSOLE: 'https://dev.twitch.tv/console',
+    // Botones de audio (plugin de Voicemeeter para Stream Deck). Por defecto el
+    // "Advanced Toggle" de BarRaider; cámbialo con --vm-action si usas otro.
+    VM_ACTION: flagValue('--vm-action') || 'com.barraider.vmmacros.advancedtoggleaction',
+    // Ejecutable de Voicemeeter Banana (ya escapado para el JSON del manifest).
+    VM_EXE: vmExeJson,
   };
 }
 
@@ -150,6 +175,7 @@ function main() {
   info(`Twitch:  ${repl.URL_TWITCH}`);
   info(`Discord: ${repl.URL_DISCORD}`);
   info(`Ajedrez: ${repl.URL_CHESS}`);
+  info(`Audio:   fila inferior de Voicemeeter (acción ${repl.VM_ACTION})`);
   info(`Dispositivo (DeviceModel): ${repl.DEVICE_MODEL}`);
 
   // 2) Carpeta de perfiles
@@ -189,10 +215,15 @@ function main() {
   log(c('1', '\n✅  Stream Deck configurado.\n'));
   log('Próximos pasos:');
   log(`  · ${c('33', 'Cierra y vuelve a abrir')} la app de Stream Deck para que lo cargue.`);
-  log('  · Aparecerá el perfil "Chess Stream" en el selector de perfiles.');
+  log('  · Aparecerá el perfil "Chess Stream" (3x5) en el selector de perfiles.');
   log('  · Si tu Stream Deck no es de 15 teclas, vuelve a ejecutar con --device <modelo>.');
   log('  · Recuerda arrancar el stack para que los botones de localhost funcionen:');
   log(`      ${c('36', 'npm run web:dev')}  y  ${c('36', 'npm run overlays')}`);
+  log('  · Fila de audio: instala el plugin gratis de Voicemeeter para Stream Deck');
+  log('    (Store de Elgato, "VoiceMeeter" de BarRaider) y prepara el audio con');
+  log(`      ${c('36', 'npm run setup:voicemeeter')}`);
+  log('  · Cada botón de audio trae su acción y etiqueta; si tu plugin usa otra');
+  log('    acción, vuelve a ejecutar con --vm-action <uuid> o ajústala en su panel.');
   log('');
 }
 

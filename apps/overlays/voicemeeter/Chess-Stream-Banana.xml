@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Configuración de Voicemeeter BANANA para el stream de ajedrez.
+
+  Banana tiene 5 entradas (strips) y 5 buses de salida:
+    · Strip 1-3  → entradas HARDWARE (mic, etc.)   → Strip[0], Strip[1], Strip[2]
+    · Strip 4    → entrada VIRTUAL "Voicemeeter VAIO" (Juego/Sistema) → Strip[3]
+    · Strip 5    → entrada VIRTUAL "Voicemeeter AUX" (Música/Discord) → Strip[4]
+    · Buses A1/A2/A3 = salidas físicas (cascos/altavoces)  → Bus[0]/Bus[1]/Bus[2]
+    · Buses B1/B2    = salidas virtuales (a OBS/grabación)  → Bus[3]/Bus[4]
+
+  Ruteo de fábrica de esta plantilla (atributos busa=A1 busa2=A2 busa3=A3
+  busb=B1 busb2=B2; 1 = activado):
+    · Micro (Strip 1)  → SOLO B1 (va al stream, NO a tus cascos: evita oírte).
+    · Juego (Strip 4)  → A1 (lo oyes) + B1 (va al stream).
+    · Música (Strip 5) → A1 (lo oyes) + B1 (va al stream).
+
+  Conecta cada app a su entrada desde Windows (Configuración de sonido) o por
+  app: Juego/Sistema → "Voicemeeter Input (VAIO)"; Música/Navegador/Discord →
+  "Voicemeeter Aux Input". A1 debe apuntar a tus cascos y B1 es el dispositivo
+  que captura OBS ("Voicemeeter Out B1" / "Voicemeeter Aux Output").
+
+  Cárgala con Menú ▸ Load Settings… (o ejecuta `npm run setup:voicemeeter`).
+-->
+<VoiceMeeterParameters>
+  <LabelStrip1>{{VM_LABEL_MIC}}</LabelStrip1>
+  <LabelStrip2>{{VM_LABEL_AUX_HW1}}</LabelStrip2>
+  <LabelStrip3>{{VM_LABEL_AUX_HW2}}</LabelStrip3>
+  <LabelVirtualStrip1>{{VM_LABEL_GAME}}</LabelVirtualStrip1>
+  <LabelVirtualStrip2>{{VM_LABEL_MUSIC}}</LabelVirtualStrip2>
+
+  <Strip index='1' mute='0' solo='0' mono='0' muc='0' busa='0' busa2='0' busa3='0' busb='1' busb2='0' dblevel='0.00' />
+  <Strip index='2' mute='0' solo='0' mono='0' muc='0' busa='0' busa2='0' busa3='0' busb='0' busb2='0' dblevel='0.00' />
+  <Strip index='3' mute='0' solo='0' mono='0' muc='0' busa='0' busa2='0' busa3='0' busb='0' busb2='0' dblevel='0.00' />
+  <Strip index='4' mute='0' solo='0' mono='0' muc='0' busa='1' busa2='0' busa3='0' busb='1' busb2='0' dblevel='0.00' />
+  <Strip index='5' mute='0' solo='0' mono='0' muc='0' busa='1' busa2='0' busa3='0' busb='1' busb2='0' dblevel='0.00' />
+</VoiceMeeterParameters>

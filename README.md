@@ -244,17 +244,74 @@ servidor de overlays, tu Discord, tu canal de Twitch y tu perfil/club de ajedrez
 **Las URLs se rellenan a partir de tu configuración real** (`apps/bot/.env.local`
 y `apps/web/.env.local`), así que ejecuta antes `npm run setup`.
 
+El perfil está **optimizado para el Stream Deck de 15 teclas (3×5)** y se reparte
+en tres filas:
+
+```
+┌──────────┬──────────┬──────────┬──────────┬──────────┐
+│ Overlay  │   TV     │  Panel   │ Overlays │  Twitch  │   ← piezas del stream
+│   OBS    │ Lichess  │  Admin   │  HTML    │          │
+├──────────┼──────────┼──────────┼──────────┼──────────┤
+│ Discord  │ Perfil   │  Club /  │  Twitch  │  Abrir   │   ← comunidad + tools
+│          │ Ajedrez  │ Equipo   │   Dev    │Voicemeeter│
+├──────────┼──────────┼──────────┼──────────┼──────────┤
+│ 🎙️ Micro │ 🎮 Juego │ 🎵 Música│ 🎧 Cascos│ 🔴 Stream│   ← audio (Voicemeeter)
+│          │          │          │   (A1)   │   (B1)   │
+└──────────┴──────────┴──────────┴──────────┴──────────┘
+```
+
+La **fila de audio** silencia/activa cada fuente de Voicemeeter (Micro = `Strip[0]`,
+Juego = `Strip[3]`/VAIO, Música = `Strip[4]`/AUX, Cascos = `Bus[0]`/A1, Stream =
+`Bus[3]`/B1) con feedback en la tecla. Usa el plugin gratuito **"VoiceMeeter"**
+(de BarRaider) de la Store de Elgato: instálalo antes para que esos botones
+funcionen. Prepara el audio con `npm run setup:voicemeeter` (más abajo).
+
 Tras ejecutarlo, **cierra y vuelve a abrir** la app de Stream Deck y selecciona el
 perfil "Chess Stream". Flags útiles:
 
 * `--device <modelo>` → modelo de tu Stream Deck (`DeviceModel`). Por defecto el
   clásico de 15 teclas (`20GAA9901`); también `20GAT9901` (Mini) o `20GBA9901` (XL).
 * `--profiles-dir <ruta>` → fuerza la carpeta `ProfilesV2`.
+* `--vm-action <uuid>` → UUID de la acción del plugin de Voicemeeter para los
+  botones de audio (por defecto el *Advanced Toggle* de BarRaider).
+* `--vm-exe <ruta>` → ejecutable de Voicemeeter para el botón "Abrir Voicemeeter"
+  (por defecto Banana en su ruta habitual).
 * `--dry-run` → muestra lo que haría sin escribir nada.
 
 > La app oficial de Elgato no existe en Linux: ahí el script genera el perfil
 > renderizado en `apps/overlays/streamdeck/` para que lo importes a mano en
 > alternativas como StreamController / streamdeck-ui.
+>
+> Los botones de audio vienen colocados y etiquetados. Si tu versión del plugin
+> usa otra acción o no arrastra algún ajuste, abre el botón una vez en el panel
+> del plugin y confirma el `Strip`/`Bus` (vienen indicados en cada tecla).
+
+### Voicemeeter Banana — audio del stream
+
+```
+npm run setup:voicemeeter
+```
+
+Genera la configuración de audio en `apps/overlays/voicemeeter/Chess-Stream-Banana.xml`
+y la deja en tu carpeta `Documents\Voicemeeter` (donde Voicemeeter guarda/lee sus
+ajustes), lista para cargar con **Menú ▸ Load Settings…**. Está pensada para
+[**Voicemeeter Banana**](https://vb-audio.com/Voicemeeter/banana.htm) (gratuito) y
+deja etiquetadas y ruteadas las entradas típicas de un stream de ajedrez:
+
+* **Micro** (`Strip[0]`) → solo al stream (`B1`), no a tus cascos (evita oírte).
+* **Juego/Sistema** (`Strip[3]`, entrada virtual *Voicemeeter Input/VAIO*) → cascos (`A1`) + stream (`B1`).
+* **Música/Navegador/Discord** (`Strip[4]`, entrada virtual *Voicemeeter Aux Input*) → cascos (`A1`) + stream (`B1`).
+
+Luego, en Windows, manda cada app a su entrada (Configuración de sonido), pon `A1`
+hacia tus cascos y añade en OBS una *Captura de audio* del dispositivo
+*Voicemeeter Out B1*. Flags útiles:
+
+* `--voicemeeter-dir <ruta>` → fuerza la carpeta donde se escribe la config.
+* `--mic` / `--game` / `--music <texto>` → cambia las etiquetas de cada entrada.
+* `--dry-run` → muestra lo que haría sin escribir nada.
+
+> Voicemeeter es software de Windows. En macOS/Linux el script solo genera el XML
+> renderizado junto a la plantilla para que lo lleves a tu PC.
 
 ### Comandos útiles
 
@@ -262,7 +319,8 @@ perfil "Chess Stream". Flags útiles:
 | --- | --- |
 | `npm run setup` | Instala y configura todo el monorepo |
 | `npm run setup:obs` | Carga las colecciones de escenas en OBS Studio |
-| `npm run setup:streamdeck` | Carga el perfil del stream en Elgato Stream Deck |
+| `npm run setup:streamdeck` | Carga el perfil del stream (3×5) en Elgato Stream Deck |
+| `npm run setup:voicemeeter` | Genera la config de audio para Voicemeeter Banana |
 | `npm run bot` / `npm run bot:dev` | Arranca el bot (prod / con recarga) |
 | `npm run web:dev` / `web:build` / `web:start` / `web:lint` | App Next.js |
 | `npm run overlays` | Sirve los overlays HTML para OBS |

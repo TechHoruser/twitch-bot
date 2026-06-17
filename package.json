@@ -11,6 +11,7 @@
     "setup": "node setup.js",
     "setup:obs": "node setup-obs.js",
     "setup:streamdeck": "node setup-streamdeck.js",
+    "setup:voicemeeter": "node setup-voicemeeter.js",
 
     "bot": "npm --workspace apps/bot run start",
     "bot:dev": "npm --workspace apps/bot run start:dev",
