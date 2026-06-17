@@ -76,7 +76,7 @@
             ],
             "UUID": "com.elgato.streamdeck.system.website"
         },
-        "4,2": {
+        "3,1": {
             "Name": "Website",
             "Settings": { "path": "{{URL_TWITCH_CONSOLE}}", "openInBrowser": true },
             "State": 0,
@@ -84,6 +84,65 @@
                 { "FFamily": "", "FSize": "8", "FStyle": "", "FUnderline": false, "Title": "Twitch\nDev", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true }
             ],
             "UUID": "com.elgato.streamdeck.system.website"
+        },
+        "4,1": {
+            "Name": "Open",
+            "Settings": { "path": "{{VM_EXE}}" },
+            "State": 0,
+            "States": [
+                { "FFamily": "", "FSize": "8", "FStyle": "", "FUnderline": false, "Title": "Abrir\nVoicemeeter", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true }
+            ],
+            "UUID": "com.elgato.streamdeck.system.open"
+        },
+        "0,2": {
+            "Name": "VoiceMeeter Advanced Toggle",
+            "Settings": { "mode1Settings": "Strip[0].Mute=1", "mode1Check": "Strip[0].Mute", "mode2Settings": "Strip[0].Mute=0" },
+            "State": 0,
+            "States": [
+                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "🎙️\nMicro", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true },
+                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "🔇\nMicro", "TitleAlignment": "bottom", "TitleColor": "#ff5555", "TitleShow": true }
+            ],
+            "UUID": "{{VM_ACTION}}"
+        },
+        "1,2": {
+            "Name": "VoiceMeeter Advanced Toggle",
+            "Settings": { "mode1Settings": "Strip[3].Mute=1", "mode1Check": "Strip[3].Mute", "mode2Settings": "Strip[3].Mute=0" },
+            "State": 0,
+            "States": [
+                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "🎮\nJuego", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true },
+                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "🔇\nJuego", "TitleAlignment": "bottom", "TitleColor": "#ff5555", "TitleShow": true }
+            ],
+            "UUID": "{{VM_ACTION}}"
+        },
+        "2,2": {
+            "Name": "VoiceMeeter Advanced Toggle",
+            "Settings": { "mode1Settings": "Strip[4].Mute=1", "mode1Check": "Strip[4].Mute", "mode2Settings": "Strip[4].Mute=0" },
+            "State": 0,
+            "States": [
+                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "🎵\nMúsica", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true },
+                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "🔇\nMúsica", "TitleAlignment": "bottom", "TitleColor": "#ff5555", "TitleShow": true }
+            ],
+            "UUID": "{{VM_ACTION}}"
+        },
+        "3,2": {
+            "Name": "VoiceMeeter Advanced Toggle",
+            "Settings": { "mode1Settings": "Bus[0].Mute=1", "mode1Check": "Bus[0].Mute", "mode2Settings": "Bus[0].Mute=0" },
+            "State": 0,
+            "States": [
+                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "🎧\nCascos", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true },
+                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "🔇\nCascos", "TitleAlignment": "bottom", "TitleColor": "#ff5555", "TitleShow": true }
+            ],
+            "UUID": "{{VM_ACTION}}"
+        },
+        "4,2": {
+            "Name": "VoiceMeeter Advanced Toggle",
+            "Settings": { "mode1Settings": "Bus[3].Mute=1", "mode1Check": "Bus[3].Mute", "mode2Settings": "Bus[3].Mute=0" },
+            "State": 0,
+            "States": [
+                { "FFamily": "", "FSize": "8", "FStyle": "", "FUnderline": false, "Title": "🔴\nStream B1", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true },
+                { "FFamily": "", "FSize": "8", "FStyle": "", "FUnderline": false, "Title": "🔇\nStream B1", "TitleAlignment": "bottom", "TitleColor": "#ff5555", "TitleShow": true }
+            ],
+            "UUID": "{{VM_ACTION}}"
         }
     }
 }

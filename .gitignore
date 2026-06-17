@@ -7,6 +7,9 @@ data.json
 # Perfil de Stream Deck renderizado (generado por setup-streamdeck.js en Linux)
 apps/overlays/streamdeck/Chess-Stream.rendered.json
 
+# Config de Voicemeeter renderizada (generada por setup-voicemeeter.js fuera de Windows)
+apps/overlays/voicemeeter/Chess-Stream-Banana.rendered.xml
+
 # Test artifacts
 .test-data/
 test-results/
