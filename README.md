@@ -204,11 +204,65 @@ usuario o tema con query params: `/tv?user=TU_USUARIO&theme=brown&bg=dark`.
 > Funciona embebiendo la ruta oficial `lichess.org/embed/game/<id>`, pensada
 > para iframes. Solo aplica a Lichess (Chess.com no ofrece un equivalente).
 
+## Configurar OBS y Stream Deck
+
+Además del setup del proyecto, hay dos asistentes que **cargan configuraciones
+directamente en esas aplicaciones**. No usan dependencias externas, son
+idempotentes y hacen una copia de seguridad (`.bak`) de lo que sobrescriben.
+
+### OBS Studio — colecciones de escenas
+
+```
+npm run setup:obs
+```
+
+Copia las colecciones de `apps/overlays/scenes/` (`Valorant`, `Mecha Chameleon`)
+a la carpeta de configuración de OBS de tu sistema (Windows, macOS o Linux,
+incluida la instalación **Flatpak**). De paso **reescribe las rutas de los
+Browser Source** —que vienen apuntando a la máquina de otra persona
+(`C:/Users/pon_t/...`)— para que apunten a los overlays HTML reales de
+`apps/overlays/` de tu equipo, de modo que las escenas funcionen al importarlas.
+
+Tras ejecutarlo, **reinicia OBS** y elige la colección en el menú
+*Colección de escenas*. Flags útiles:
+
+* `--serve` → apunta los Browser Source a `http://localhost:4000/<archivo>`
+  (el servidor de `npm run overlays`) en lugar de a ficheros locales.
+* `--obs-dir <ruta>` → fuerza la carpeta de OBS si la tienes en otro sitio.
+* `--dry-run` → muestra lo que haría sin escribir nada.
+
+### Elgato Stream Deck — perfil
+
+```
+npm run setup:streamdeck
+```
+
+Instala el perfil **"Chess Stream"** en la carpeta de perfiles de la app oficial
+de Elgato (`ProfilesV2`, en Windows y macOS). El perfil trae botones que abren de
+un toque las piezas del stream: overlay de OBS, TV de Lichess, panel `/admin`,
+servidor de overlays, tu Discord, tu canal de Twitch y tu perfil/club de ajedrez.
+**Las URLs se rellenan a partir de tu configuración real** (`apps/bot/.env.local`
+y `apps/web/.env.local`), así que ejecuta antes `npm run setup`.
+
+Tras ejecutarlo, **cierra y vuelve a abrir** la app de Stream Deck y selecciona el
+perfil "Chess Stream". Flags útiles:
+
+* `--device <modelo>` → modelo de tu Stream Deck (`DeviceModel`). Por defecto el
+  clásico de 15 teclas (`20GAA9901`); también `20GAT9901` (Mini) o `20GBA9901` (XL).
+* `--profiles-dir <ruta>` → fuerza la carpeta `ProfilesV2`.
+* `--dry-run` → muestra lo que haría sin escribir nada.
+
+> La app oficial de Elgato no existe en Linux: ahí el script genera el perfil
+> renderizado en `apps/overlays/streamdeck/` para que lo importes a mano en
+> alternativas como StreamController / streamdeck-ui.
+
 ### Comandos útiles
 
 | Comando | Descripción |
 | --- | --- |
 | `npm run setup` | Instala y configura todo el monorepo |
+| `npm run setup:obs` | Carga las colecciones de escenas en OBS Studio |
+| `npm run setup:streamdeck` | Carga el perfil del stream en Elgato Stream Deck |
 | `npm run bot` / `npm run bot:dev` | Arranca el bot (prod / con recarga) |
 | `npm run web:dev` / `web:build` / `web:start` / `web:lint` | App Next.js |
 | `npm run overlays` | Sirve los overlays HTML para OBS |

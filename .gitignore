@@ -4,6 +4,9 @@ node_modules
 
 data.json
 
+# Perfil de Stream Deck renderizado (generado por setup-streamdeck.js en Linux)
+apps/overlays/streamdeck/Chess-Stream.rendered.json
+
 # Test artifacts
 .test-data/
 test-results/

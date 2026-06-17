@@ -1,0 +1,89 @@
+{
+    "Name": "Chess Stream",
+    "Version": "2.0",
+    "DeviceModel": "{{DEVICE_MODEL}}",
+    "DeviceUUID": "",
+    "Actions": {
+        "0,0": {
+            "Name": "Website",
+            "Settings": { "path": "{{URL_OVERLAY}}", "openInBrowser": true },
+            "State": 0,
+            "States": [
+                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "Overlay\nOBS", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true }
+            ],
+            "UUID": "com.elgato.streamdeck.system.website"
+        },
+        "1,0": {
+            "Name": "Website",
+            "Settings": { "path": "{{URL_TV}}", "openInBrowser": true },
+            "State": 0,
+            "States": [
+                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "TV\nLichess", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true }
+            ],
+            "UUID": "com.elgato.streamdeck.system.website"
+        },
+        "2,0": {
+            "Name": "Website",
+            "Settings": { "path": "{{URL_ADMIN}}", "openInBrowser": true },
+            "State": 0,
+            "States": [
+                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "Panel\nAdmin", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true }
+            ],
+            "UUID": "com.elgato.streamdeck.system.website"
+        },
+        "3,0": {
+            "Name": "Website",
+            "Settings": { "path": "{{URL_OVERLAYS}}", "openInBrowser": true },
+            "State": 0,
+            "States": [
+                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "Overlays\nHTML", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true }
+            ],
+            "UUID": "com.elgato.streamdeck.system.website"
+        },
+        "4,0": {
+            "Name": "Website",
+            "Settings": { "path": "{{URL_TWITCH}}", "openInBrowser": true },
+            "State": 0,
+            "States": [
+                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "Twitch", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true }
+            ],
+            "UUID": "com.elgato.streamdeck.system.website"
+        },
+        "0,1": {
+            "Name": "Website",
+            "Settings": { "path": "{{URL_DISCORD}}", "openInBrowser": true },
+            "State": 0,
+            "States": [
+                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "Discord", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true }
+            ],
+            "UUID": "com.elgato.streamdeck.system.website"
+        },
+        "1,1": {
+            "Name": "Website",
+            "Settings": { "path": "{{URL_CHESS}}", "openInBrowser": true },
+            "State": 0,
+            "States": [
+                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "Perfil\nAjedrez", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true }
+            ],
+            "UUID": "com.elgato.streamdeck.system.website"
+        },
+        "2,1": {
+            "Name": "Website",
+            "Settings": { "path": "{{URL_CLUB}}", "openInBrowser": true },
+            "State": 0,
+            "States": [
+                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "Club /\nEquipo", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true }
+            ],
+            "UUID": "com.elgato.streamdeck.system.website"
+        },
+        "4,2": {
+            "Name": "Website",
+            "Settings": { "path": "{{URL_TWITCH_CONSOLE}}", "openInBrowser": true },
+            "State": 0,
+            "States": [
+                { "FFamily": "", "FSize": "8", "FStyle": "", "FUnderline": false, "Title": "Twitch\nDev", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true }
+            ],
+            "UUID": "com.elgato.streamdeck.system.website"
+        }
+    }
+}
