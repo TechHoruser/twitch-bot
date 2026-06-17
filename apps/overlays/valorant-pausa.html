@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!-- VALORANT · Pantalla "VOLVEMOS YA / PAUSA TÁCTICA" (fullscreen 1920x1080) -->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap');
+  :root{--red:#ff4655;--navy:#0f1923;--navy2:#162635;--teal:#18e5c4;--cream:#ece8e1}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden;font-family:'Oswald',sans-serif;color:var(--cream)}
+  #bg{position:absolute;inset:0;background:radial-gradient(1100px 700px at 50% 42%, var(--navy2), var(--navy) 70%),var(--navy)}
+  #grid{position:absolute;inset:0;opacity:.5;background-image:linear-gradient(rgba(255,70,85,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,70,85,.06) 1px,transparent 1px);background-size:54px 54px}
+  .scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 2px,transparent 2px 4px);opacity:.5}
+  .vign{position:absolute;inset:0;box-shadow:inset 0 0 320px rgba(0,0,0,.85)}
+  .corner{position:absolute;width:84px;height:84px;border:5px solid var(--red)}
+  .tl{top:40px;left:40px;border-right:0;border-bottom:0}.tr{top:40px;right:40px;border-left:0;border-bottom:0}
+  .bl{bottom:40px;left:40px;border-right:0;border-top:0}.br{bottom:40px;right:40px;border-left:0;border-top:0}
+  .corner::after{content:"";position:absolute;width:12px;height:12px;background:var(--teal)}
+  .tl::after{top:-5px;left:-5px}.tr::after{top:-5px;right:-5px}.bl::after{bottom:-5px;left:-5px}.br::after{bottom:-5px;right:-5px}
+
+  #wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;z-index:2}
+  /* núcleo de pausa con anillos */
+  .core{width:150px;height:150px;display:grid;place-items:center;position:relative;margin-bottom:12px}
+  .ring{position:absolute;inset:0;border:3px solid var(--red);border-radius:50%;opacity:.7;animation:rot 7s linear infinite}
+  .ring:nth-child(2){inset:20px;border-style:dashed;border-color:var(--teal);animation-direction:reverse;animation-duration:10s}
+  @keyframes rot{to{transform:rotate(360deg)}}
+  .pause{display:flex;gap:12px}.pause span{width:18px;height:52px;background:var(--red);box-shadow:0 0 16px rgba(255,70,85,.5);animation:bp 1.6s ease-in-out infinite}
+  @keyframes bp{50%{opacity:.35}}
+  .kicker{font-weight:600;font-size:22px;letter-spacing:8px;text-transform:uppercase;color:#fff;background:var(--red);padding:8px 28px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%)}
+  h1{font-weight:700;font-size:118px;letter-spacing:4px;text-transform:uppercase;color:#fff;margin:6px 0;text-shadow:0 0 30px rgba(255,70,85,.4)}
+  h1 span{color:var(--red)}
+  .subt{font-weight:500;font-size:22px;letter-spacing:7px;text-transform:uppercase;color:var(--teal)}
+  .boot{margin-top:16px;font-weight:500;font-size:18px;letter-spacing:3px;text-transform:uppercase;color:var(--teal);opacity:.8}
+  #foot{position:absolute;bottom:60px;left:0;right:0;display:flex;justify-content:center;gap:30px;z-index:2}
+  .soc{display:flex;align-items:center;gap:10px;background:var(--navy2);border-left:3px solid var(--red);padding:10px 22px;font-weight:600;font-size:18px;letter-spacing:2px;text-transform:uppercase}
+  .soc b{color:var(--red)}
+</style>
+</head>
+<body>
+  <div id="bg"></div><div id="grid"></div><div class="scan"></div><div class="vign"></div>
+  <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+  <div id="wrap">
+    <div class="core"><div class="ring"></div><div class="ring"></div><div class="pause"><span></span><span></span></div></div>
+    <div class="kicker">// Pausa táctica</div>
+    <h1>VOLVEMOS <span>YA</span></h1>
+    <div class="subt">no cierres, sigue la acción en el chat</div>
+    <div class="boot" id="boot">recargando…</div>
+  </div>
+  <div id="foot">
+    <span class="soc">TWITCH <b id="tw">/HORUSER</b></span>
+    <span class="soc">YOUTUBE <b id="yt">/HORUSER</b></span>
+    <span class="soc">DISCORD <b id="dc">/HORUSER</b></span>
+  </div>
+<script>
+  const HANDLE="HORUSER";
+  tw.textContent=yt.textContent=dc.textContent="/"+HANDLE;
+  const boots=["recargando…","ahora vuelvo, no te vayas","comenta en el chat mientras tanto","preparando la próxima ronda…","stand by…"];
+  let i=0;setInterval(()=>boot.textContent=boots[i=(i+1)%boots.length],2400);
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "@chess-stream/overlays",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Overlays HTML estáticos para OBS (Browser Source)",
+  "scripts": {
+    "dev": "serve -l 4000 .",
+    "start": "serve -l 4000 ."
+  },
+  "devDependencies": {
+    "serve": "^14.2.0"
+  }
+}

@@ -1,55 +1,56 @@
 services:
-  common-js:
+  # Instala las dependencias de todo el monorepo una sola vez (workspaces) en un
+  # volumen compartido. bot y web esperan a que termine.
+  deps:
     image: node:20-alpine
-    working_dir: /common-js
+    working_dir: /repo
     volumes:
-      - common-js:/common-js
-    environment:
-      - CHOKIDAR_USEPOLLING=true
+      - .:/repo
+      - node_modules:/repo/node_modules
     command: sh -c "npm install"
-  
+
   bot:
     image: node:20-alpine
     depends_on:
-      - common-js
-    working_dir: /app
+      deps:
+        condition: service_completed_successfully
+    working_dir: /repo
     volumes:
-      - ./bot:/app
+      - .:/repo
+      - node_modules:/repo/node_modules
       - data:/data
-      - common-js:/common-js
     environment:
+      - DATA_PATH=/data
       - CHOKIDAR_USEPOLLING=true
-    command: sh -c "npm install && npm run start:dev"
-
+    command: sh -c "npm --workspace apps/bot run start:dev"
 
   web:
     image: node:20-alpine
     depends_on:
-      - common-js
-    working_dir: /app
+      deps:
+        condition: service_completed_successfully
+    working_dir: /repo
     volumes:
-      - ./web:/app
+      - .:/repo
+      - node_modules:/repo/node_modules
       - data:/data
-      - common-js:/common-js
-      - /app/node_modules
-      - /app/.next
+      - web_next:/repo/apps/web/.next
     environment:
+      - DATA_PATH=/data
       - WATCHPACK_POLLING=true
+      # LICHESS_TV_USER lo carga Next.js desde apps/web/.env.local (montado en
+      # el volumen). No lo declares aquí: una variable de entorno vacía
+      # sobreescribiría el valor del .env.local.
     ports:
       - "3000:3000"
-    command: sh -c "npm install && npm run dev"
-    # command: sh -c "npm install && npm run build && npm run start"
+    command: sh -c "npm --workspace apps/web run dev"
 
 volumes:
+  node_modules:
+  web_next:
   data:
     driver: local
     driver_opts:
       type: none
       o: bind
       device: ${PWD}/data
-  common-js:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/common-js

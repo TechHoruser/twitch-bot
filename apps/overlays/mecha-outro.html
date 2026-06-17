@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<!-- MECCHA CHAMELEON · Pantalla "GRACIAS POR JUGAR" (fullscreen 1920x1080) -->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700&display=swap');
+  :root{--ink:#2a2433;--paper:#fffaf2;--c1:#ff6ec7;--c2:#ffd23f;--c3:#3ddc97;--c4:#4ea8ff;--c5:#b06bff}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden;font-family:'Nunito',sans-serif;color:var(--ink)}
+  .cham{animation:cham 12s linear infinite}@keyframes cham{to{filter:hue-rotate(360deg)}}
+  #bg{position:absolute;inset:0;background:radial-gradient(900px 600px at 50% 40%, #fff, var(--paper) 70%),var(--paper)}
+  #dots{position:absolute;inset:0;opacity:.5;background-image:radial-gradient(rgba(255,110,199,.18) 3px, transparent 3px);background-size:46px 46px}
+  .splash{position:absolute;border-radius:46% 54% 60% 40%/50% 44% 56% 50%;opacity:.85;animation:float 9s ease-in-out infinite}
+  @keyframes float{50%{transform:translateY(-22px) rotate(10deg)}}
+  .s1{width:200px;height:200px;background:var(--c1);top:130px;left:170px}
+  .s2{width:150px;height:150px;background:var(--c4);top:210px;right:200px;animation-delay:-3s}
+  .s3{width:130px;height:130px;background:var(--c3);bottom:170px;left:290px;animation-delay:-5s}
+  .s4{width:170px;height:170px;background:var(--c5);bottom:120px;right:250px;animation-delay:-2s}
+
+  #wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;z-index:2}
+  .lemon{font-size:110px;animation:bob 2.6s ease-in-out infinite}
+  @keyframes bob{50%{transform:translateY(-14px) rotate(5deg)}}
+  .kicker{font-family:'Fredoka';font-weight:600;font-size:22px;color:#fff;background:var(--c3);padding:8px 26px;border-radius:30px;box-shadow:0 6px 0 rgba(42,36,51,.12)}
+  h1{font-family:'Fredoka';font-weight:700;font-size:100px;line-height:1.04;color:var(--ink);margin:8px 0;text-shadow:0 6px 0 rgba(61,220,151,.20)}
+  h1 span{color:var(--c1)}
+  .subt{font-family:'Fredoka';font-weight:600;font-size:30px;color:var(--c4)}
+  .heart{margin-top:4px;font-family:'Fredoka';font-weight:700;font-size:26px;color:var(--c1)}
+  .boot{margin-top:12px;font-family:'Fredoka';font-weight:500;font-size:20px;color:var(--ink);opacity:.7}
+  #foot{position:absolute;bottom:54px;left:0;right:0;display:flex;justify-content:center;gap:18px;z-index:2}
+  .soc{display:flex;align-items:center;gap:8px;background:#fff;padding:10px 22px;border-radius:24px;font-family:'Fredoka';font-weight:600;font-size:19px;box-shadow:0 5px 0 rgba(42,36,51,.10)}
+  .soc b{color:var(--c1)}
+</style>
+</head>
+<body>
+  <div id="bg"></div><div id="dots"></div>
+  <div class="splash s1 cham"></div><div class="splash s2 cham"></div><div class="splash s3 cham"></div><div class="splash s4 cham"></div>
+  <div id="wrap">
+    <div class="lemon">🦎</div>
+    <div class="kicker">fin de la partida</div>
+    <h1>¡GRACIAS POR <span>JUGAR!</span></h1>
+    <div class="subt">nos vemos en el próximo directo</div>
+    <div class="heart">🎨 ¡deja un follow! 💜</div>
+    <div class="boot" id="boot">guardando colores…</div>
+  </div>
+  <div id="foot">
+    <span class="soc">🟣 Twitch <b id="tw">/HORUSER</b></span>
+    <span class="soc">🔴 YouTube <b id="yt">/HORUSER</b></span>
+    <span class="soc">💬 Discord <b id="dc">/HORUSER</b></span>
+  </div>
+<script>
+  const HANDLE="HORUSER";
+  tw.textContent=yt.textContent=dc.textContent="/"+HANDLE;
+  const boots=["guardando colores…","¡gracias por venir!","comparte el directo 💜","nos camuflamos hasta la próxima 🦎","gg, buena partida"];
+  let i=0;setInterval(()=>boot.textContent=boots[i=(i+1)%boots.length],2400);
+</script>
+</body>
+</html>

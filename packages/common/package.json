@@ -1,0 +1,10 @@
+{
+  "name": "@chess-stream/common",
+  "version": "1.0.0",
+  "description": "Lógica compartida entre el bot y la web (cola, Chess.com, comandos, overlays)",
+  "author": "Francisco Ponce (bitsman)",
+  "license": "ISC",
+  "dependencies": {
+    "chess-web-api": "^1.2.0"
+  }
+}
