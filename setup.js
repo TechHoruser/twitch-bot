@@ -303,6 +303,8 @@ async function main() {
   log('  · Bot:       npm run bot:dev');
   log('  · Web:       npm run web:dev        → http://localhost:3000 (overlay) y /admin');
   log('  · Overlays:  npm run overlays       → http://localhost:4000');
+  log('  · OBS:       npm run setup:obs       (carga las escenas en OBS Studio)');
+  log('  · StreamDeck:npm run setup:streamdeck(carga el perfil en Stream Deck)');
   log('  · Tests:     npm run test:logic');
   log('  · Stack:     npm run up             (docker compose)\n');
 }
