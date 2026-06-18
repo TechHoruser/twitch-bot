@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!--
+  THE KING IS WATCHING · Pantalla "CERRANDO" (fullscreen 1920x1080)
+  Tema: corte real / la corte se retira. Edita CONFIG abajo.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Nunito:wght@600;700;800&display=swap');
+  :root{
+    --night:#160c2e; --night2:#2a1a4a; --gold:#f5c542; --gold2:#ffe08a;
+    --royal:#8b5cff; --royal2:#b89bff; --crimson:#e23e57; --parch:#f3e7c9; --ink:#1c1233;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden;font-family:'Nunito',sans-serif;color:var(--parch)}
+
+  #bg{position:absolute;inset:0;background:
+      radial-gradient(1100px 720px at 50% 36%, rgba(245,197,66,.16), transparent 62%),
+      radial-gradient(1600px 1000px at 50% 50%, var(--night2), var(--night) 72%),
+      var(--night)}
+  #stone{position:absolute;inset:0;opacity:.10;
+    background-image:linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(255,255,255,.6) 1px,transparent 1px);
+    background-size:120px 120px}
+  /* confeti dorado cayendo lento */
+  .ember{position:absolute;width:7px;height:7px;border-radius:50%;background:var(--gold);
+    box-shadow:0 0 12px 3px rgba(245,197,66,.7);opacity:.85;animation:fall 8s linear infinite}
+  .e1{left:20%;top:-20px;animation-delay:0s}.e2{left:38%;top:-20px;animation-delay:-2s}
+  .e3{left:60%;top:-20px;animation-delay:-4s}.e4{left:78%;top:-20px;animation-delay:-1s}
+  .e5{left:50%;top:-20px;animation-delay:-3s}
+  @keyframes fall{to{transform:translateY(1140px) translateX(-30px);opacity:0}}
+
+  #wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;z-index:2}
+  .crown{font-size:104px;filter:drop-shadow(0 6px 18px rgba(245,197,66,.45));animation:bob 2.8s ease-in-out infinite}
+  @keyframes bob{50%{transform:translateY(-12px) rotate(3deg)}}
+  .kicker{font-family:'Cinzel';font-weight:700;font-size:22px;letter-spacing:3px;color:var(--night);
+    background:linear-gradient(180deg,var(--gold2),var(--gold));padding:9px 30px;border-radius:6px;text-transform:uppercase;
+    box-shadow:0 6px 0 rgba(0,0,0,.25)}
+  h1{font-family:'Cinzel';font-weight:900;font-size:108px;line-height:1;letter-spacing:3px;color:var(--parch);
+    margin:10px 0 0;text-shadow:0 4px 0 rgba(0,0,0,.35),0 0 36px rgba(139,92,255,.5)}
+  h1 span{color:var(--gold);text-shadow:0 4px 0 rgba(0,0,0,.35),0 0 30px rgba(245,197,66,.6)}
+  .subt{font-family:'Cinzel';font-weight:600;font-size:30px;color:var(--royal2);letter-spacing:1px}
+  .game{margin-top:2px;font-weight:800;font-size:24px;color:var(--gold);letter-spacing:3px;text-transform:uppercase}
+  .cta{margin-top:22px;font-family:'Cinzel';font-weight:700;font-size:26px;color:var(--night);
+    background:linear-gradient(180deg,var(--gold2),var(--gold));padding:14px 40px;border-radius:8px;letter-spacing:1px;
+    box-shadow:0 8px 0 rgba(0,0,0,.3)}
+
+  #foot{position:absolute;bottom:54px;left:0;right:0;display:flex;justify-content:center;gap:18px;z-index:2}
+  .soc{display:flex;align-items:center;gap:8px;background:rgba(42,26,74,.85);border:2px solid rgba(245,197,66,.4);
+    padding:10px 24px;border-radius:8px;font-family:'Cinzel';font-weight:600;font-size:19px;color:var(--parch)}
+  .soc b{color:var(--gold)}
+</style>
+</head>
+<body>
+  <div id="bg"></div><div id="stone"></div>
+  <div class="ember e1"></div><div class="ember e2"></div><div class="ember e3"></div>
+  <div class="ember e4"></div><div class="ember e5"></div>
+
+  <div id="wrap">
+    <div class="crown">👑</div>
+    <div class="kicker">la corte se retira</div>
+    <h1>GRACIAS POR <span>ACOMPAÑARNOS</span></h1>
+    <div class="subt">el reino te espera en el próximo directo</div>
+    <div class="game">👁 THE KING IS WATCHING</div>
+    <div class="cta">¡Síguenos y únete a la corte! 👑</div>
+  </div>
+
+  <div id="foot">
+    <span class="soc">🟣 Twitch <b id="tw">/TU_CANAL</b></span>
+    <span class="soc">🔴 YouTube <b id="yt">/TU_CANAL</b></span>
+    <span class="soc">💬 Discord <b id="dc">/TU_CANAL</b></span>
+  </div>
+
+<script>
+  // ====== CONFIG ======
+  const HANDLE = "TU_CANAL";   // tu handle (cámbialo por el tuyo)
+  // ====================
+  tw.textContent=yt.textContent=dc.textContent="/"+HANDLE;
+</script>
+</body>
+</html>

@@ -20,6 +20,9 @@
 # production
 /build
 
+# música descargada por setup-music.js (no se commitea el audio)
+/public/music/
+
 # misc
 .DS_Store
 *.pem

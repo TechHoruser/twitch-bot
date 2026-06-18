@@ -1,8 +1,8 @@
 const { test, expect } = require('@playwright/test');
 const { resetData } = require('../helpers/data');
-// IMPORTANTE: el mock debe cargarse antes que @chess-stream/common/chess.
+// IMPORTANTE: el mock debe cargarse antes que @stream-toolkit/common/chess.
 const chessMock = require('../helpers/chessMock');
-const chess = require('@chess-stream/common/chess');
+const chess = require('@stream-toolkit/common/chess');
 
 test.beforeEach(() => {
   // El mock de chess.com parchea chess-web-api, así que fijamos el proveedor a

@@ -1,5 +1,5 @@
 {
-    "Name": "Chess Stream",
+    "Name": "Stream Toolkit",
     "Version": "2.0",
     "DeviceModel": "{{DEVICE_MODEL}}",
     "DeviceUUID": "",
@@ -63,7 +63,7 @@
             "Settings": { "path": "{{URL_CHESS}}", "openInBrowser": true },
             "State": 0,
             "States": [
-                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "Perfil\nAjedrez", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true }
+                { "FFamily": "", "FSize": "9", "FStyle": "", "FUnderline": false, "Title": "Perfil\nJuego", "TitleAlignment": "bottom", "TitleColor": "#ffffff", "TitleShow": true }
             ],
             "UUID": "com.elgato.streamdeck.system.website"
         },

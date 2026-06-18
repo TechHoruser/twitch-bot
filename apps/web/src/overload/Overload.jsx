@@ -1,36 +1,19 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useStream } from '../shared/StreamProvider';
 import NextMatch from './overloads/NextMatch';
 import { QueueOfPawns } from './overloads/QueueOfPawns';
 
+// Popups del centro (next-match) y la cola de peones. Consume la SSE compartida
+// del StreamProvider en lugar de abrir su propia conexión.
 export default function Overload() {
-  const [data, setData] = useState(null);
-
-  useEffect(() => {
-    const evtSource = new EventSource('/api/overload');
-    evtSource.addEventListener('newOverload', (event) => {
-      console.log('event', event);
-      const payload = JSON.parse(event.data);
-      setData(payload);
-    });
-    return () => {
-      evtSource.close();
-    };
-  }, []);
-
-
-  useEffect(() => {
-    console.log('data', data);
-  }, [data]);
+  const { overload } = useStream();
 
   return (
-    <main className='flex h-screen justify-center items-center'>
-      {
-        data !== null
-        && data.type === 'next-match'
-        && <NextMatch data={data.payload} />
-      }
+    <>
+      <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
+        {overload && overload.type === 'next-match' && <NextMatch data={overload.payload} />}
+      </div>
       <QueueOfPawns />
-    </main>
+    </>
   );
 }

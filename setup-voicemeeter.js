@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * Asistente de setup de Voicemeeter Banana para el monorepo del bot de ajedrez.
+ * Asistente de setup de Voicemeeter Banana para el toolkit de directos de Twitch.
  *
  * Genera la configuración de audio del stream a partir de la plantilla de
- * `apps/overlays/voicemeeter/Chess-Stream-Banana.xml` y la deja en la carpeta
+ * `apps/overlays/voicemeeter/Stream-Toolkit-Banana.xml` y la deja en la carpeta
  * `Documents\Voicemeeter` de tu sistema, que es donde Voicemeeter guarda y lee
  * sus settings. Así puedes cargarla con un clic desde Menú ▸ Load Settings…
  *
- * La plantilla deja etiquetadas y ruteadas las entradas típicas de un stream de
- * ajedrez: Micro, Juego/Sistema (entrada virtual VAIO) y Música/Discord
+ * La plantilla deja etiquetadas y ruteadas las entradas típicas de un directo:
+ * Micro, Juego/Sistema (entrada virtual VAIO) y Música/Discord
  * (entrada virtual AUX). El Micro va solo al stream (B1), y Juego y Música van a
  * tus cascos (A1) y al stream (B1). Es idempotente: vuelve a ejecutarlo cuando
  * quieras (hace una copia de seguridad .bak antes de sobrescribir) y no usa
@@ -21,7 +21,7 @@
  *   --voicemeeter-dir <ruta>  Fuerza la carpeta donde se escribe la config
  *                             (por defecto Documents\Voicemeeter).
  *   --name <archivo>          Nombre del fichero de salida (por defecto
- *                             Chess-Stream-Banana.xml).
+ *                             Stream-Toolkit-Banana.xml).
  *   --mic <texto>             Etiqueta de la entrada de micro (por defecto "Micro").
  *   --game <texto>            Etiqueta del juego/sistema (por defecto "Juego").
  *   --music <texto>           Etiqueta de música/Discord (por defecto "Música").
@@ -39,7 +39,7 @@ const isWin = process.platform === 'win32';
 const DRY = args.includes('--dry-run');
 
 const TEMPLATE = path.join(
-  ROOT, 'apps', 'overlays', 'voicemeeter', 'Chess-Stream-Banana.xml',
+  ROOT, 'apps', 'overlays', 'voicemeeter', 'Stream-Toolkit-Banana.xml',
 );
 
 // --- helpers de salida (mismo estilo que setup.js) -------------------------
@@ -98,7 +98,7 @@ function backupOnce(file) {
 }
 
 function main() {
-  log(c('1', '\n🔊  Setup de Voicemeeter — audio del stream de ajedrez (Banana)\n'));
+  log(c('1', '\n🔊  Setup de Voicemeeter — audio del directo (Banana)\n'));
   if (DRY) warn('Modo --dry-run: no se escribirá ningún archivo.');
 
   // 1) Plantilla
@@ -118,7 +118,7 @@ function main() {
   info(`Juego:  ${repl.VM_LABEL_GAME}  (Strip[3] / VAIO, → cascos A1 + stream B1)`);
   info(`Música: ${repl.VM_LABEL_MUSIC}  (Strip[4] / AUX, → cascos A1 + stream B1)`);
 
-  const fileName = flagValue('--name') || 'Chess-Stream-Banana.xml';
+  const fileName = flagValue('--name') || 'Stream-Toolkit-Banana.xml';
 
   // 2) Carpeta de Voicemeeter
   step(2, 3, 'Localizando la carpeta de Voicemeeter...');
@@ -127,7 +127,7 @@ function main() {
     warn('Voicemeeter es software de Windows y no está disponible en este sistema.');
     warn('Se genera el XML renderizado junto a la plantilla; llévalo a tu PC y');
     warn('cárgalo con Menú ▸ Load Settings… (o pasa --voicemeeter-dir <ruta>).');
-    const out = path.join(ROOT, 'apps', 'overlays', 'voicemeeter', 'Chess-Stream-Banana.rendered.xml');
+    const out = path.join(ROOT, 'apps', 'overlays', 'voicemeeter', 'Stream-Toolkit-Banana.rendered.xml');
     if (!DRY) {
       fs.writeFileSync(out, xml);
       ok(`Config renderizada: ${out}`);
@@ -159,7 +159,7 @@ function printNextSteps(dir) {
   log('Próximos pasos:');
   log(`  · Instala ${c('33', 'Voicemeeter Banana')} (gratis): https://vb-audio.com/Voicemeeter/banana.htm`);
   if (dir) {
-    log('  · En Voicemeeter: Menú ▸ Load Settings… y elige "Chess-Stream-Banana.xml".');
+    log('  · En Voicemeeter: Menú ▸ Load Settings… y elige "Stream-Toolkit-Banana.xml".');
   } else {
     log('  · En tu PC con Voicemeeter: Menú ▸ Load Settings… y elige el XML generado.');
   }

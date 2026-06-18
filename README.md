@@ -1,11 +1,13 @@
-# Twitch Bot — Stream de Ajedrez
+# Stream Toolkit — Gestión de directos de Twitch
 
-Proyecto pensado para **streams de ajedrez en Twitch**. Permite que la audiencia
-se apunte a una cola para jugar contra el streamer indicando su usuario de
-**Lichess o Chess.com** (configurable por variable de entorno), muestra los
-ratings (bullet/blitz/rapid) y genera overlays animados para OBS. Con Lichess
-incluye además un overlay que **emite tu partida en vivo** sin compartir la
-pestaña del navegador (`/tv`).
+Toolkit para **gestionar directos en Twitch**: un bot de chat, overlays animados
+para OBS, un panel de control y asistentes que configuran OBS, Stream Deck y
+Voicemeeter. Sirve para cualquier tipo de directo —los overlays incluyen
+plantillas para **Valorant** y un tema **Mecha**— e incluye un **módulo opcional
+de "cola de retadores" para directos de ajedrez**: la audiencia se apunta con su
+usuario de **Lichess o Chess.com** (configurable por variable de entorno), se
+muestran sus ratings (bullet/blitz/rapid) y, con Lichess, un overlay que **emite
+tu partida en vivo** sin compartir la pestaña del navegador (`/tv`).
 
 ## Arquitectura
 
@@ -20,15 +22,16 @@ las aplicaciones viven en `apps/*` y el código compartido en `packages/*`. Un
 │   ├── web/        → App Next.js (overlay OBS + panel admin + API)
 │   └── overlays/   → Overlays HTML estáticos para OBS (Browser Source)
 ├── packages/
-│   └── common/     → Lógica compartida → paquete @chess-stream/common
+│   └── common/     → Lógica compartida → paquete @stream-toolkit/common
 ├── tests/          → Suite Playwright (lógica + e2e)
 ├── setup.js        → Asistente de instalación y configuración
 └── package.json    → Workspaces + scripts orquestadores
 ```
 
 * **`apps/bot/`** — Bot de chat de Twitch (con [tmi.js](https://github.com/tmijs/tmi.js)).
-  Escucha los mensajes del chat y gestiona los comandos (cola, enlaces de
-  Discord/Chess.com, baneos temporales del moderador).
+  Escucha los mensajes del chat y gestiona los comandos (moderación y enlaces de
+  Discord genéricos, y —con el módulo de ajedrez— la cola de retadores y los
+  enlaces a tu plataforma de juego).
 * **`apps/web/`** — Aplicación [Next.js](https://nextjs.org/) con dos vistas:
   * `/` → **overlay para OBS**. Recibe eventos en tiempo real vía SSE
     (`/api/overload`) y muestra animaciones: el siguiente rival
@@ -39,11 +42,12 @@ las aplicaciones viven en `apps/*` y el código compartido en `packages/*`. Un
     la cola, limpiar la cola).
 * **`apps/overlays/`** — Overlays HTML estáticos para OBS. `npm run overlays`
   los sirve en http://localhost:4000.
-* **`packages/common/`** (`@chess-stream/common`) — Código compartido entre las apps:
+* **`packages/common/`** (`@stream-toolkit/common`) — Código compartido entre las apps:
   * `savedData.js` → persistencia simple en ficheros JSON (`DATA_PATH`) y utilidades
     de cola.
-  * `chess.js` → dispatcher de estadísticas según `CHESS_PROVIDER` (caché 12h),
-    con proveedores intercambiables en `providers/` (`lichess.js`, `chesscom.js`).
+  * `chess.js` → **(módulo de ajedrez)** dispatcher de estadísticas según
+    `CHESS_PROVIDER` (caché 12h), con proveedores intercambiables en `providers/`
+    (`lichess.js`, `chesscom.js`).
   * `queueCommands.js` → lógica de los comandos `!cola:*` del chat.
   * `centerOverload.js` → cola de overlays que se van mostrando en el centro.
 
@@ -65,6 +69,10 @@ Chat de Twitch ──► bot ──► common-js (queue.json en /data)
 > borra ese volumen, se pierde el estado.
 
 ## Comandos del chat
+
+> La **cola de retadores** y los comandos `!chess` / `!club` pertenecen al módulo
+> de ajedrez (opcional). Si no lo usas, el bot sigue ofreciendo el resto:
+> `discord` y `!banear`.
 
 | Comando | Quién | Descripción |
 | --- | --- | --- |
@@ -106,7 +114,7 @@ Crea una aplicación con estos datos:
 
 Obtén el token OAuth manualmente ejecutando en tu navegador:
 
-https://id.twitch.tv/oauth2/authorize?client_id=TU_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate
+https://id.twitch.tv/oauth2/authorize?client_id=TU_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages
 
 Te redirigirá a http://localhost#access_token=TOKEN_GENERADO.
 
@@ -130,7 +138,7 @@ Ese access_token es el que debes usar en el código.
 
 Ejecuta el asistente, que instala los workspaces, prepara las carpetas y los
 `.env.local`, y **te pregunta por cada credencial mostrando dónde obtenerla**
-(la app de Twitch, cómo generar el token OAuth, enlaces de Discord/Chess.com):
+(la app de Twitch, cómo generar el token OAuth, enlaces de Discord y de tu plataforma de juego):
 
 ```
 npm run setup
@@ -153,6 +161,7 @@ TWITCH_OAUTH_TOKEN=     # Token OAuth generado (sin el prefijo "oauth:")
 
 DISCORD_LINK=           # Enlace de invitación al servidor de Discord
 
+# === Módulo de ajedrez (opcional, solo para directos de ajedrez) ===
 CHESS_PROVIDER=lichess  # Proveedor de ajedrez: lichess | chesscom
 
 # Lichess (se usan cuando CHESS_PROVIDER=lichess)
@@ -204,6 +213,108 @@ usuario o tema con query params: `/tv?user=TU_USUARIO&theme=brown&bg=dark`.
 > Funciona embebiendo la ruta oficial `lichess.org/embed/game/<id>`, pensada
 > para iframes. Solo aplica a Lichess (Chess.com no ofrece un equivalente).
 
+## Panel de control (`/admin`)
+
+`/admin` es el **centro de control del directo**. A la izquierda, siempre visible,
+el **chat de Twitch en vivo con moderación** (borrar mensaje, timeout, ban — al pasar
+el ratón por cada mensaje). A la derecha, en pestañas:
+
+* **🎬 Escenas** — juego/tema + pantalla activa (y la cola del módulo de ajedrez).
+* **🎚️ Audio** — faders y mutes del mezclador de OBS (ver más abajo).
+* **🔊 Sonidos** — soundboard: dispara efectos de `apps/web/public/sounds/` en el overlay.
+* **🎵 Música** — reproductor, **descarga de Jamendo** por tag y **editor de playlists**.
+
+> **Chat/moderación**: el chat se lee en cliente (IRC de Twitch por WebSocket, anónimo).
+> Las acciones de moderación van por `/api/admin/mod` → Helix, así que el **token OAuth
+> debe incluir** `moderator:manage:banned_users` y `moderator:manage:chat_messages`
+> (la URL de la sección "Conseguir Token" ya los pide; regénéralo si es antiguo).
+> "Kick" no existe en Twitch: se aplica como **timeout**.
+
+### Escenas precargadas en la web
+
+En vez de gestionar las pantallas del directo como **colecciones de escenas de
+OBS**, el overlay web (`http://localhost:3000`) lleva las pantallas **precargadas**
+y las conmutas desde `/admin`. Así OBS solo necesita **un Browser Source**:
+
+```
+┌─ Escena de OBS ────────────────────────────┐
+│  Captura de juego            (abajo)        │
+│  Browser Source → localhost:3000  (encima)  │  ← "Controlar audio mediante OBS"
+└─────────────────────────────────────────────┘
+```
+
+* La web pinta las pantallas **intro / juego / pausa / cerrando** (opacas a
+  pantalla completa salvo el HUD de juego, que es transparente y deja ver la
+  captura), la **webcam** (capturada en la propia app con `getUserMedia`) y el
+  **reproductor + visualizador de música**.
+* Desde **`/admin`** eliges el **juego/tema** (`The King is Watching`, `Valorant`,
+  `Meccha Chameleon`) y la **pantalla** activa, y controlas la **música**
+  (playlist, ▶/⏸, anterior/siguiente, volumen). El overlay reacciona en ≤1 s (SSE).
+* La **webcam** la usa la app: en OBS **no** pongas además una fuente con la misma
+  cámara (no se puede compartir el dispositivo).
+
+> Las colecciones de OBS (`apps/overlays/scenes/`) y los HTML `*-starting/pausa/…`
+> siguen disponibles como alternativa; este modelo web los sustituye con un solo
+> Browser Source.
+
+Variables (en `apps/web/.env.local`):
+
+```
+NEXT_PUBLIC_STREAM_HANDLE=     # Tu handle para las pantallas (por defecto TU_CANAL)
+NEXT_PUBLIC_COUNTDOWN_MINUTES= # Minutos de la cuenta atrás de "Empezamos pronto" (5)
+NEXT_PUBLIC_CAM_DEVICE_ID=     # (opcional) deviceId de la webcam a usar
+NEXT_PUBLIC_TWITCH_CHANNEL=    # Canal para el chat de /admin (lo propaga `npm run setup`)
+OBS_WEBSOCKET_URL=             # (audio) por defecto ws://127.0.0.1:4455
+OBS_WEBSOCKET_PASSWORD=        # (audio) si pusiste contraseña en obs-websocket
+```
+
+> El panel de moderación necesita además `TWITCH_CLIENT_ID`, `TWITCH_OAUTH_TOKEN` y
+> `TWITCH_CHANNEL_NAME` en `apps/web/.env.local`: `npm run setup` los copia del bot.
+
+### Música libre con `setup-music.js` (Jamendo)
+
+```
+npm run setup:music
+```
+
+Descarga música **Creative Commons** de [Jamendo](https://www.jamendo.com/) a
+`apps/web/public/music/<playlist>/` y genera el manifiesto `music-library.json`
+(en `DATA_PATH`) que usan el reproductor y `/admin`. El widget "sonando ahora"
+muestra **Título — Artista**, lo que cubre la atribución CC-BY.
+
+Necesita un **Client ID gratuito** de Jamendo
+([devportal.jamendo.com](https://devportal.jamendo.com/)): ponlo como
+`JAMENDO_CLIENT_ID` en `apps/bot/.env.local` (lo pide `npm run setup`) o pásalo con
+`--client-id`. Flags: `--playlist <nombre>`, `--tag <tags>`, `--limit <N>`,
+`--dry-run`. El audio descargado **no** se commitea (`apps/web/public/music/`).
+También puedes descargar y crear/editar playlists desde la pestaña **Música** de `/admin`.
+
+### Audio: VB-Cable + OBS como mezclador con `setup-audio.js`
+
+Una app no puede *crear* dispositivos de audio virtuales (eso lo hace un driver). La
+estrategia: **VB-Cable** separa las fuentes (cada app → su cable) y **OBS** hace de
+mezclador, controlado desde `/admin` (pestaña Audio) vía **obs-websocket**.
+
+```
+Discord → CABLE   ┐
+Juego   → CABLE A  ├─► OBS capta cada "CABLE … Output" como fuente ─► faders en /admin
+Música  → CABLE B  ┘                                              └─► monitor a tus auriculares
+```
+
+```
+npm run setup:audio
+```
+
+Imprime la guía (instalar [VB-Cable](https://vb-audio.com/Cable/), enrutar cada app a
+su cable en *Configuración de sonido*, fijar el dispositivo de monitorización de OBS) y,
+conectando a OBS por websocket, **crea las fuentes de audio** "Juego / Música / Discord"
+con monitor + salida. Luego asignas a cada una su `CABLE … Output` en OBS y balanceas
+desde `/admin`. Requiere OBS abierto con **Herramientas ▸ obs-websocket** activado.
+Flags: `--url`, `--password`, `--juego/--musica/--discord <nombre>`, `--dry-run`.
+
+> Solo en Windows con la web nativa (no en Docker). El monitor por OBS añade algo de
+> latencia frente a un mezclador dedicado.
+
 ## Configurar OBS y Stream Deck
 
 Además del setup del proyecto, hay dos asistentes que **cargan configuraciones
@@ -216,8 +327,8 @@ idempotentes y hacen una copia de seguridad (`.bak`) de lo que sobrescriben.
 npm run setup:obs
 ```
 
-Copia las colecciones de `apps/overlays/scenes/` (`Valorant`, `Mecha Chameleon`)
-a la carpeta de configuración de OBS de tu sistema (Windows, macOS o Linux,
+Copia las colecciones de `apps/overlays/scenes/` (`Valorant`, `Mecha Chameleon`,
+`The King is Watching`) a la carpeta de configuración de OBS de tu sistema (Windows, macOS o Linux,
 incluida la instalación **Flatpak**). De paso **reescribe las rutas de los
 Browser Source** —que vienen apuntando a la máquina de otra persona
 (`C:/Users/pon_t/...`)— para que apunten a los overlays HTML reales de
@@ -237,10 +348,10 @@ Tras ejecutarlo, **reinicia OBS** y elige la colección en el menú
 npm run setup:streamdeck
 ```
 
-Instala el perfil **"Chess Stream"** en la carpeta de perfiles de la app oficial
+Instala el perfil **"Stream Toolkit"** en la carpeta de perfiles de la app oficial
 de Elgato (`ProfilesV2`, en Windows y macOS). El perfil trae botones que abren de
-un toque las piezas del stream: overlay de OBS, TV de Lichess, panel `/admin`,
-servidor de overlays, tu Discord, tu canal de Twitch y tu perfil/club de ajedrez.
+un toque los accesos del directo: overlay de OBS, TV (Lichess), panel `/admin`,
+servidor de overlays, tu Discord, tu canal de Twitch y tu perfil/comunidad de juego.
 **Las URLs se rellenan a partir de tu configuración real** (`apps/bot/.env.local`
 y `apps/web/.env.local`), así que ejecuta antes `npm run setup`.
 
@@ -249,11 +360,11 @@ en tres filas:
 
 ```
 ┌──────────┬──────────┬──────────┬──────────┬──────────┐
-│ Overlay  │   TV     │  Panel   │ Overlays │  Twitch  │   ← piezas del stream
+│ Overlay  │   TV     │  Panel   │ Overlays │  Twitch  │   ← accesos del directo
 │   OBS    │ Lichess  │  Admin   │  HTML    │          │
 ├──────────┼──────────┼──────────┼──────────┼──────────┤
 │ Discord  │ Perfil   │  Club /  │  Twitch  │  Abrir   │   ← comunidad + tools
-│          │ Ajedrez  │ Equipo   │   Dev    │Voicemeeter│
+│          │ Juego    │ Equipo   │   Dev    │Voicemeeter│
 ├──────────┼──────────┼──────────┼──────────┼──────────┤
 │ 🎙️ Micro │ 🎮 Juego │ 🎵 Música│ 🎧 Cascos│ 🔴 Stream│   ← audio (Voicemeeter)
 │          │          │          │   (A1)   │   (B1)   │
@@ -267,7 +378,7 @@ Juego = `Strip[3]`/VAIO, Música = `Strip[4]`/AUX, Cascos = `Bus[0]`/A1, Stream 
 funcionen. Prepara el audio con `npm run setup:voicemeeter` (más abajo).
 
 Tras ejecutarlo, **cierra y vuelve a abrir** la app de Stream Deck y selecciona el
-perfil "Chess Stream". Flags útiles:
+perfil "Stream Toolkit". Flags útiles:
 
 * `--device <modelo>` → modelo de tu Stream Deck (`DeviceModel`). Por defecto el
   clásico de 15 teclas (`20GAA9901`); también `20GAT9901` (Mini) o `20GBA9901` (XL).
@@ -292,11 +403,11 @@ perfil "Chess Stream". Flags útiles:
 npm run setup:voicemeeter
 ```
 
-Genera la configuración de audio en `apps/overlays/voicemeeter/Chess-Stream-Banana.xml`
+Genera la configuración de audio en `apps/overlays/voicemeeter/Stream-Toolkit-Banana.xml`
 y la deja en tu carpeta `Documents\Voicemeeter` (donde Voicemeeter guarda/lee sus
 ajustes), lista para cargar con **Menú ▸ Load Settings…**. Está pensada para
 [**Voicemeeter Banana**](https://vb-audio.com/Voicemeeter/banana.htm) (gratuito) y
-deja etiquetadas y ruteadas las entradas típicas de un stream de ajedrez:
+deja etiquetadas y ruteadas las entradas típicas de un directo:
 
 * **Micro** (`Strip[0]`) → solo al stream (`B1`), no a tus cascos (evita oírte).
 * **Juego/Sistema** (`Strip[3]`, entrada virtual *Voicemeeter Input/VAIO*) → cascos (`A1`) + stream (`B1`).
@@ -321,6 +432,8 @@ hacia tus cascos y añade en OBS una *Captura de audio* del dispositivo
 | `npm run setup:obs` | Carga las colecciones de escenas en OBS Studio |
 | `npm run setup:streamdeck` | Carga el perfil del stream (3×5) en Elgato Stream Deck |
 | `npm run setup:voicemeeter` | Genera la config de audio para Voicemeeter Banana |
+| `npm run setup:music` | Descarga música libre (Jamendo) para el reproductor de la web |
+| `npm run setup:audio` | Crea en OBS las fuentes de audio (VB-Cable) que controla `/admin` |
 | `npm run bot` / `npm run bot:dev` | Arranca el bot (prod / con recarga) |
 | `npm run web:dev` / `web:build` / `web:start` / `web:lint` | App Next.js |
 | `npm run overlays` | Sirve los overlays HTML para OBS |

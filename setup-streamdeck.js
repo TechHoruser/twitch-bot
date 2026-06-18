@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 /**
- * Asistente de setup de Elgato Stream Deck para el monorepo del bot de ajedrez.
+ * Asistente de setup de Elgato Stream Deck para el toolkit de directos de Twitch.
  *
  * Carga un perfil de Stream Deck dentro de la aplicación oficial de Elgato,
  * copiándolo a su carpeta de perfiles (ProfilesV2). El perfil incluye botones
- * que abren, de un toque, las piezas del stream: el overlay de OBS, el overlay
- * de TV de Lichess, el panel de admin, el servidor de overlays, tu Discord, tu
- * canal de Twitch y tu perfil/club de ajedrez.
+ * que abren, de un toque, los accesos del directo: el overlay de OBS, el overlay
+ * de TV (Lichess), el panel de admin, el servidor de overlays, tu Discord, tu
+ * canal de Twitch y tu perfil/comunidad de juego.
  *
  * El perfil está pensado para el Stream Deck de 15 teclas (3x5): la fila de
- * arriba abre las piezas del stream (overlay de OBS, TV de Lichess, panel admin,
+ * arriba abre los accesos del directo (overlay de OBS, TV, panel admin,
  * servidor de overlays, Twitch); la del medio agrupa comunidad y herramientas
- * (Discord, perfil/club de ajedrez, Twitch Dev y abrir Voicemeeter); y la fila
+ * (Discord, perfil/comunidad de juego, Twitch Dev y abrir Voicemeeter); y la fila
  * de abajo controla el audio de Voicemeeter (silenciar Micro, Juego, Música,
  * Cascos A1 y el bus B1 que va al stream) mediante el plugin de Voicemeeter para
  * Stream Deck.
@@ -52,7 +52,7 @@ const PROFILE_UUID = 'C4E55A1E-7B3D-4F2A-9C6E-0A1B2C3D4E5F';
 const DEFAULT_DEVICE = '20GAA9901'; // Stream Deck (15 teclas) / MK.2
 
 const TEMPLATE = path.join(
-  ROOT, 'apps', 'overlays', 'streamdeck', 'Chess-Stream.sdProfile', 'manifest.json',
+  ROOT, 'apps', 'overlays', 'streamdeck', 'Stream-Toolkit.sdProfile', 'manifest.json',
 );
 
 // --- helpers de salida (mismo estilo que setup.js) -------------------------
@@ -159,7 +159,7 @@ function backupOnce(file) {
 }
 
 function main() {
-  log(c('1', '\n🎛️  Setup de Stream Deck — perfil del stream de ajedrez\n'));
+  log(c('1', '\n🎛️  Setup de Stream Deck — perfil del directo\n'));
   if (DRY) warn('Modo --dry-run: no se escribirá ningún archivo.');
 
   // 1) Plantilla del perfil
@@ -174,7 +174,7 @@ function main() {
   ok('Plantilla cargada y rellenada con tu configuración');
   info(`Twitch:  ${repl.URL_TWITCH}`);
   info(`Discord: ${repl.URL_DISCORD}`);
-  info(`Ajedrez: ${repl.URL_CHESS}`);
+  info(`Perfil de juego: ${repl.URL_CHESS}`);
   info(`Audio:   fila inferior de Voicemeeter (acción ${repl.VM_ACTION})`);
   info(`Dispositivo (DeviceModel): ${repl.DEVICE_MODEL}`);
 
@@ -187,7 +187,7 @@ function main() {
     warn('StreamController / streamdeck-ui e impórtalo manualmente, o ejecuta este');
     warn('script en Windows/macOS (o pasa --profiles-dir <ruta>).');
     // Aun así dejamos el manifest renderizado junto a la plantilla por comodidad.
-    const out = path.join(ROOT, 'apps', 'overlays', 'streamdeck', 'Chess-Stream.rendered.json');
+    const out = path.join(ROOT, 'apps', 'overlays', 'streamdeck', 'Stream-Toolkit.rendered.json');
     if (!DRY) {
       fs.writeFileSync(out, manifest);
       ok(`Perfil renderizado: ${out}`);
@@ -215,7 +215,7 @@ function main() {
   log(c('1', '\n✅  Stream Deck configurado.\n'));
   log('Próximos pasos:');
   log(`  · ${c('33', 'Cierra y vuelve a abrir')} la app de Stream Deck para que lo cargue.`);
-  log('  · Aparecerá el perfil "Chess Stream" (3x5) en el selector de perfiles.');
+  log('  · Aparecerá el perfil "Stream Toolkit" (3x5) en el selector de perfiles.');
   log('  · Si tu Stream Deck no es de 15 teclas, vuelve a ejecutar con --device <modelo>.');
   log('  · Recuerda arrancar el stack para que los botones de localhost funcionen:');
   log(`      ${c('36', 'npm run web:dev')}  y  ${c('36', 'npm run overlays')}`);

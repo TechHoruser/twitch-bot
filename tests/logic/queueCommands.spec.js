@@ -2,8 +2,8 @@ const { test, expect } = require('@playwright/test');
 const { resetData, makeClient, broadcasterTags, viewerTags } = require('../helpers/data');
 // El mock de chess debe cargarse antes que queueCommands (requiere chess).
 const chessMock = require('../helpers/chessMock');
-const { handleCommandByQueue } = require('@chess-stream/common/queueCommands');
-const saved = require('@chess-stream/common/savedData');
+const { handleCommandByQueue } = require('@stream-toolkit/common/queueCommands');
+const saved = require('@stream-toolkit/common/savedData');
 
 const CHANNEL = '#canal';
 

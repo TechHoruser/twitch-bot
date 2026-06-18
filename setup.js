@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Asistente de setup del monorepo del bot de stream de ajedrez.
+ * Asistente de setup del toolkit de directos de Twitch.
  *
  * Es idempotente (puedes ejecutarlo varias veces) y no usa dependencias
  * externas: solo módulos de Node. Hace lo siguiente:
@@ -9,7 +9,7 @@
  *   2. Instala dependencias de todos los workspaces (npm install).
  *   3. Prepara la carpeta de datos local (data/) y la siembra.
  *   4. Crea apps/bot/.env.local y pregunta (interactivo) por cada variable,
- *      mostrando dónde obtenerla (URLs de Twitch, Discord, Chess.com...).
+ *      mostrando dónde obtenerla (URLs de Twitch, Discord, tu plataforma de juego...).
  *   5. Crea/completa apps/web/.env.local.
  *   6. (Opcional) Instala el navegador de Playwright para los tests e2e.
  *   7. Imprime los próximos pasos.
@@ -110,7 +110,7 @@ const ENV_FIELDS = [
       'Abre esta URL en el navegador, acepta, y copia el access_token del hash\n' +
       '         de la redirección (http://localhost#access_token=...):\n' +
       `         https://id.twitch.tv/oauth2/authorize?client_id=${values.TWITCH_CLIENT_ID || 'TU_CLIENT_ID'}` +
-      '&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate',
+      '&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages',
   },
   {
     key: 'DISCORD_LINK',
@@ -119,10 +119,11 @@ const ENV_FIELDS = [
   },
   {
     key: 'CHESS_PROVIDER',
-    label: 'Proveedor de ajedrez: lichess | chesscom',
+    label: 'Módulo de cola de retadores (ajedrez): lichess | chesscom',
     tip: () =>
-      'Elige la plataforma con la que juegas/recibes retos. "lichess" habilita\n' +
-      '         además el overlay de TV (/tv). Por defecto: lichess.',
+      'Opcional. Solo para directos de ajedrez: la plataforma con la que juegas/\n' +
+      '         recibes retos. "lichess" habilita además el overlay de TV (/tv).\n' +
+      '         Déjalo vacío si no usas el módulo de ajedrez. Por defecto: lichess.',
   },
   {
     key: 'LICHESS_PROFILE_LINK',
@@ -148,6 +149,13 @@ const ENV_FIELDS = [
     key: 'CHESSCOM_CLUB_LINK',
     label: 'URL de tu club de Chess.com (si usas chesscom)',
     tip: () => 'Por ejemplo: https://www.chess.com/club/TU_CLUB',
+  },
+  {
+    key: 'JAMENDO_CLIENT_ID',
+    label: 'Client ID de Jamendo (música, opcional)',
+    tip: () =>
+      'Solo para `npm run setup:music` (descarga música libre para el directo).\n' +
+      '         Créalo gratis en https://devportal.jamendo.com/. Déjalo vacío si no usas música.',
   },
 ];
 
@@ -208,7 +216,7 @@ if (args.includes('--help')) {
 }
 
 async function main() {
-  log(c('1', '\n🏁  Setup — monorepo del bot de stream de ajedrez\n'));
+  log(c('1', '\n🏁  Setup — toolkit de directos de Twitch\n'));
 
   // 1) Node
   step(1, 'Comprobando Node...');
@@ -280,10 +288,17 @@ async function main() {
     ensureEnvVar(webEnvLocal, 'DATA_PATH', dataPathEnv);
     ok('apps/web/.env.local actualizado');
   }
-  // El overlay de TV (/tv) lo sirve la web, así que necesita su propio
-  // LICHESS_TV_USER. Lo propagamos desde el .env del bot.
-  const tvUser = getEnvVar(readEnv(botEnvLocal), 'LICHESS_TV_USER');
-  fs.writeFileSync(webEnvLocal, upsertEnvVar(readEnv(webEnvLocal), 'LICHESS_TV_USER', tvUser));
+  // La web necesita varias variables del bot: el overlay /tv usa LICHESS_TV_USER,
+  // y el panel /admin (chat + moderación) usa las credenciales de Twitch. Las
+  // propagamos desde el .env del bot.
+  const botContent = readEnv(botEnvLocal);
+  let webContent = readEnv(webEnvLocal);
+  for (const key of ['LICHESS_TV_USER', 'TWITCH_CLIENT_ID', 'TWITCH_OAUTH_TOKEN', 'TWITCH_CHANNEL_NAME']) {
+    webContent = upsertEnvVar(webContent, key, getEnvVar(botContent, key));
+  }
+  // El chat del panel se conecta en cliente, así que el canal va como pública.
+  webContent = upsertEnvVar(webContent, 'NEXT_PUBLIC_TWITCH_CHANNEL', getEnvVar(botContent, 'TWITCH_CHANNEL_NAME'));
+  fs.writeFileSync(webEnvLocal, webContent);
 
   // 6) Navegador de Playwright (opcional)
   step(6, 'Navegador de Playwright (tests e2e)...');
@@ -306,6 +321,7 @@ async function main() {
   log('  · OBS:       npm run setup:obs       (carga las escenas en OBS Studio)');
   log('  · StreamDeck:npm run setup:streamdeck(carga el perfil 3x5 en Stream Deck)');
   log('  · Voicemeeter:npm run setup:voicemeeter (config de audio Banana)');
+  log('  · Música:    npm run setup:music     (descarga música libre de Jamendo)');
   log('  · Tests:     npm run test:logic');
   log('  · Stack:     npm run up             (docker compose)\n');
 }

@@ -1,8 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useQueue } from '../shared/hooks/useQueue';
 import { GroupButtons } from './components/GroupButtons';
+import { Tabs } from './components/Tabs';
+import { ScenePanel } from './components/ScenePanel';
+import { MusicTab } from './music/MusicTab';
+import { Soundboard } from './sound/Soundboard';
+import { AudioPanel } from './audio/AudioPanel';
+import { ChatPanel } from './chat/ChatPanel';
 
 // Normaliza al formato nuevo (accounts[]) soportando también el antiguo.
 const getAccounts = (element) =>
@@ -22,83 +27,73 @@ const formatAccount = (account) => {
   };
 };
 
+function QueueList({ data }) {
+  return (
+    <ul className="w-full">
+      {data.map((item) => {
+        if (item.state === 'hide') return null;
+        const accounts = getAccounts(item).map(formatAccount);
+        return (
+          <li key={item.uuid} className="mb-2">
+            <p className="font-bold">{item.username}</p>
+            {accounts.map((account, i) => (
+              <div className="flex gap-4 pl-4" key={account.provider ?? i}>
+                <p className="text-sm opacity-70">{account.provider}</p>
+                <p>{account.chessUser}</p>
+                <div className="flex gap-1">
+                  <p>{account.rating.bullet}</p><span>|</span>
+                  <p>{account.rating.blitz}</p><span>|</span>
+                  <p>{account.rating.rapid}</p>
+                </div>
+              </div>
+            ))}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function ScenesTab({ data }) {
+  return (
+    <div className="flex flex-col gap-4 items-center">
+      <ScenePanel />
+      <GroupButtons
+        title="Cola"
+        buttons={[
+          { onClick: () => fetch('/api/admin/queue/pop', { method: 'GET' }), text: 'Siguiente' },
+          { onClick: () => fetch('/api/admin/queue', { method: 'DELETE' }), text: 'Limpiar', confirm: true },
+        ]}
+      />
+      <div className="w-full rounded-lg p-4 bg-white/5">
+        <h2 className="text-lg font-semibold mb-2">Cola de jugadores</h2>
+        <QueueList data={data} />
+      </div>
+    </div>
+  );
+}
+
 export default function Admin() {
   const { data } = useQueue();
 
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
+  const tabs = [
+    { key: 'scenes', label: '🎬 Escenas', content: <ScenesTab data={data} /> },
+    { key: 'audio', label: '🎚️ Audio', content: <AudioPanel /> },
+    { key: 'sounds', label: '🔊 Sonidos', content: <Soundboard /> },
+    { key: 'music', label: '🎵 Música', content: <MusicTab /> },
+  ];
 
   return (
-    <main className='flex h-screen v-screen'>
-      <div className='w-3/5 flex flex-col justify-center items-center'>
-        <div
-          className='flex justify-center items-center h-full w-full bg-white/5'
-        >
-          <GroupButtons
-            title='Cola'
-            buttons={[
-              {
-                onClick: () => {
-                  fetch('/api/admin/queue/pop', {
-                    method: 'GET',
-                  });
-                },
-                text: 'Siguiente',
-              },
-              // <button
-              //   className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-              //   onClick={() => {
-              //     fetch('/api/admin/queue', {
-              //       method: 'DELETE',
-              //     });
-              //   }}
-              // >Limpiar</button>,
-              {
-                onClick: () => {
-                  fetch('/api/admin/queue', {
-                    method: 'DELETE',
-                  });
-                },
-                text: 'Limpiar',
-                confirm: true,
-              }
-            ]}
-          />
-        </div>
-      </div>
-      <div className='w-2/5 flex flex-col justify-center items-center'>
-        <div
-          className='flex h-full w-full'
-        >
-          <ul>
-            {
-              data.map((item) => {
-                if (item.state === 'hide') {
-                  return null;
-                }
-                const accounts = getAccounts(item).map(formatAccount);
-                return <li key={item.uuid} className='mb-2'>
-                  <p className='font-bold'>{item.username}</p>
-                  {accounts.map((account, i) => (
-                    <div className='flex gap-4 pl-4' key={account.provider ?? i}>
-                      <p className='text-sm opacity-70'>{account.provider}</p>
-                      <p>{account.chessUser}</p>
-                      <div className='flex gap-1'>
-                        <p>{account.rating.bullet}</p>
-                        <span>|</span>
-                        <p>{account.rating.blitz}</p>
-                        <span>|</span>
-                        <p>{account.rating.rapid}</p>
-                      </div>
-                    </div>
-                  ))}
-                </li>;
-              })
-            }
-          </ul>
-        </div>
-      </div>
+    <main className="flex h-screen w-screen bg-neutral-900 text-white overflow-hidden">
+      {/* Chat + moderación: siempre visible */}
+      <aside className="w-[38%] min-w-[320px] border-r border-white/10 p-3">
+        <ChatPanel />
+      </aside>
+
+      {/* Controles en pestañas */}
+      <section className="flex-1 min-w-0">
+        <Tabs tabs={tabs} />
+      </section>
     </main>
   );
 }

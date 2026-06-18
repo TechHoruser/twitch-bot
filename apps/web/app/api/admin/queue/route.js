@@ -1,4 +1,4 @@
-import { clearQueue } from '@chess-stream/common/savedData';
+import { clearQueue } from '@stream-toolkit/common/savedData';
 
 const overloadQueueFilePath = 'queue';
 

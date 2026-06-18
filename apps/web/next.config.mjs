@@ -1,8 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // El paquete del workspace (@chess-stream/common) es CommonJS sin transpilar;
+  // El paquete del workspace (@stream-toolkit/common) es CommonJS sin transpilar;
   // pedimos a Next que lo procese al construir.
-  transpilePackages: ['@chess-stream/common'],
+  transpilePackages: ['@stream-toolkit/common'],
+  // obs-websocket-js usa `ws` en servidor: lo dejamos fuera del bundle.
+  serverExternalPackages: ['obs-websocket-js'],
 };
 
 export default nextConfig;

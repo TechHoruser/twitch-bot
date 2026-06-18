@@ -1,5 +1,5 @@
 // Mock de la librería chess-web-api. DEBE requerirse ANTES que
-// @chess-stream/common/chess para que el override del prototipo afecte a la
+// @stream-toolkit/common/chess para que el override del prototipo afecte a la
 // instancia creada en chess.js.
 //
 // Con npm workspaces, chess-web-api se hoistea al node_modules de la raíz, así

@@ -9,8 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@chess-stream/common": "*",
+    "@stream-toolkit/common": "*",
     "next": "15.1.6",
+    "obs-websocket-js": "^5.0.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

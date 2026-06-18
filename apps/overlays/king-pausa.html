@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!--
+  THE KING IS WATCHING · Pantalla "PAUSA" (fullscreen 1920x1080)
+  Tema: corte real / el rey descansa. Edita CONFIG abajo.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Nunito:wght@600;700;800&display=swap');
+  :root{
+    --night:#160c2e; --night2:#2a1a4a; --gold:#f5c542; --gold2:#ffe08a;
+    --royal:#8b5cff; --royal2:#b89bff; --crimson:#e23e57; --parch:#f3e7c9; --ink:#1c1233;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden;font-family:'Nunito',sans-serif;color:var(--parch)}
+
+  #bg{position:absolute;inset:0;background:
+      radial-gradient(1000px 700px at 50% 42%, rgba(139,92,255,.18), transparent 64%),
+      radial-gradient(1600px 1000px at 50% 50%, var(--night2), var(--night) 74%),
+      var(--night)}
+  #stone{position:absolute;inset:0;opacity:.09;
+    background-image:linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(255,255,255,.6) 1px,transparent 1px);
+    background-size:120px 120px}
+  /* antorchas a los lados */
+  .torch{position:absolute;top:50%;transform:translateY(-50%);font-size:120px;filter:drop-shadow(0 0 26px rgba(245,197,66,.6));
+    animation:flick 1.6s ease-in-out infinite}
+  @keyframes flick{0%,100%{opacity:.85;transform:translateY(-50%) scale(1)}50%{opacity:1;transform:translateY(-52%) scale(1.04)}}
+  .t-l{left:200px}.t-r{right:200px;animation-delay:-.8s}
+
+  #wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;z-index:2}
+  .crown{font-size:110px;filter:drop-shadow(0 6px 18px rgba(245,197,66,.45));animation:bob 3s ease-in-out infinite}
+  @keyframes bob{50%{transform:translateY(-12px)}}
+  .kicker{font-family:'Cinzel';font-weight:700;font-size:22px;letter-spacing:3px;color:var(--night);
+    background:linear-gradient(180deg,var(--gold2),var(--gold));padding:9px 30px;border-radius:6px;text-transform:uppercase;
+    box-shadow:0 6px 0 rgba(0,0,0,.25)}
+  h1{font-family:'Cinzel';font-weight:900;font-size:128px;line-height:.98;letter-spacing:6px;color:var(--gold);
+    margin:8px 0 0;text-shadow:0 4px 0 rgba(0,0,0,.35),0 0 36px rgba(245,197,66,.55)}
+  .subt{font-family:'Cinzel';font-weight:600;font-size:32px;color:var(--royal2);letter-spacing:1px}
+  .game{margin-top:2px;font-weight:800;font-size:24px;color:var(--gold);letter-spacing:3px;text-transform:uppercase}
+
+  /* pausa con dos columnas */
+  .pause{display:flex;gap:18px;margin-top:18px}
+  .pause i{width:26px;height:78px;border-radius:8px;background:linear-gradient(180deg,var(--gold2),var(--gold));
+    box-shadow:0 6px 0 rgba(0,0,0,.3);animation:pulse 1.8s ease-in-out infinite}
+  .pause i:last-child{animation-delay:-.9s}
+  @keyframes pulse{50%{opacity:.55}}
+
+  #foot{position:absolute;bottom:54px;left:0;right:0;display:flex;justify-content:center;gap:18px;z-index:2}
+  .soc{display:flex;align-items:center;gap:8px;background:rgba(42,26,74,.85);border:2px solid rgba(245,197,66,.4);
+    padding:10px 24px;border-radius:8px;font-family:'Cinzel';font-weight:600;font-size:19px;color:var(--parch)}
+  .soc b{color:var(--gold)}
+</style>
+</head>
+<body>
+  <div id="bg"></div><div id="stone"></div>
+  <div class="torch t-l">🔥</div><div class="torch t-r">🔥</div>
+
+  <div id="wrap">
+    <div class="crown">👑</div>
+    <div class="kicker">el reino aguarda</div>
+    <h1>PAUSA</h1>
+    <div class="subt">el rey descansa… volvemos enseguida</div>
+    <div class="game">👁 THE KING IS WATCHING</div>
+    <div class="pause"><i></i><i></i></div>
+  </div>
+
+  <div id="foot">
+    <span class="soc">🟣 Twitch <b id="tw">/TU_CANAL</b></span>
+    <span class="soc">🔴 YouTube <b id="yt">/TU_CANAL</b></span>
+    <span class="soc">💬 Discord <b id="dc">/TU_CANAL</b></span>
+  </div>
+
+<script>
+  // ====== CONFIG ======
+  const HANDLE = "TU_CANAL";   // tu handle (cámbialo por el tuyo)
+  // ====================
+  tw.textContent=yt.textContent=dc.textContent="/"+HANDLE;
+</script>
+</body>
+</html>
