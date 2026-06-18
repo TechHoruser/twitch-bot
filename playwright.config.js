@@ -3,7 +3,7 @@ const { defineConfig } = require('@playwright/test');
 const path = require('path');
 const fs = require('fs');
 
-// Las pruebas de lógica usan el almacenamiento en ficheros de @chess-stream/common.
+// Las pruebas de lógica usan el almacenamiento en ficheros de @stream-toolkit/common.
 // Apuntamos DATA_PATH a un directorio temporal y forzamos NODE_ENV=test
 // (esto evita que centerOverload arranque su setInterval al importarse).
 process.env.NODE_ENV = 'test';
@@ -13,7 +13,7 @@ fs.mkdirSync(process.env.DATA_PATH, { recursive: true });
 module.exports = defineConfig({
   testDir: './tests',
   fullyParallel: false,
-  // El almacenamiento de @chess-stream/common es en ficheros compartidos (DATA_PATH),
+  // El almacenamiento de @stream-toolkit/common es en ficheros compartidos (DATA_PATH),
   // así que ejecutamos en serie para evitar carreras entre ficheros de test.
   workers: 1,
   forbidOnly: !!process.env.CI,
@@ -21,7 +21,7 @@ module.exports = defineConfig({
   reporter: process.env.CI ? 'list' : [['list'], ['html', { open: 'never' }]],
   projects: [
     {
-      // Cobertura de toda la lógica de negocio (bot + @chess-stream/common).
+      // Cobertura de toda la lógica de negocio (bot + @stream-toolkit/common).
       // No necesita navegador: corre en Node puro.
       name: 'logic',
       testDir: './tests/logic',

@@ -1,5 +1,5 @@
-import { popFromQueue } from '@chess-stream/common/savedData';
-import { nextOverload } from '@chess-stream/common/centerOverload';
+import { popFromQueue } from '@stream-toolkit/common/savedData';
+import { nextOverload } from '@stream-toolkit/common/centerOverload';
 
 const overloadQueueFilePath = 'queue';
 

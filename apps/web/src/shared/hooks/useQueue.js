@@ -1,32 +1,9 @@
-import { useEffect, useState } from "react";
+'use client';
+import { useStream } from '../StreamProvider';
 
+// La cola ahora vive en el StreamProvider (una sola conexión SSE). Mantenemos este
+// hook por compatibilidad con los consumidores existentes (p.ej. Admin).
 export const useQueue = () => {
-  const [data, setData] = useState([]);
-
-  useEffect(() => {
-    const evtSource = new EventSource('/api/overload');
-    evtSource.addEventListener('newQueueElement', (event) => {
-      console.log('newQueueElement', event.data);
-      const payload = JSON.parse(event.data);
-      setData(prev => [...prev, { ...payload, state: 'alive'}]);
-    });
-    evtSource.addEventListener('dropQueueElement', (event) => {
-      console.log('dropQueueElement', event.data);
-      const uuid = event.data;
-      setData(prev => prev.map(item => {
-        if (item.uuid === uuid) {
-          return { ...item, state: 'hide' };
-        }
-        return item;
-      }));
-    });
-    return () => {
-      evtSource.close();
-    };
-  }, []);
-
-  return {
-    data,
-    setData,
-  };
-}
+  const { queue, setQueue } = useStream();
+  return { data: queue, setData: setQueue };
+};

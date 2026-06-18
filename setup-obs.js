@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Asistente de setup de OBS Studio para el monorepo del bot de ajedrez.
+ * Asistente de setup de OBS Studio para el toolkit de directos de Twitch.
  *
  * Carga las colecciones de escenas de `apps/overlays/scenes/*.json` dentro de
  * OBS Studio, copiándolas a la carpeta de configuración de OBS de tu sistema.
@@ -147,7 +147,7 @@ function backupOnce(file) {
 }
 
 function main() {
-  log(c('1', '\n🎬  Setup de OBS — colecciones de escenas del stream de ajedrez\n'));
+  log(c('1', '\n🎬  Setup de OBS — colecciones de escenas del directo\n'));
   if (DRY) warn('Modo --dry-run: no se escribirá ningún archivo.');
 
   // 1) Escenas de origen

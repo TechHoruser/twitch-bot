@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const lichess = require('@chess-stream/common/providers/lichess');
+const lichess = require('@stream-toolkit/common/providers/lichess');
 
 // fetch simulado: cada respuesta define { status, body }.
 const makeFetch = (responses = []) => {

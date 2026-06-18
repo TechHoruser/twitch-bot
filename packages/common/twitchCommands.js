@@ -38,26 +38,68 @@ const getUserId = async (username, env = process.env, fetchFn = fetch) => {
 const getBroadcasterId = (env = process.env, fetchFn = fetch) =>
   getUserId(env.TWITCH_CHANNEL_NAME, env, fetchFn);
 
-const banUser = async ({ userId, duration, reason, broadcasterId }, env = process.env, fetchFn = fetch) => {
+// Id del dueño del token (= /users sin login). Es el moderator_id que exige Helix
+// y debe coincidir con el usuario del OAuth token.
+const getModeratorId = async (env = process.env, fetchFn = fetch) => {
+  const response = await fetchFn(`${TWITCH_HELIX}/users`, {
+    headers: {
+      'Client-ID': env.TWITCH_CLIENT_ID,
+      'Authorization': `Bearer ${env.TWITCH_OAUTH_TOKEN}`,
+    },
+  });
+  const data = await response.json();
+  return data.data?.[0]?.id ?? null;
+};
+
+const authHeaders = (env) => ({
+  'Client-ID': env.TWITCH_CLIENT_ID,
+  'Authorization': `Bearer ${env.TWITCH_OAUTH_TOKEN}`,
+  'Content-Type': 'application/json',
+});
+
+// Banea (sin duration) o aplica timeout (con duration en segundos) vía Helix.
+const banUser = async ({ userId, duration, reason, broadcasterId, moderatorId }, env = process.env, fetchFn = fetch) => {
   if (!broadcasterId) {
     throw new Error('No se conoce el broadcaster_id todavía. Reinicia el bot e inténtalo de nuevo.');
   }
 
   const response = await fetchFn(
-    `${TWITCH_HELIX}/moderation/bans?broadcaster_id=${broadcasterId}&moderator_id=${broadcasterId}`,
+    `${TWITCH_HELIX}/moderation/bans?broadcaster_id=${broadcasterId}&moderator_id=${moderatorId || broadcasterId}`,
     {
       method: 'POST',
-      headers: {
-        'Client-ID': env.TWITCH_CLIENT_ID,
-        'Authorization': `Bearer ${env.TWITCH_OAUTH_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
+      headers: authHeaders(env),
       body: JSON.stringify({ data: { user_id: userId, duration, reason } }),
     }
   );
 
   if (!response.ok) {
     throw new Error('Error al banear al usuario');
+  }
+  return true;
+};
+
+// Quita el ban/timeout de un usuario.
+const unbanUser = async ({ userId, broadcasterId, moderatorId }, env = process.env, fetchFn = fetch) => {
+  const response = await fetchFn(
+    `${TWITCH_HELIX}/moderation/bans?broadcaster_id=${broadcasterId}&moderator_id=${moderatorId || broadcasterId}&user_id=${userId}`,
+    { method: 'DELETE', headers: authHeaders(env) }
+  );
+  if (!response.ok && response.status !== 204) {
+    throw new Error('Error al quitar el ban');
+  }
+  return true;
+};
+
+// Borra un mensaje concreto del chat (o todos si no se pasa messageId).
+const deleteMessage = async ({ broadcasterId, moderatorId, messageId }, env = process.env, fetchFn = fetch) => {
+  const qs = `broadcaster_id=${broadcasterId}&moderator_id=${moderatorId || broadcasterId}` +
+    (messageId ? `&message_id=${messageId}` : '');
+  const response = await fetchFn(`${TWITCH_HELIX}/moderation/chat?${qs}`, {
+    method: 'DELETE',
+    headers: authHeaders(env),
+  });
+  if (!response.ok && response.status !== 204) {
+    throw new Error('Error al borrar el mensaje');
   }
   return true;
 };
@@ -116,7 +158,10 @@ const handleBasicCommands = async (client, channel, tags, message, deps = {}) =>
 module.exports = {
   getUserId,
   getBroadcasterId,
+  getModeratorId,
   banUser,
+  unbanUser,
+  deleteMessage,
   handleBasicCommands,
   resolveChessLinks,
   KICK_TIME,

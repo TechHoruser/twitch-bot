@@ -1,4 +1,7 @@
 import fs from 'fs';
+import { getScene } from '@stream-toolkit/common/scene';
+import { getMusic, currentTrack, playlistNames } from '@stream-toolkit/common/music';
+import { getSound } from '@stream-toolkit/common/sound';
 
 const DATA_PATH = process.env.DATA_PATH || '/data';
 const overloadCenterFilePath = `${DATA_PATH}/overload-center.json`;
@@ -8,6 +11,9 @@ export async function GET() {
   let isControllerClosed = false;
   let lastPayload = {};
   let lastQueue = [];
+  let lastScene = null;
+  let lastMusic = null;
+  let lastSound = null;
 
   let intervalId = null;
 
@@ -34,6 +40,21 @@ export async function GET() {
         }
       }
 
+      const checkScene = (scene) => {
+        if (JSON.stringify(scene) === JSON.stringify(lastScene)) return;
+        controller.enqueue(`event: sceneChange\ndata: ${JSON.stringify(scene)}\n\n`);
+      };
+
+      const checkMusic = (music) => {
+        if (JSON.stringify(music) === JSON.stringify(lastMusic)) return;
+        controller.enqueue(`event: musicState\ndata: ${JSON.stringify(music)}\n\n`);
+      };
+
+      const checkSound = (sound) => {
+        if (JSON.stringify(sound) === JSON.stringify(lastSound)) return;
+        controller.enqueue(`event: playSound\ndata: ${JSON.stringify(sound)}\n\n`);
+      };
+
       const sendChange = () => {
         try {
           if (isControllerClosed) return;
@@ -45,6 +66,19 @@ export async function GET() {
           const queue = JSON.parse(fs.readFileSync(overloadQueueFilePath, 'utf8'));
           checkQueueOverload(queue);
           lastQueue = queue;
+
+          const scene = getScene();
+          checkScene(scene);
+          lastScene = scene;
+
+          const m = getMusic();
+          const music = { ...m, track: currentTrack(m), playlists: playlistNames() };
+          checkMusic(music);
+          lastMusic = music;
+
+          const sound = getSound();
+          checkSound(sound);
+          lastSound = sound;
 
         } catch (error) {
           if (!isControllerClosed) {

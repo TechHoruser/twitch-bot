@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&family=Oswald:wght@500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,16 +9,13 @@
   --foreground: #171717;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* El body del overlay debe ser transparente: en OBS la captura de juego se ve por
+   debajo durante la escena de juego. Las pantallas a pantalla completa
+   (intro/pausa/outro) pintan su propio fondo opaco. El panel /admin pone su propio
+   fondo oscuro. */
 body {
   color: var(--foreground);
-  background: var(--background);
+  background: transparent;
   font-family: Arial, Helvetica, sans-serif;
 }
 

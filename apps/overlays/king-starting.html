@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<!--
+  THE KING IS WATCHING · Pantalla "EMPEZAMOS PRONTO" (fullscreen 1920x1080)
+  Tema: corte real medieval / la mirada del rey. Cuenta atrás en CONFIG (MINUTOS).
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Nunito:wght@600;700;800&display=swap');
+  :root{
+    --night:#160c2e; --night2:#2a1a4a; --gold:#f5c542; --gold2:#ffe08a;
+    --royal:#8b5cff; --royal2:#b89bff; --crimson:#e23e57; --parch:#f3e7c9; --ink:#1c1233;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden;font-family:'Nunito',sans-serif;color:var(--parch)}
+
+  /* sala del trono: penumbra púrpura con halo dorado al centro */
+  #bg{position:absolute;inset:0;background:
+      radial-gradient(1100px 720px at 50% 34%, rgba(245,197,66,.16), transparent 62%),
+      radial-gradient(1600px 1000px at 50% 50%, var(--night2), var(--night) 72%),
+      var(--night)}
+  /* sillería de piedra tenue */
+  #stone{position:absolute;inset:0;opacity:.10;
+    background-image:linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(255,255,255,.6) 1px,transparent 1px);
+    background-size:120px 120px}
+  /* la "mirada del rey": cono de luz que barre la escena */
+  #gaze{position:absolute;top:-10%;left:50%;width:900px;height:1400px;transform-origin:top center;
+    background:conic-gradient(from 180deg at 50% 0%, transparent 78deg, rgba(245,197,66,.10) 90deg, transparent 102deg);
+    filter:blur(2px);animation:sweep 9s ease-in-out infinite}
+  @keyframes sweep{0%,100%{transform:translateX(-50%) rotate(-16deg)}50%{transform:translateX(-50%) rotate(16deg)}}
+  /* ascuas doradas flotando */
+  .ember{position:absolute;width:7px;height:7px;border-radius:50%;background:var(--gold);
+    box-shadow:0 0 12px 3px rgba(245,197,66,.7);opacity:.8;animation:rise 7s linear infinite}
+  .e1{left:18%;bottom:-20px;animation-delay:0s}.e2{left:34%;bottom:-20px;animation-delay:-2s}
+  .e3{left:63%;bottom:-20px;animation-delay:-4s}.e4{left:80%;bottom:-20px;animation-delay:-1s}
+  .e5{left:48%;bottom:-20px;animation-delay:-3s}
+  @keyframes rise{to{transform:translateY(-1140px) translateX(40px);opacity:0}}
+
+  #wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;z-index:2}
+  .crown{font-size:104px;filter:drop-shadow(0 6px 18px rgba(245,197,66,.45));animation:bob 2.6s ease-in-out infinite}
+  @keyframes bob{50%{transform:translateY(-14px) rotate(-3deg)}}
+  .kicker{font-family:'Cinzel';font-weight:700;font-size:22px;letter-spacing:3px;color:var(--night);
+    background:linear-gradient(180deg,var(--gold2),var(--gold));padding:9px 30px;border-radius:6px;text-transform:uppercase;
+    box-shadow:0 6px 0 rgba(0,0,0,.25)}
+  h1{font-family:'Cinzel';font-weight:900;font-size:120px;line-height:.98;letter-spacing:4px;color:var(--parch);
+    margin:10px 0 0;text-shadow:0 4px 0 rgba(0,0,0,.35),0 0 36px rgba(139,92,255,.5)}
+  h1 span{color:var(--gold);text-shadow:0 4px 0 rgba(0,0,0,.35),0 0 30px rgba(245,197,66,.6)}
+  .subt{font-family:'Cinzel';font-weight:600;font-size:30px;color:var(--royal2);letter-spacing:1px}
+  .game{margin-top:4px;font-weight:800;font-size:24px;color:var(--gold);letter-spacing:3px;text-transform:uppercase}
+
+  #count{font-family:'Cinzel';font-weight:700;font-size:58px;color:var(--gold2);margin-top:26px;padding:12px 46px;border-radius:8px;
+    background:linear-gradient(180deg,rgba(42,26,74,.9),rgba(22,12,46,.9));border:2px solid rgba(245,197,66,.55);
+    box-shadow:0 8px 0 rgba(0,0,0,.35),inset 0 0 24px rgba(245,197,66,.12)}
+
+  /* estandarte que se "iza" como barra de carga */
+  #load{margin-top:26px;width:560px;height:20px;border-radius:6px;background:rgba(0,0,0,.35);
+    border:2px solid rgba(245,197,66,.5);overflow:hidden}
+  #load>div{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--royal),var(--gold),var(--royal));
+    background-size:200% 100%;animation:fill 2.8s ease-in-out infinite, flow 3s linear infinite}
+  @keyframes fill{0%{width:8%}50%{width:94%}100%{width:8%}}
+  @keyframes flow{to{background-position:200% 0}}
+  .boot{margin-top:14px;font-family:'Cinzel';font-weight:600;font-size:20px;color:var(--parch);opacity:.7;letter-spacing:1px}
+
+  #foot{position:absolute;bottom:54px;left:0;right:0;display:flex;justify-content:center;gap:18px;z-index:2}
+  .soc{display:flex;align-items:center;gap:8px;background:rgba(42,26,74,.85);border:2px solid rgba(245,197,66,.4);
+    padding:10px 24px;border-radius:8px;font-family:'Cinzel';font-weight:600;font-size:19px;color:var(--parch)}
+  .soc b{color:var(--gold)}
+</style>
+</head>
+<body>
+  <div id="bg"></div><div id="stone"></div><div id="gaze"></div>
+  <div class="ember e1"></div><div class="ember e2"></div><div class="ember e3"></div>
+  <div class="ember e4"></div><div class="ember e5"></div>
+
+  <div id="wrap">
+    <div class="crown">👑</div>
+    <div class="kicker">la corte se prepara</div>
+    <h1>EMPEZAMOS <span>PRONTO</span></h1>
+    <div class="subt">el rey ya observa su reino…</div>
+    <div class="game">👁 THE KING IS WATCHING</div>
+    <div id="count">--:--</div>
+    <div id="load"><div></div></div>
+    <div class="boot" id="boot">forjando la corona…</div>
+  </div>
+
+  <div id="foot">
+    <span class="soc">🟣 Twitch <b id="tw">/TU_CANAL</b></span>
+    <span class="soc">🔴 YouTube <b id="yt">/TU_CANAL</b></span>
+    <span class="soc">💬 Discord <b id="dc">/TU_CANAL</b></span>
+  </div>
+
+<script>
+  // ====== CONFIG ======
+  const MINUTOS = 5;            // cuenta atrás (0 = ocultarla)
+  const HANDLE  = "TU_CANAL";   // tu handle (cámbialo por el tuyo)
+  // ====================
+  tw.textContent=yt.textContent=dc.textContent="/"+HANDLE;
+  const boots=["forjando la corona…","alzando los estandartes…","el rey toma su trono…","afilando las espadas…","convocando a la corte…"];
+  let bi=0;setInterval(()=>boot.textContent=boots[bi=(bi+1)%boots.length],2200);
+
+  const el=document.getElementById('count');
+  if(MINUTOS<=0){el.style.display='none';}
+  else{
+    let end=Date.now()+MINUTOS*60000;
+    const tick=()=>{let s=Math.max(0,Math.round((end-Date.now())/1000));
+      let m=String(Math.floor(s/60)).padStart(2,'0'),ss=String(s%60).padStart(2,'0');
+      el.textContent=s>0?m+":"+ss:"¡QUE COMIENCE!";};
+    tick();setInterval(tick,1000);
+  }
+</script>
+</body>
+</html>

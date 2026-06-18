@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { makeClient, broadcasterTags, viewerTags } = require('../helpers/data');
-const twitch = require('@chess-stream/common/twitchCommands');
+const twitch = require('@stream-toolkit/common/twitchCommands');
 
 const CHANNEL = '#canal';
 const ENV = {

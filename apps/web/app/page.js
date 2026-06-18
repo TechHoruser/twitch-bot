@@ -1,11 +1,12 @@
-import Overload from "@/src/overload/Overload";
+import { StreamProvider } from "@/src/shared/StreamProvider";
+import Stage from "@/src/stage/Stage";
 
 export const dynamic = 'force-dynamic';
 
-export default async function Home() {
+export default function Home() {
   return (
-    <>
-      <Overload />
-    </>
+    <StreamProvider>
+      <Stage />
+    </StreamProvider>
   );
 }

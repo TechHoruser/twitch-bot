@@ -1,8 +1,8 @@
 {
-  "name": "chess-stream-monorepo",
+  "name": "stream-toolkit",
   "version": "1.0.0",
   "private": true,
-  "description": "Monorepo del bot de stream de ajedrez: apps (bot, web, overlays) + paquetes compartidos + tests",
+  "description": "Toolkit para gestionar directos de Twitch: apps (bot, web, overlays) + paquetes compartidos + tests",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -12,6 +12,8 @@
     "setup:obs": "node setup-obs.js",
     "setup:streamdeck": "node setup-streamdeck.js",
     "setup:voicemeeter": "node setup-voicemeeter.js",
+    "setup:music": "node setup-music.js",
+    "setup:audio": "node setup-audio.js",
 
     "bot": "npm --workspace apps/bot run start",
     "bot:dev": "npm --workspace apps/bot run start:dev",

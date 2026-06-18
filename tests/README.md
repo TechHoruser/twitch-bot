@@ -1,6 +1,6 @@
 # Tests (Playwright)
 
-Suite de pruebas del bot de stream de ajedrez. Se usa **Playwright Test** como
+Suite de pruebas del toolkit de directos de Twitch. Se usa **Playwright Test** como
 runner unificado, con dos proyectos:
 
 | Proyecto | Carpeta | Qué cubre | Navegador |

@@ -1,8 +1,8 @@
 // Importa la librería tmi.js
 const tmi = require('tmi.js');
-const { getJson, saveJson } = require('@chess-stream/common/savedData');
-const { handleCommandByQueue } = require('@chess-stream/common/queueCommands');
-const { handleBasicCommands, getBroadcasterId } = require('@chess-stream/common/twitchCommands');
+const { getJson, saveJson } = require('@stream-toolkit/common/savedData');
+const { handleCommandByQueue } = require('@stream-toolkit/common/queueCommands');
+const { handleBasicCommands, getBroadcasterId } = require('@stream-toolkit/common/twitchCommands');
 
 // Configuración del cliente de Twitch
 const client = new tmi.Client({
