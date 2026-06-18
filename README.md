@@ -253,9 +253,31 @@ y las conmutas desde `/admin`. Así OBS solo necesita **un Browser Source**:
 * La **webcam** la usa la app: en OBS **no** pongas además una fuente con la misma
   cámara (no se puede compartir el dispositivo).
 
+#### Permiso de cámara en el Browser Source de OBS
+
+El navegador embebido de OBS (CEF) **no habilita la cámara por defecto**: hay que
+pasarle flags al arrancar OBS. En el **acceso directo de OBS** (Windows: clic derecho
+▸ Propiedades ▸ *Destino*) añade los flags al final:
+
+```
+…\obs64.exe --enable-media-stream --use-fake-ui-for-media-stream
+```
+
+`--enable-media-stream` habilita `getUserMedia`; `--use-fake-ui-for-media-stream`
+acepta el permiso automáticamente (CEF no tiene diálogo para pulsar "Permitir").
+Cierra OBS del todo y vuelve a abrirlo **desde ese acceso directo**. Además:
+
+* La URL debe ser `localhost`/`127.0.0.1` (contexto seguro; con una IP de red se bloquea).
+* Permiso de cámara del SO para apps de escritorio (Windows: *Privacidad ▸ Cámara*; macOS: *Privacidad ▸ Cámara ▸ OBS*).
+* La cámara libre (sin otra app/fuente usándola).
+
+Si algo falla, el overlay muestra un aviso **"Sin acceso a la cámara"** con la causa y
+reintenta solo cada 5 s.
+
 > Las colecciones de OBS (`apps/overlays/scenes/`) y los HTML `*-starting/pausa/…`
 > siguen disponibles como alternativa; este modelo web los sustituye con un solo
-> Browser Source.
+> Browser Source. La colección lista para esto es **`Stream Toolkit`** (un único
+> Browser Source a `localhost:3000`).
 
 Variables (en `apps/web/.env.local`):
 
