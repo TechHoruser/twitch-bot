@@ -14,24 +14,20 @@
     "setup:voicemeeter": "node setup-voicemeeter.js",
     "setup:music": "node setup-music.js",
     "setup:audio": "node setup-audio.js",
-
+    "dev": "concurrently --names \"bot,web,overlays\" --prefix-colors \"cyan,magenta,yellow\" \"npm run bot:dev\" \"npm run web:dev\" \"npm run overlays\"",
     "bot": "npm --workspace apps/bot run start",
     "bot:dev": "npm --workspace apps/bot run start:dev",
-
     "web:dev": "npm --workspace apps/web run dev",
     "web:build": "npm --workspace apps/web run build",
     "web:start": "npm --workspace apps/web run start",
     "web:lint": "npm --workspace apps/web run lint",
-
     "overlays": "npm --workspace apps/overlays run dev",
-
     "test": "cross-env PLAYWRIGHT_FORCE_ASYNC_LOADER=1 playwright test",
     "test:logic": "cross-env PLAYWRIGHT_FORCE_ASYNC_LOADER=1 playwright test --project=logic",
     "test:e2e": "cross-env PLAYWRIGHT_FORCE_ASYNC_LOADER=1 playwright test --project=e2e",
     "test:ui": "cross-env PLAYWRIGHT_FORCE_ASYNC_LOADER=1 playwright test --ui",
     "test:report": "playwright show-report",
     "pw:install": "playwright install chromium",
-
     "up": "docker compose up",
     "up:build": "docker compose up --build",
     "up:web": "docker compose up web",
@@ -39,6 +35,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.50.0",
+    "concurrently": "^10.0.3",
     "cross-env": "^7.0.3"
   }
 }
