@@ -114,7 +114,7 @@ Crea una aplicación con estos datos:
 
 Obtén el token OAuth manualmente ejecutando en tu navegador:
 
-https://id.twitch.tv/oauth2/authorize?client_id=TU_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages
+https://id.twitch.tv/oauth2/authorize?client_id=TU_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages+moderator:manage:automod
 
 Te redirigirá a http://localhost#access_token=TOKEN_GENERADO.
 
@@ -229,6 +229,13 @@ el ratón por cada mensaje). A la derecha, en pestañas:
 > debe incluir** `moderator:manage:banned_users` y `moderator:manage:chat_messages`
 > (la URL de la sección "Conseguir Token" ya los pide; regénéralo si es antiguo).
 > "Kick" no existe en Twitch: se aplica como **timeout**.
+>
+> **Mensajes retenidos** (AutoMod o la opción de Twitch *"revisar el primer mensaje de
+> chatters nuevos"*) aparecen en el panel en una sección **"⏳ Pendientes de aprobar"** con
+> botones **Publicar / Rechazar**. Esos mensajes no llegan por el IRC anónimo: se reciben
+> por **EventSub** (el navegador abre el WebSocket y `/api/admin/automod/subscribe` da de
+> alta las suscripciones con el token), así que el token **debe incluir además**
+> `moderator:manage:automod`.
 
 ### Escenas precargadas en la web
 
@@ -292,6 +299,8 @@ OBS_WEBSOCKET_PASSWORD=        # (audio) si pusiste contraseña en obs-websocket
 
 > El panel de moderación necesita además `TWITCH_CLIENT_ID`, `TWITCH_OAUTH_TOKEN` y
 > `TWITCH_CHANNEL_NAME` en `apps/web/.env.local`: `npm run setup` los copia del bot.
+> Para los mensajes retenidos (Pendientes de aprobar) el token necesita el scope
+> `moderator:manage:automod`.
 
 ### Música libre con `setup-music.js` (Jamendo)
 

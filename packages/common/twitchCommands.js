@@ -104,6 +104,42 @@ const deleteMessage = async ({ broadcasterId, moderatorId, messageId }, env = pr
   return true;
 };
 
+// Aprueba (ALLOW) o rechaza (DENY) un mensaje retenido por AutoMod o por la
+// revisión de "primeros mensajes" de chatters nuevos. El user_id debe ser el del
+// moderador dueño del token. Requiere el scope moderator:manage:automod.
+const manageHeldMessage = async ({ msgId, action, moderatorId }, env = process.env, fetchFn = fetch) => {
+  const response = await fetchFn(`${TWITCH_HELIX}/moderation/automod/message`, {
+    method: 'POST',
+    headers: authHeaders(env),
+    body: JSON.stringify({ user_id: moderatorId, msg_id: msgId, action }),
+  });
+  if (!response.ok && response.status !== 204) {
+    throw new Error('Error al gestionar el mensaje retenido');
+  }
+  return true;
+};
+
+// Da de alta una suscripción de EventSub por WebSocket. El navegador abre el WS y
+// nos pasa su session_id; aquí lo registramos con el token (que nunca sale al
+// cliente) para que Twitch enrute los eventos a esa conexión.
+const createEventSubSubscription = async ({ type, version, condition, sessionId }, env = process.env, fetchFn = fetch) => {
+  const response = await fetchFn(`${TWITCH_HELIX}/eventsub/subscriptions`, {
+    method: 'POST',
+    headers: authHeaders(env),
+    body: JSON.stringify({
+      type,
+      version,
+      condition,
+      transport: { method: 'websocket', session_id: sessionId },
+    }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.message || 'Error al crear la suscripción de EventSub');
+  }
+  return data;
+};
+
 // Maneja los comandos de chat que no son de cola.
 const handleBasicCommands = async (client, channel, tags, message, deps = {}) => {
   const env = deps.env || process.env;
@@ -162,6 +198,8 @@ module.exports = {
   banUser,
   unbanUser,
   deleteMessage,
+  manageHeldMessage,
+  createEventSubSubscription,
   handleBasicCommands,
   resolveChessLinks,
   KICK_TIME,

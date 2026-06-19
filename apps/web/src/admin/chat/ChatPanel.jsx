@@ -1,12 +1,16 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { useTwitchChat } from './useTwitchChat';
+import { useAutomodQueue } from './useAutomodQueue';
 
-const mod = (body) => fetch('/api/admin/mod', {
+const post = (url) => (body) => fetch(url, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify(body),
 }).then((r) => r.json());
+
+const mod = post('/api/admin/mod');
+const automod = post('/api/admin/automod');
 
 const BADGE = { broadcaster: '🎥', moderator: '🛡️', vip: '💎', subscriber: '⭐', founder: '⭐', premium: '👑' };
 const badgeIcons = (badges) =>
@@ -23,6 +27,7 @@ const resolveChannel = () => {
 export function ChatPanel() {
   const [channel] = useState(resolveChannel);
   const { messages, status } = useTwitchChat(channel);
+  const { held, status: amStatus, remove } = useAutomodQueue(!!channel);
   const [toast, setToast] = useState(null);
   const endRef = useRef(null);
 
@@ -30,10 +35,24 @@ export function ChatPanel() {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const notify = (text) => {
+    setToast(text);
+    setTimeout(() => setToast(null), 2500);
+  };
+
   const act = async (body, label) => {
     const res = await mod(body);
-    setToast(res?.ok ? `✓ ${label}` : `✗ ${res?.error || 'error'}`);
-    setTimeout(() => setToast(null), 2500);
+    notify(res?.ok ? `✓ ${label}` : `✗ ${res?.error || 'error'}`);
+  };
+
+  // Publicar (allow) / Rechazar (deny) un mensaje retenido. Se quita de la lista
+  // al instante y luego se confirma contra Helix.
+  const resolve = async (m, action) => {
+    remove(m.msgId);
+    const res = await automod({ action, msgId: m.msgId });
+    notify(res?.ok
+      ? `✓ mensaje de ${m.name} ${action === 'allow' ? 'publicado' : 'rechazado'}`
+      : `✗ ${res?.error || 'error'}`);
   };
 
   return (
@@ -49,6 +68,42 @@ export function ChatPanel() {
         <p className="text-sm opacity-60 p-3">
           Configura <code className="bg-white/10 px-1 rounded">NEXT_PUBLIC_TWITCH_CHANNEL</code> en
           <code className="bg-white/10 px-1 rounded">apps/web/.env.local</code> (o usa <code>?channel=tu_canal</code>).
+        </p>
+      )}
+
+      {/* Mensajes retenidos por AutoMod / revisión de chatters nuevos. No están en
+          el chat público hasta que se aprueban aquí. */}
+      {held.length > 0 && (
+        <div className="shrink-0 max-h-[45%] overflow-y-auto border-b border-amber-500/30 bg-amber-500/5">
+          <div className="px-3 py-1.5 text-xs font-semibold text-amber-300">
+            ⏳ Pendientes de aprobar ({held.length})
+          </div>
+          {held.map((m) => (
+            <div key={m.msgId} className="px-3 py-2 text-sm border-t border-white/5">
+              <div className="break-words">
+                <span className="font-bold text-amber-400">{m.name}</span>
+                {m.category && <span className="ml-2 text-xs opacity-50">[{m.category}]</span>}
+                <div className="opacity-90">{m.text}</div>
+              </div>
+              <div className="flex gap-2 mt-1.5">
+                <button
+                  className="px-2 py-0.5 rounded bg-emerald-600/80 hover:bg-emerald-600 text-xs"
+                  onClick={() => resolve(m, 'allow')}
+                >✓ Publicar</button>
+                <button
+                  className="px-2 py-0.5 rounded bg-red-600/80 hover:bg-red-600 text-xs"
+                  onClick={() => resolve(m, 'deny')}
+                >✕ Rechazar</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {channel && amStatus === 'error' && (
+        <p className="px-3 py-1.5 text-xs text-amber-400/80 border-b border-white/10">
+          ⚠️ No se pudieron recibir mensajes retenidos. Revisa que el token tenga el scope
+          <code className="bg-white/10 px-1 rounded mx-1">moderator:manage:automod</code>.
         </p>
       )}
 

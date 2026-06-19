@@ -108,3 +108,51 @@ test.describe('getUserId / banUser', () => {
       .rejects.toThrow('broadcaster_id');
   });
 });
+
+test.describe('manageHeldMessage · mensajes retenidos', () => {
+  test('aprueba (ALLOW) enviando user_id, msg_id y action', async () => {
+    const fetch = makeFetch([{ ok: true, body: {} }]);
+    await twitch.manageHeldMessage({ msgId: 'm1', action: 'ALLOW', moderatorId: '7' }, ENV, fetch);
+    expect(fetch.calls[0].url).toContain('/moderation/automod/message');
+    expect(fetch.calls[0].opts.method).toBe('POST');
+    const sent = JSON.parse(fetch.calls[0].opts.body);
+    expect(sent).toEqual({ user_id: '7', msg_id: 'm1', action: 'ALLOW' });
+  });
+
+  test('rechaza (DENY) sin lanzar cuando la API responde 204', async () => {
+    const fetch = makeFetch([{ ok: true, body: {} }]);
+    await twitch.manageHeldMessage({ msgId: 'm2', action: 'DENY', moderatorId: '7' }, ENV, fetch);
+    expect(JSON.parse(fetch.calls[0].opts.body).action).toBe('DENY');
+  });
+
+  test('lanza si la API falla', async () => {
+    const fetch = makeFetch([{ ok: false, body: {} }]);
+    await expect(twitch.manageHeldMessage({ msgId: 'm3', action: 'ALLOW', moderatorId: '7' }, ENV, fetch))
+      .rejects.toThrow('mensaje retenido');
+  });
+});
+
+test.describe('createEventSubSubscription', () => {
+  test('crea la suscripción con transporte websocket y session_id', async () => {
+    const fetch = makeFetch([{ ok: true, body: { data: [{ id: 'sub1' }] } }]);
+    await twitch.createEventSubSubscription(
+      { type: 'automod.message.hold', version: '2', condition: { broadcaster_user_id: '999' }, sessionId: 'sess1' },
+      ENV,
+      fetch,
+    );
+    expect(fetch.calls[0].url).toContain('/eventsub/subscriptions');
+    const sent = JSON.parse(fetch.calls[0].opts.body);
+    expect(sent.type).toBe('automod.message.hold');
+    expect(sent.version).toBe('2');
+    expect(sent.transport).toEqual({ method: 'websocket', session_id: 'sess1' });
+  });
+
+  test('lanza con el mensaje de la API si falla', async () => {
+    const fetch = makeFetch([{ ok: false, body: { message: 'subscription missing scope' } }]);
+    await expect(twitch.createEventSubSubscription(
+      { type: 'automod.message.hold', version: '2', condition: {}, sessionId: 'sess1' },
+      ENV,
+      fetch,
+    )).rejects.toThrow('subscription missing scope');
+  });
+});

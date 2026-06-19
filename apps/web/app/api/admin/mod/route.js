@@ -1,26 +1,18 @@
 import {
-  getBroadcasterId, getModeratorId, getUserId,
-  banUser, unbanUser, deleteMessage,
+  getUserId, banUser, unbanUser, deleteMessage,
 } from '@stream-toolkit/common/twitchCommands';
+import { getTwitchIds } from '@/lib/twitchIds';
 
 // Acciones de moderación de Twitch (vía Helix). El chat se muestra en cliente
 // (IRC por WebSocket); aquí solo se ejecutan las acciones, que requieren token.
 // El token de la web necesita los scopes moderator:manage:banned_users y
 // moderator:manage:chat_messages.
-let cache = { broadcasterId: null, moderatorId: null };
-
-async function ids() {
-  if (!cache.broadcasterId) cache.broadcasterId = await getBroadcasterId();
-  if (!cache.moderatorId) cache.moderatorId = await getModeratorId();
-  return cache;
-}
-
 export async function POST(request) {
   const body = await request.json().catch(() => ({}));
   const { action } = body;
 
   try {
-    const { broadcasterId, moderatorId } = await ids();
+    const { broadcasterId, moderatorId } = await getTwitchIds();
     if (!broadcasterId) {
       return Response.json({ error: 'Faltan credenciales de Twitch en apps/web/.env.local' }, { status: 400 });
     }
