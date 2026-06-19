@@ -293,7 +293,13 @@ async function main() {
   // propagamos desde el .env del bot.
   const botContent = readEnv(botEnvLocal);
   let webContent = readEnv(webEnvLocal);
-  for (const key of ['LICHESS_TV_USER', 'TWITCH_CLIENT_ID', 'TWITCH_OAUTH_TOKEN', 'TWITCH_CHANNEL_NAME']) {
+  // Credenciales/overlay + las "variables" que usa la Ayuda IA del chat como
+  // contexto del canal (Discord y enlaces de ajedrez).
+  for (const key of [
+    'LICHESS_TV_USER', 'TWITCH_CLIENT_ID', 'TWITCH_OAUTH_TOKEN', 'TWITCH_CHANNEL_NAME',
+    'DISCORD_LINK', 'CHESS_PROVIDER',
+    'LICHESS_PROFILE_LINK', 'LICHESS_TEAM_LINK', 'CHESSCOM_PROFILE_LINK', 'CHESSCOM_CLUB_LINK',
+  ]) {
     webContent = upsertEnvVar(webContent, key, getEnvVar(botContent, key));
   }
   // El chat del panel se conecta en cliente, así que el canal va como pública.
@@ -301,7 +307,7 @@ async function main() {
   // Filtro IA de mensajes retenidos (OpenRouter). Se siembran vacías/por defecto;
   // pon tu clave de https://openrouter.ai/keys en apps/web/.env.local.
   webContent = upsertEnvVar(webContent, 'OPENROUTER_API_KEY', getEnvVar(botContent, 'OPENROUTER_API_KEY') || getEnvVar(webContent, 'OPENROUTER_API_KEY') || '');
-  webContent = upsertEnvVar(webContent, 'OPENROUTER_MODEL', getEnvVar(webContent, 'OPENROUTER_MODEL') || 'google/gemini-2.0-flash-exp:free');
+  webContent = upsertEnvVar(webContent, 'OPENROUTER_MODEL', getEnvVar(webContent, 'OPENROUTER_MODEL') || 'openrouter/free');
   fs.writeFileSync(webEnvLocal, webContent);
 
   // 6) Navegador de Playwright (opcional)

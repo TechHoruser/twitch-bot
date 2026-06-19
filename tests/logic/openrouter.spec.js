@@ -65,3 +65,57 @@ test.describe('triageMessage', () => {
       .rejects.toThrow('sin créditos');
   });
 });
+
+test.describe('formatContext', () => {
+  test('solo incluye los datos configurados', () => {
+    const out = openrouter.formatContext({
+      discordLink: 'https://discord.gg/x',
+      chess: { name: 'Lichess', profileLink: 'https://lichess.org/@/yo' },
+      stream: { title: 'Partida ranked', gameName: 'Chess' },
+    });
+    expect(out).toContain('Discord: https://discord.gg/x');
+    expect(out).toContain('Ajedrez (Lichess): perfil https://lichess.org/@/yo');
+    expect(out).toContain('"Partida ranked" · jugando a Chess');
+    expect(out).not.toContain('club/equipo');
+  });
+
+  test('sin datos devuelve un marcador', () => {
+    expect(openrouter.formatContext({})).toContain('sin datos extra');
+  });
+});
+
+test.describe('assistChat', () => {
+  test('lanza si falta la API key', async () => {
+    await expect(openrouter.assistChat({ messages: [{ name: 'a', text: 'hola' }] }, {}, makeFetch('hey')))
+      .rejects.toThrow('OPENROUTER_API_KEY');
+  });
+
+  test('manda los mensajes y el contexto, y limpia la respuesta', async () => {
+    const fetch = makeFetch('"¡Claro! Tienes el Discord en discord.gg/x 😎"');
+    const out = await openrouter.assistChat({
+      messages: [{ name: 'bob', text: '¿cuál es el discord?' }],
+      context: { discordLink: 'https://discord.gg/x' },
+    }, ENV, fetch);
+
+    // Quita las comillas envolventes del modelo.
+    expect(out).toBe('¡Claro! Tienes el Discord en discord.gg/x 😎');
+    const sent = JSON.parse(fetch.calls[0].opts.body);
+    expect(sent.model).toBe('test/model');
+    expect(sent.response_format).toBeUndefined(); // texto libre, no JSON
+    const userMsg = sent.messages.at(-1).content;
+    expect(userMsg).toContain('bob: ¿cuál es el discord?');
+    expect(userMsg).toContain('Discord: https://discord.gg/x');
+  });
+
+  test('solo pasa los últimos 50 mensajes y acota la longitud', async () => {
+    const fetch = makeFetch('x'.repeat(600));
+    const messages = Array.from({ length: 70 }, (_, i) => ({ name: `u${i}`, text: `m${i}` }));
+    const out = await openrouter.assistChat({ messages }, ENV, fetch);
+
+    expect(out.length).toBe(480); // recortado al máximo de un anuncio
+    const userMsg = JSON.parse(fetch.calls[0].opts.body).messages.at(-1).content;
+    expect(userMsg).not.toContain('u19: m19'); // el 51º empezando por el final queda fuera
+    expect(userMsg).toContain('u20: m20');
+    expect(userMsg).toContain('u69: m69');
+  });
+});

@@ -15,6 +15,8 @@ const mod = post('/api/admin/mod');
 const automod = post('/api/admin/automod');
 const triage = post('/api/admin/automod/triage');
 const fireAlert = post('/api/admin/alert');
+const assist = post('/api/admin/assistant');
+const sayToChat = post('/api/admin/chat/say');
 
 // Ajustes del filtro IA (persistidos): enabled = pedir veredicto; auto = publicar
 // solo cuando la IA dice "allow" con alta confianza.
@@ -51,6 +53,7 @@ export function ChatPanel() {
   const [toast, setToast] = useState(null);
   const [verdicts, setVerdicts] = useState({}); // veredictos IA por msgId
   const [ai, setAi] = useState({ enabled: true, auto: false });
+  const [assistant, setAssistant] = useState(null); // ayuda IA del chat: { state, text, error }
   const endRef = useRef(null);
   const seenRef = useRef(null); // ids de mensajes ya procesados (evita releer el backlog)
   const triagedRef = useRef(new Set()); // retenidos ya enviados a la IA
@@ -101,6 +104,25 @@ export function ChatPanel() {
     notify(res?.ok ? `✓ ${label}` : `✗ ${res?.error || 'error'}`);
   };
 
+  // Ayuda IA: pasa los últimos 50 mensajes del chat a OpenRouter (con el contexto
+  // del canal) y muestra una respuesta editable que puedes mandar al chat.
+  const runAssistant = async () => {
+    setAssistant({ state: 'loading' });
+    const last = messages.slice(-50).map((m) => ({ name: m.name, text: m.text }));
+    const res = await assist({ messages: last });
+    setAssistant(res?.ok
+      ? { state: 'done', text: res.reply }
+      : { state: 'error', error: res?.error });
+  };
+
+  const sendAssistant = async () => {
+    const text = assistant?.text?.trim();
+    if (!text) return;
+    const res = await sayToChat({ message: text });
+    notify(res?.ok ? '✓ respuesta enviada al chat' : `✗ ${res?.error || 'error'}`);
+    if (res?.ok) setAssistant(null);
+  };
+
   // Publicar (allow) / Rechazar (deny) un mensaje retenido. Se quita de la lista
   // al instante y luego se confirma contra Helix.
   const resolve = async (m, action) => {
@@ -139,9 +161,17 @@ export function ChatPanel() {
     <div className="flex flex-col h-full min-h-0 bg-black/20 rounded-lg">
       <div className="flex items-center justify-between px-3 py-2 border-b border-white/10">
         <h2 className="font-semibold">Chat {channel && <span className="opacity-50">· {channel}</span>}</h2>
-        <span className={`text-xs ${status === 'connected' ? 'text-emerald-400' : 'text-amber-400'}`}>
-          {status === 'connected' ? '● en vivo' : status === 'no-channel' ? 'sin canal' : status}
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={runAssistant}
+            disabled={!channel || assistant?.state === 'loading'}
+            title="Pasa los últimos 50 mensajes a la IA para echarle un cable al chat"
+            className="px-2 py-0.5 rounded bg-fuchsia-600/80 hover:bg-fuchsia-600 disabled:opacity-40 text-xs"
+          >🤖 Ayuda IA</button>
+          <span className={`text-xs ${status === 'connected' ? 'text-emerald-400' : 'text-amber-400'}`}>
+            {status === 'connected' ? '● en vivo' : status === 'no-channel' ? 'sin canal' : status}
+          </span>
+        </div>
       </div>
 
       {!channel && (
@@ -152,6 +182,42 @@ export function ChatPanel() {
       )}
 
       {channel && <VoiceSettings voice={voice} />}
+
+      {/* Ayuda IA: respuesta generada a partir de los últimos 50 mensajes. Editable
+          antes de mandarla al chat (como anuncio destacado). */}
+      {assistant && (
+        <div className="shrink-0 border-b border-fuchsia-500/30 bg-fuchsia-500/5 px-3 py-2 text-sm">
+          <div className="flex items-center justify-between text-xs font-semibold text-fuchsia-300 mb-1">
+            <span>🤖 Ayuda IA</span>
+            <button className="opacity-60 hover:opacity-100" onClick={() => setAssistant(null)} title="Cerrar">✕</button>
+          </div>
+          {assistant.state === 'loading' && <span className="opacity-60">pensando una respuesta con gracia…</span>}
+          {assistant.state === 'error' && (
+            <span className="text-amber-400/80">IA no disponible{assistant.error ? ` · ${assistant.error}` : ''}</span>
+          )}
+          {assistant.state === 'done' && (
+            <>
+              <textarea
+                className="w-full bg-black/30 rounded p-2 text-sm resize-y min-h-[3rem] outline-none focus:ring-1 focus:ring-fuchsia-500/50"
+                value={assistant.text}
+                onChange={(e) => setAssistant((s) => ({ ...s, text: e.target.value }))}
+              />
+              <div className="flex items-center gap-2 mt-1.5">
+                <button
+                  className="px-2 py-0.5 rounded bg-fuchsia-600/80 hover:bg-fuchsia-600 disabled:opacity-40 text-xs"
+                  disabled={!assistant.text?.trim()}
+                  onClick={sendAssistant}
+                >📣 Enviar al chat</button>
+                <button
+                  className="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-xs"
+                  onClick={runAssistant}
+                >↻ Otra</button>
+                <span className="ml-auto text-xs opacity-40">{assistant.text?.length || 0}/500</span>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Mensajes retenidos por AutoMod / revisión de chatters nuevos. No están en
           el chat público hasta que se aprueban aquí. */}

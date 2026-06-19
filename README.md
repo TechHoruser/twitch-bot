@@ -217,7 +217,8 @@ usuario o tema con query params: `/tv?user=TU_USUARIO&theme=brown&bg=dark`.
 
 `/admin` es el **centro de control del directo**. A la izquierda, siempre visible,
 el **chat de Twitch en vivo con moderación** (borrar mensaje, timeout, ban — al pasar
-el ratón por cada mensaje). A la derecha, en pestañas:
+el ratón por cada mensaje) y un botón **🤖 Ayuda IA** (ver más abajo). A la derecha,
+en pestañas:
 
 * **📡 Directo** — **inicia/detiene la retransmisión** (vía OBS, obs-websocket) y ve el
   **número de espectadores**, el tiempo en directo y los usuarios presentes en el chat.
@@ -264,7 +265,21 @@ el ratón por cada mensaje). A la derecha, en pestañas:
 > la tarjeta). La clave (`OPENROUTER_API_KEY`) vive solo en el servidor; el panel llama a
 > `/api/admin/automod/triage`. Hay un modo **auto** (opcional, desactivado por defecto) que
 > publica solo los "Publicar" con confianza alta; el resto siempre lo decides tú. El modelo
-> por defecto es gratuito (`OPENROUTER_MODEL`, p.ej. `google/gemini-2.0-flash-exp:free`).
+> por defecto es `openrouter/free` (`OPENROUTER_MODEL`), un meta-modelo que enruta a
+> cualquier gratuito disponible para no quedarse obsoleto; gratuitos vigentes en
+> [openrouter.ai/models?max_price=0](https://openrouter.ai/models?max_price=0).
+>
+> **Ayuda IA del chat (OpenRouter)**: el botón **🤖 Ayuda IA** (arriba del chat) coge los
+> **últimos 50 mensajes** y se los pasa a un LLM (vía `/api/admin/assistant`) para que eche
+> un cable al chat respondiendo dudas del viewer con **tono bromista**. La IA recibe como
+> contexto las **variables del canal** —enlace de **Discord**, **perfil/club de ajedrez** y el
+> **título/juego del directo** (en vivo, vía Helix)— para resolver preguntas tipo "¿cuál es el
+> discord?" sin inventarse enlaces. La respuesta aparece en una tarjeta **editable**: la
+> retocas si quieres y, con **📣 Enviar al chat**, se publica como **anuncio destacado** (scope
+> `moderator:manage:announcements`), o pides **↻ Otra**. Nunca se publica sola. Usa la misma
+> `OPENROUTER_API_KEY`/`OPENROUTER_MODEL` que el filtro de moderación. Las variables de
+> contexto (`DISCORD_LINK`, `CHESS_PROVIDER` y los enlaces de Lichess/Chess.com) las copia
+> `npm run setup` del `.env.local` del bot al de la web.
 >
 > **Alertas de primer mensaje y follow**: cuando alguien interviene por primera vez o le da
 > a follow se muestra una **animación en el overlay** (la ve la audiencia) y, por separado,
@@ -335,7 +350,7 @@ NEXT_PUBLIC_TWITCH_CHANNEL=    # Canal para el chat de /admin (lo propaga `npm r
 OBS_WEBSOCKET_URL=             # (audio) por defecto ws://127.0.0.1:4455
 OBS_WEBSOCKET_PASSWORD=        # (audio) si pusiste contraseña en obs-websocket
 OPENROUTER_API_KEY=            # (IA) clave de https://openrouter.ai/keys para el triage
-OPENROUTER_MODEL=              # (IA) modelo, por defecto google/gemini-2.0-flash-exp:free
+OPENROUTER_MODEL=              # (IA) modelo, por defecto openrouter/free (auto-enruta a un gratuito)
 ```
 
 > El panel de moderación necesita además `TWITCH_CLIENT_ID`, `TWITCH_OAUTH_TOKEN` y

@@ -140,8 +140,8 @@ const FIELDS = [
     key: 'OPENROUTER_MODEL',
     label: 'Modelo de OpenRouter a usar  (opcional)',
     tip: () =>
-      'Por defecto: google/gemini-2.0-flash-exp:free\n' +
-      '       Listado de modelos: https://openrouter.ai/models',
+      'Por defecto: openrouter/free (auto-enruta a un gratuito disponible).\n' +
+      '       Gratuitos vigentes: https://openrouter.ai/models?max_price=0',
   },
 
   // ── Web: overlay y pantallas ──
@@ -255,7 +255,14 @@ async function main() {
     LICHESS_TV_USER:           getVar(freshBot, 'LICHESS_TV_USER'),
     JAMENDO_CLIENT_ID:         getVar(freshBot, 'JAMENDO_CLIENT_ID'),
     OPENROUTER_API_KEY:        getVar(freshBot, 'OPENROUTER_API_KEY'),
-    OPENROUTER_MODEL:          getVar(freshBot, 'OPENROUTER_MODEL') || 'google/gemini-2.0-flash-exp:free',
+    OPENROUTER_MODEL:          getVar(freshBot, 'OPENROUTER_MODEL') || 'openrouter/free',
+    // Enlaces que usa la "Ayuda IA" del chat (/admin) como contexto del canal.
+    DISCORD_LINK:              getVar(freshBot, 'DISCORD_LINK'),
+    CHESS_PROVIDER:            getVar(freshBot, 'CHESS_PROVIDER'),
+    LICHESS_PROFILE_LINK:      getVar(freshBot, 'LICHESS_PROFILE_LINK'),
+    LICHESS_TEAM_LINK:         getVar(freshBot, 'LICHESS_TEAM_LINK'),
+    CHESSCOM_PROFILE_LINK:     getVar(freshBot, 'CHESSCOM_PROFILE_LINK'),
+    CHESSCOM_CLUB_LINK:        getVar(freshBot, 'CHESSCOM_CLUB_LINK'),
     // Variable pública para el chat del panel /admin
     NEXT_PUBLIC_TWITCH_CHANNEL: getVar(freshBot, 'TWITCH_CHANNEL_NAME'),
   };
