@@ -1,9 +1,11 @@
 'use client';
 import { useState } from 'react';
 
-// Pestañas simples (estado local). tabs: [{ key, label, content }].
-export function Tabs({ tabs, initial }) {
-  const [active, setActive] = useState(initial || tabs[0]?.key);
+// Pestañas simples. Soporta modo controlado (active + onTabChange) o autónomo.
+export function Tabs({ tabs, initial, active: activeProp, onTabChange }) {
+  const [activeLocal, setActiveLocal] = useState(initial || tabs[0]?.key);
+  const active = activeProp ?? activeLocal;
+  const setActive = (key) => { setActiveLocal(key); onTabChange?.(key); };
   const current = tabs.find((t) => t.key === active);
 
   return (

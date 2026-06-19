@@ -1,5 +1,4 @@
 'use client';
-import { useEffect, useRef } from 'react';
 import { useStream } from '../../shared/StreamProvider';
 
 const post = (body) => fetch('/api/music', {
@@ -17,37 +16,8 @@ export const MusicPanel = () => {
   const playing = !!music?.playing;
   const volume = music?.volume ?? 0.6;
 
-  const audioRef = useRef(null);
-  const lastSrcRef = useRef(null);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio || !music?.track) return;
-    const src = `/music/${encodeURIComponent(music.playlist)}/${music.track.file}`;
-    if (src !== lastSrcRef.current) {
-      lastSrcRef.current = src;
-      audio.src = src;
-      if (music.playing) audio.play().catch(() => {});
-    }
-  }, [music?.track?.file, music?.playlist, music?.nonce]);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (music?.playing) audio.play().catch(() => {});
-    else audio.pause();
-  }, [music?.playing, music?.nonce]);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (audio && music) audio.volume = music.volume ?? 0.6;
-  }, [music?.volume]);
-
-  const onEnded = () => post({ action: 'ended' });
-
   return (
     <div className="flex flex-col items-center gap-3 rounded-lg p-4 bg-white/5 w-full">
-      <audio ref={audioRef} onEnded={onEnded} />
       <h2 className="text-lg font-semibold">Música</h2>
 
       {playlists.length === 0 ? (

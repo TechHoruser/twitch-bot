@@ -1,10 +1,12 @@
 'use client';
-
+import { useState } from 'react';
 import { useQueue } from '../shared/hooks/useQueue';
 import { GroupButtons } from './components/GroupButtons';
 import { Tabs } from './components/Tabs';
 import { ScenePanel } from './components/ScenePanel';
 import { MusicTab } from './music/MusicTab';
+import { MusicAudio } from './music/MusicAudio';
+import { MusicFloatingPlayer } from './music/MusicFloatingPlayer';
 import { Soundboard } from './sound/Soundboard';
 import { AudioPanel } from './audio/AudioPanel';
 import { ChatPanel } from './chat/ChatPanel';
@@ -75,6 +77,7 @@ function ScenesTab({ data }) {
 
 export default function Admin() {
   const { data } = useQueue();
+  const [activeTab, setActiveTab] = useState('scenes');
 
   const tabs = [
     { key: 'scenes', label: '🎬 Escenas', content: <ScenesTab data={data} /> },
@@ -85,6 +88,14 @@ export default function Admin() {
 
   return (
     <main className="flex h-screen w-screen bg-neutral-900 text-white overflow-hidden">
+      {/* Reproductor de audio siempre montado (no se corta al cambiar de tab) */}
+      <MusicAudio />
+
+      {/* Mini-player flotante visible en todas las tabs excepto Música */}
+      {activeTab !== 'music' && (
+        <MusicFloatingPlayer onOpen={() => setActiveTab('music')} />
+      )}
+
       {/* Chat + moderación: siempre visible */}
       <aside className="w-[38%] min-w-[320px] border-r border-white/10 p-3">
         <ChatPanel />
@@ -92,7 +103,7 @@ export default function Admin() {
 
       {/* Controles en pestañas */}
       <section className="flex-1 min-w-0">
-        <Tabs tabs={tabs} />
+        <Tabs tabs={tabs} active={activeTab} onTabChange={setActiveTab} />
       </section>
     </main>
   );
