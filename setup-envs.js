@@ -75,7 +75,7 @@ const FIELDS = [
       'Abre esta URL en el navegador, acepta, y copia el access_token del hash:\n' +
       `       https://id.twitch.tv/oauth2/authorize?client_id=${v.TWITCH_CLIENT_ID || 'TU_CLIENT_ID'}` +
       '&redirect_uri=http://localhost&response_type=token' +
-      '&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages+moderator:manage:automod+moderator:read:followers+channel:manage:broadcast',
+      '&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages+moderator:manage:automod+moderator:read:followers+channel:manage:broadcast+moderator:manage:announcements',
   },
   {
     key: 'DISCORD_LINK',

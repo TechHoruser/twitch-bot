@@ -118,6 +118,33 @@ test.describe('canal · info del directo', () => {
     expect(await twitch.searchCategories('che', ENV, fetch))
       .toEqual([{ id: '1', name: 'Chess', boxArt: 'u' }]);
   });
+
+  test('getStreamInfo devuelve espectadores cuando hay directo', async () => {
+    const fetch = makeFetch([{ ok: true, body: { data: [{ viewer_count: 42, started_at: 's', game_name: 'Chess', title: 'T' }] } }]);
+    expect(await twitch.getStreamInfo({ broadcasterId: '999' }, ENV, fetch))
+      .toEqual({ live: true, viewerCount: 42, startedAt: 's', gameName: 'Chess', title: 'T' });
+    expect(fetch.calls[0].url).toContain('/streams?user_id=999');
+  });
+
+  test('getStreamInfo indica offline cuando no hay datos', async () => {
+    const fetch = makeFetch([{ ok: true, body: { data: [] } }]);
+    expect(await twitch.getStreamInfo({ broadcasterId: '999' }, ENV, fetch))
+      .toEqual({ live: false, viewerCount: 0, startedAt: null, gameName: '', title: '' });
+  });
+
+  test('sendChatAnnouncement publica el mensaje con color', async () => {
+    const fetch = makeFetch([{ ok: true, body: {} }]);
+    await twitch.sendChatAnnouncement({ broadcasterId: '999', moderatorId: '7', message: '¡En directo!' }, ENV, fetch);
+    expect(fetch.calls[0].url).toContain('/chat/announcements?broadcaster_id=999&moderator_id=7');
+    expect(fetch.calls[0].opts.method).toBe('POST');
+    expect(JSON.parse(fetch.calls[0].opts.body)).toEqual({ message: '¡En directo!', color: 'primary' });
+  });
+
+  test('sendChatAnnouncement lanza si la API falla', async () => {
+    const fetch = makeFetch([{ ok: false, body: {} }]);
+    await expect(twitch.sendChatAnnouncement({ broadcasterId: '999', moderatorId: '7', message: 'x' }, ENV, fetch))
+      .rejects.toThrow('anuncio');
+  });
 });
 
 test.describe('getUserId / banUser', () => {

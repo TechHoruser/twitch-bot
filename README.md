@@ -114,7 +114,7 @@ Crea una aplicación con estos datos:
 
 Obtén el token OAuth manualmente ejecutando en tu navegador:
 
-https://id.twitch.tv/oauth2/authorize?client_id=TU_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages+moderator:manage:automod+moderator:read:followers+channel:manage:broadcast
+https://id.twitch.tv/oauth2/authorize?client_id=TU_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages+moderator:manage:automod+moderator:read:followers+channel:manage:broadcast+moderator:manage:announcements
 
 Te redirigirá a http://localhost#access_token=TOKEN_GENERADO.
 
@@ -219,12 +219,32 @@ usuario o tema con query params: `/tv?user=TU_USUARIO&theme=brown&bg=dark`.
 el **chat de Twitch en vivo con moderación** (borrar mensaje, timeout, ban — al pasar
 el ratón por cada mensaje). A la derecha, en pestañas:
 
-* **📡 Directo** — edita el **título** y el **juego/categoría** del directo en caliente
-  (Helix). El juego se busca con autocompletado; necesita el scope `channel:manage:broadcast`.
-* **🎬 Escenas** — juego/tema + pantalla activa (y la cola del módulo de ajedrez).
-* **🎚️ Audio** — faders y mutes del mezclador de OBS (ver más abajo).
+* **📡 Directo** — **inicia/detiene la retransmisión** (vía OBS, obs-websocket) y ve el
+  **número de espectadores**, el tiempo en directo y los usuarios presentes en el chat.
+  Al pulsar **Iniciar retransmisión** se abre un formulario para elegir la **colección de
+  escenas** (tema) y fijar **título**, **categoría** y una **notificación** (que se publica
+  como *anuncio destacado en el chat*, scope `moderator:manage:announcements`). Cada colección
+  **recuerda** en el navegador sus últimos título/categoría/notificación. Al iniciar se
+  **precarga la escena de entrada** (pantalla intro de esa colección con su cuenta atrás) y,
+  si se marca la opción, se **pasa automáticamente a la escena principal** cuando la cuenta
+  atrás llega a 0. Tanto si está marcada como si no, hay un botón **"Pasar a la escena
+  principal ahora"** (con confirmación). También puedes editar el título y el juego/categoría
+  en caliente (Helix); el juego se busca con autocompletado y necesita el scope
+  `channel:manage:broadcast`.
+  > El aviso a seguidores ("go-live") lo gestiona Twitch automáticamente y **no** es
+  > configurable desde la API pública; por eso la "notificación" se resuelve como anuncio de chat.
+  > La duración de la cuenta atrás se controla con `NEXT_PUBLIC_COUNTDOWN_MINUTES` (por defecto 5).
+* **🎬 Escenas y audio** — control de escena (colección/tema con un selector + pantalla
+  con cuadrados) y, debajo, los **niveles de audio del mezclador de OBS guardados por
+  escena**: para cada par colección/escena marcas las fuentes a fijar y su nivel (0–100%),
+  y al activar esa escena se aplican a OBS automáticamente (p. ej. *Valorant · Intro* →
+  micro a 0% y otra fuente al 100%). Los presets se guardan en el navegador y son
+  **exportables/importables** a JSON. Incluye la cola del módulo de ajedrez.
 * **🔊 Sonidos** — soundboard: dispara efectos de `apps/web/public/sounds/` en el overlay.
 * **🎵 Música** — reproductor, **descarga de Jamendo** por tag y **editor de playlists**.
+* **🗒️ Registro** — **línea de tiempo de presencia por directo**: registra quién entra y
+  sale del chat (JOIN/PART del IRC de Twitch) y lo dibuja como un Gantt (una fila por
+  usuario) para cada sesión, junto con el pico de espectadores.
 
 > **Chat/moderación**: el chat se lee en cliente (IRC de Twitch por WebSocket, anónimo).
 > Las acciones de moderación van por `/api/admin/mod` → Helix, así que el **token OAuth
@@ -346,7 +366,8 @@ También puedes descargar y crear/editar playlists desde la pestaña **Música**
 
 Una app no puede *crear* dispositivos de audio virtuales (eso lo hace un driver). La
 estrategia: **VB-Cable** separa las fuentes (cada app → su cable) y **OBS** hace de
-mezclador, controlado desde `/admin` (pestaña Audio) vía **obs-websocket**.
+mezclador, controlado desde `/admin` (pestaña **Escenas y audio**) vía **obs-websocket**,
+con presets de niveles por escena.
 
 ```
 Discord → CABLE   ┐
