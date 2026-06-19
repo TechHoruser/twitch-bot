@@ -1,0 +1,72 @@
+/* Alerta de primer mensaje / nuevo follow. Aparece centrada arriba, entra y sale
+   con una animación y desaparece sola. El sonido/voz NO se reproduce aquí (va en
+   privado en el panel para no capturarlo en el directo). */
+.wrap {
+  position: absolute;
+  top: 90px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 36px;
+  border-radius: 22px;
+  background: rgba(20, 16, 40, 0.82);
+  border: 2px solid var(--accent, #b6a8e0);
+  box-shadow: 0 0 40px 6px rgba(182, 168, 224, 0.45);
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  animation: pop 5s ease forwards;
+}
+
+.follow {
+  --accent: #c084fc;
+  box-shadow: 0 0 40px 6px rgba(192, 132, 252, 0.5);
+}
+.first {
+  --accent: #34d399;
+  box-shadow: 0 0 40px 6px rgba(52, 211, 153, 0.5);
+}
+
+.icon {
+  font-size: 54px;
+  line-height: 1;
+  animation: wiggle 0.9s ease-in-out infinite;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+}
+.kicker {
+  font-size: 18px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+.name {
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--accent, #b6a8e0);
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.25);
+}
+
+@keyframes pop {
+  0%   { opacity: 0; transform: translateY(-40px) scale(0.85); }
+  8%   { opacity: 1; transform: translateY(0) scale(1.04); }
+  12%  { transform: translateY(0) scale(1); }
+  88%  { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-24px) scale(0.96); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-10deg); }
+  50%      { transform: rotate(10deg); }
+}

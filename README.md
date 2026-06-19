@@ -114,7 +114,7 @@ Crea una aplicación con estos datos:
 
 Obtén el token OAuth manualmente ejecutando en tu navegador:
 
-https://id.twitch.tv/oauth2/authorize?client_id=TU_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages+moderator:manage:automod
+https://id.twitch.tv/oauth2/authorize?client_id=TU_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages+moderator:manage:automod+moderator:read:followers
 
 Te redirigirá a http://localhost#access_token=TOKEN_GENERADO.
 
@@ -233,9 +233,19 @@ el ratón por cada mensaje). A la derecha, en pestañas:
 > **Mensajes retenidos** (AutoMod o la opción de Twitch *"revisar el primer mensaje de
 > chatters nuevos"*) aparecen en el panel en una sección **"⏳ Pendientes de aprobar"** con
 > botones **Publicar / Rechazar**. Esos mensajes no llegan por el IRC anónimo: se reciben
-> por **EventSub** (el navegador abre el WebSocket y `/api/admin/automod/subscribe` da de
+> por **EventSub** (el navegador abre el WebSocket y `/api/admin/eventsub/subscribe` da de
 > alta las suscripciones con el token), así que el token **debe incluir además**
 > `moderator:manage:automod`.
+>
+> **Alertas de primer mensaje y follow**: cuando alguien interviene por primera vez o le da
+> a follow se muestra una **animación en el overlay** (la ve la audiencia) y, por separado,
+> un **aviso de voz privado para ti** en el panel (anuncia el nombre y, si lo activas, lee
+> el chat). La voz usa la síntesis del navegador (gratis, offline) y **no se emite al
+> overlay**, así no se captura en el directo. Los follows llegan por EventSub
+> (`channel.follow`), así que el token **debe incluir además** `moderator:read:followers`.
+> En los ajustes de voz (🔈, arriba del chat) puedes elegir voz, volumen y **dispositivo de
+> salida** del chime; para que la voz tampoco se capture, enruta la salida de audio del
+> navegador a ese mismo dispositivo (Voicemeeter / cable virtual).
 
 ### Escenas precargadas en la web
 
@@ -300,7 +310,7 @@ OBS_WEBSOCKET_PASSWORD=        # (audio) si pusiste contraseña en obs-websocket
 > El panel de moderación necesita además `TWITCH_CLIENT_ID`, `TWITCH_OAUTH_TOKEN` y
 > `TWITCH_CHANNEL_NAME` en `apps/web/.env.local`: `npm run setup` los copia del bot.
 > Para los mensajes retenidos (Pendientes de aprobar) el token necesita el scope
-> `moderator:manage:automod`.
+> `moderator:manage:automod`, y para las alertas de follow `moderator:read:followers`.
 
 ### Música libre con `setup-music.js` (Jamendo)
 

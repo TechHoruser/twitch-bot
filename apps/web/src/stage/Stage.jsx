@@ -9,6 +9,7 @@ import Webcam from '../scenes/Webcam';
 import Overload from '../overload/Overload';
 import MusicEngine from '../music/MusicEngine';
 import SoundPlayer from './SoundPlayer';
+import AlertOverlay from './AlertOverlay';
 import styles from '../scenes/scene.module.css';
 
 // Orquestador del overlay (un solo Browser Source en OBS apuntando a localhost:3000).
@@ -39,6 +40,9 @@ export default function Stage() {
 
       {/* Efectos de sonido disparados desde /admin. */}
       <SoundPlayer />
+
+      {/* Animación de primer mensaje / nuevo follow (el sonido va aparte en /admin). */}
+      <AlertOverlay />
     </main>
   );
 }

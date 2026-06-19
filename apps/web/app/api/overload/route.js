@@ -2,6 +2,7 @@ import fs from 'fs';
 import { getScene } from '@stream-toolkit/common/scene';
 import { getMusic, currentTrack, playlistNames } from '@stream-toolkit/common/music';
 import { getSound } from '@stream-toolkit/common/sound';
+import { getAlert } from '@stream-toolkit/common/alert';
 
 const DATA_PATH = process.env.DATA_PATH || '/data';
 const overloadCenterFilePath = `${DATA_PATH}/overload-center.json`;
@@ -14,6 +15,7 @@ export async function GET() {
   let lastScene = null;
   let lastMusic = null;
   let lastSound = null;
+  let lastAlert = null;
 
   let intervalId = null;
 
@@ -55,6 +57,11 @@ export async function GET() {
         controller.enqueue(`event: playSound\ndata: ${JSON.stringify(sound)}\n\n`);
       };
 
+      const checkAlert = (alert) => {
+        if (JSON.stringify(alert) === JSON.stringify(lastAlert)) return;
+        controller.enqueue(`event: alert\ndata: ${JSON.stringify(alert)}\n\n`);
+      };
+
       const sendChange = () => {
         try {
           if (isControllerClosed) return;
@@ -79,6 +86,10 @@ export async function GET() {
           const sound = getSound();
           checkSound(sound);
           lastSound = sound;
+
+          const alert = getAlert();
+          checkAlert(alert);
+          lastAlert = alert;
 
         } catch (error) {
           if (!isControllerClosed) {

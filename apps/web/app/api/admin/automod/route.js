@@ -3,7 +3,7 @@ import { getTwitchIds } from '@/lib/twitchIds';
 
 // Aprueba o rechaza mensajes retenidos por AutoMod / por la revisión de chatters
 // nuevos. Los mensajes retenidos llegan al cliente por EventSub (ver
-// /api/admin/automod/subscribe); aquí solo se ejecuta la acción, que requiere un
+// /api/admin/eventsub/subscribe); aquí solo se ejecuta la acción, que requiere un
 // token con el scope moderator:manage:automod.
 export async function POST(request) {
   const body = await request.json().catch(() => ({}));

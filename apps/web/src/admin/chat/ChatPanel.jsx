@@ -1,7 +1,9 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { useTwitchChat } from './useTwitchChat';
-import { useAutomodQueue } from './useAutomodQueue';
+import { useEventSub } from './useEventSub';
+import { useVoiceAlerts } from './useVoiceAlerts';
+import { VoiceSettings } from './VoiceSettings';
 
 const post = (url) => (body) => fetch(url, {
   method: 'POST',
@@ -11,6 +13,7 @@ const post = (url) => (body) => fetch(url, {
 
 const mod = post('/api/admin/mod');
 const automod = post('/api/admin/automod');
+const fireAlert = post('/api/admin/alert');
 
 const BADGE = { broadcaster: '🎥', moderator: '🛡️', vip: '💎', subscriber: '⭐', founder: '⭐', premium: '👑' };
 const badgeIcons = (badges) =>
@@ -27,12 +30,40 @@ const resolveChannel = () => {
 export function ChatPanel() {
   const [channel] = useState(resolveChannel);
   const { messages, status } = useTwitchChat(channel);
-  const { held, status: amStatus, remove } = useAutomodQueue(!!channel);
+  const voice = useVoiceAlerts();
   const [toast, setToast] = useState(null);
   const endRef = useRef(null);
+  const seenRef = useRef(null); // ids de mensajes ya procesados (evita releer el backlog)
+
+  // Nuevo follow: animación en el overlay + voz privada para el streamer.
+  const onFollow = ({ name }) => {
+    fireAlert({ type: 'follow', name });
+    voice.announceFollow(name);
+  };
+  const { held, status: amStatus, active, removeHeld } = useEventSub({ enabled: !!channel, onFollow });
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // Primer mensaje de un chatter → animación en overlay + voz; resto del chat →
+  // lectura en voz si está activada. En el primer render marca el backlog como
+  // visto para no leerlo de golpe.
+  useEffect(() => {
+    if (seenRef.current === null) {
+      seenRef.current = new Set(messages.map((m) => m.id));
+      return;
+    }
+    for (const m of messages) {
+      if (!m.id || seenRef.current.has(m.id)) continue;
+      seenRef.current.add(m.id);
+      if (m.firstMsg) {
+        fireAlert({ type: 'first-message', name: m.name });
+        voice.announceFirstMessage(m.name);
+      } else {
+        voice.readMessage(m.name, m.text);
+      }
+    }
   }, [messages]);
 
   const notify = (text) => {
@@ -48,7 +79,7 @@ export function ChatPanel() {
   // Publicar (allow) / Rechazar (deny) un mensaje retenido. Se quita de la lista
   // al instante y luego se confirma contra Helix.
   const resolve = async (m, action) => {
-    remove(m.msgId);
+    removeHeld(m.msgId);
     const res = await automod({ action, msgId: m.msgId });
     notify(res?.ok
       ? `✓ mensaje de ${m.name} ${action === 'allow' ? 'publicado' : 'rechazado'}`
@@ -70,6 +101,8 @@ export function ChatPanel() {
           <code className="bg-white/10 px-1 rounded">apps/web/.env.local</code> (o usa <code>?channel=tu_canal</code>).
         </p>
       )}
+
+      {channel && <VoiceSettings voice={voice} />}
 
       {/* Mensajes retenidos por AutoMod / revisión de chatters nuevos. No están en
           el chat público hasta que se aprueban aquí. */}
@@ -102,15 +135,24 @@ export function ChatPanel() {
 
       {channel && amStatus === 'error' && (
         <p className="px-3 py-1.5 text-xs text-amber-400/80 border-b border-white/10">
-          ⚠️ No se pudieron recibir mensajes retenidos. Revisa que el token tenga el scope
-          <code className="bg-white/10 px-1 rounded mx-1">moderator:manage:automod</code>.
+          ⚠️ No se pudo conectar a EventSub. Revisa que el token tenga los scopes
+          <code className="bg-white/10 px-1 rounded mx-1">moderator:manage:automod</code> y
+          <code className="bg-white/10 px-1 rounded mx-1">moderator:read:followers</code>.
+        </p>
+      )}
+
+      {channel && amStatus === 'connected' && !active.includes('channel.follow') && (
+        <p className="px-3 py-1.5 text-xs text-amber-400/80 border-b border-white/10">
+          ⚠️ No se reciben follows. Añade el scope
+          <code className="bg-white/10 px-1 rounded mx-1">moderator:read:followers</code> al token.
         </p>
       )}
 
       <div className="flex-1 min-h-0 overflow-y-auto px-3 py-2 space-y-1 text-sm">
         {messages.map((m, i) => (
-          <div key={m.id || i} className={`group flex gap-2 items-start rounded px-1 hover:bg-white/5 ${m.removed ? 'opacity-40 line-through' : ''}`}>
+          <div key={m.id || i} className={`group flex gap-2 items-start rounded px-1 hover:bg-white/5 ${m.removed ? 'opacity-40 line-through' : ''} ${m.firstMsg ? 'bg-emerald-500/10 ring-1 ring-emerald-500/30' : ''}`}>
             <div className="flex-1 min-w-0 break-words">
+              {m.firstMsg && <span className="mr-1" title="Primer mensaje">👋</span>}
               <span className="mr-1">{badgeIcons(m.badges)}</span>
               <span className="font-bold" style={{ color: m.color }}>{m.name}</span>
               <span className="opacity-50">: </span>

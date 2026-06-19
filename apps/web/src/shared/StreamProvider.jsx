@@ -12,6 +12,7 @@ export const useStream = () => useContext(StreamContext) ?? {
   queue: [],
   setQueue: () => {},
   sound: null,
+  alert: null,
 };
 
 const DEFAULT_SCENE = { game: 'king', screen: 'intro' };
@@ -22,6 +23,7 @@ export function StreamProvider({ children }) {
   const [overload, setOverload] = useState(null);
   const [queue, setQueue] = useState([]);
   const [sound, setSound] = useState(null);
+  const [alert, setAlert] = useState(null);
 
   useEffect(() => {
     const evtSource = new EventSource('/api/overload');
@@ -30,6 +32,7 @@ export function StreamProvider({ children }) {
     evtSource.addEventListener('musicState', (e) => setMusic(JSON.parse(e.data)));
     evtSource.addEventListener('newOverload', (e) => setOverload(JSON.parse(e.data)));
     evtSource.addEventListener('playSound', (e) => setSound(JSON.parse(e.data)));
+    evtSource.addEventListener('alert', (e) => setAlert(JSON.parse(e.data)));
 
     evtSource.addEventListener('newQueueElement', (e) => {
       const payload = JSON.parse(e.data);
@@ -46,7 +49,7 @@ export function StreamProvider({ children }) {
   }, []);
 
   return (
-    <StreamContext.Provider value={{ scene, music, overload, queue, setQueue, sound }}>
+    <StreamContext.Provider value={{ scene, music, overload, queue, setQueue, sound, alert }}>
       {children}
     </StreamContext.Provider>
   );

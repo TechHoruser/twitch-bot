@@ -68,6 +68,7 @@ export function useTwitchChat(channel) {
             color: tags.color || '#b6a8e0',
             badges: tags.badges || '',
             mod: tags.mod === '1',
+            firstMsg: tags['first-msg'] === '1',
             text,
             ts: Date.now(),
             removed: false,
