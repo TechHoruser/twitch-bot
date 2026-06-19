@@ -11,6 +11,7 @@ import { MusicAudioProvider } from './music/MusicAudioContext';
 import { Soundboard } from './sound/Soundboard';
 import { AudioPanel } from './audio/AudioPanel';
 import { ChatPanel } from './chat/ChatPanel';
+import { StreamPanel } from './stream/StreamPanel';
 
 // Normaliza al formato nuevo (accounts[]) soportando también el antiguo.
 const getAccounts = (element) =>
@@ -81,6 +82,7 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState('scenes');
 
   const tabs = [
+    { key: 'stream', label: '📡 Directo', content: <StreamPanel /> },
     { key: 'scenes', label: '🎬 Escenas', content: <ScenesTab data={data} /> },
     { key: 'audio', label: '🎚️ Audio', content: <AudioPanel /> },
     { key: 'sounds', label: '🔊 Sonidos', content: <Soundboard /> },

@@ -104,6 +104,45 @@ const deleteMessage = async ({ broadcasterId, moderatorId, messageId }, env = pr
   return true;
 };
 
+// Lee la información actual del directo (título y categoría/juego).
+const getChannelInfo = async ({ broadcasterId }, env = process.env, fetchFn = fetch) => {
+  const response = await fetchFn(`${TWITCH_HELIX}/channels?broadcaster_id=${broadcasterId}`, {
+    headers: authHeaders(env),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error('Error al leer la información del canal');
+  const c = data.data?.[0] || {};
+  return { title: c.title || '', gameId: c.game_id || '', gameName: c.game_name || '' };
+};
+
+// Actualiza el título y/o el juego del directo. Requiere channel:manage:broadcast
+// y que el token pertenezca al propio broadcaster.
+const updateChannelInfo = async ({ broadcasterId, title, gameId }, env = process.env, fetchFn = fetch) => {
+  const body = {};
+  if (title !== undefined) body.title = title;
+  if (gameId !== undefined) body.game_id = gameId;
+  const response = await fetchFn(`${TWITCH_HELIX}/channels?broadcaster_id=${broadcasterId}`, {
+    method: 'PATCH',
+    headers: authHeaders(env),
+    body: JSON.stringify(body),
+  });
+  if (!response.ok && response.status !== 204) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.message || 'Error al actualizar la información del canal');
+  }
+  return true;
+};
+
+// Busca categorías/juegos por nombre (para el autocompletado del editor).
+const searchCategories = async (query, env = process.env, fetchFn = fetch) => {
+  const response = await fetchFn(`${TWITCH_HELIX}/search/categories?first=10&query=${encodeURIComponent(query)}`, {
+    headers: authHeaders(env),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error('Error al buscar categorías');
+  return (data.data || []).map((g) => ({ id: g.id, name: g.name, boxArt: g.box_art_url }));
+};
+
 // Aprueba (ALLOW) o rechaza (DENY) un mensaje retenido por AutoMod o por la
 // revisión de "primeros mensajes" de chatters nuevos. El user_id debe ser el del
 // moderador dueño del token. Requiere el scope moderator:manage:automod.
@@ -198,6 +237,9 @@ module.exports = {
   banUser,
   unbanUser,
   deleteMessage,
+  getChannelInfo,
+  updateChannelInfo,
+  searchCategories,
   manageHeldMessage,
   createEventSubSubscription,
   handleBasicCommands,

@@ -219,6 +219,8 @@ usuario o tema con query params: `/tv?user=TU_USUARIO&theme=brown&bg=dark`.
 el **chat de Twitch en vivo con moderación** (borrar mensaje, timeout, ban — al pasar
 el ratón por cada mensaje). A la derecha, en pestañas:
 
+* **📡 Directo** — edita el **título** y el **juego/categoría** del directo en caliente
+  (Helix). El juego se busca con autocompletado; necesita el scope `channel:manage:broadcast`.
 * **🎬 Escenas** — juego/tema + pantalla activa (y la cola del módulo de ajedrez).
 * **🎚️ Audio** — faders y mutes del mezclador de OBS (ver más abajo).
 * **🔊 Sonidos** — soundboard: dispara efectos de `apps/web/public/sounds/` en el overlay.
