@@ -1,16 +1,21 @@
 'use client';
 import { useEffect, useRef } from 'react';
 import { useStream } from '../../shared/StreamProvider';
+import { useMusicAudioCtx } from './MusicAudioContext';
 
 const post = (body) =>
   fetch('/api/music', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
 
-// Reproductor de audio persistente del admin. No renderiza nada visible;
-// se monta una sola vez en Admin para que cambiar de tab no corte la música.
 export function MusicAudio() {
   const { music } = useStream();
+  const { register, setCurrentTime } = useMusicAudioCtx();
   const audioRef = useRef(null);
   const lastSrcRef = useRef(null);
+
+  useEffect(() => {
+    register(audioRef.current);
+    return () => register(null);
+  }, []);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -19,6 +24,7 @@ export function MusicAudio() {
     if (src !== lastSrcRef.current) {
       lastSrcRef.current = src;
       audio.src = src;
+      setCurrentTime(0);
       if (music.playing) audio.play().catch(() => {});
     }
   }, [music?.track?.file, music?.playlist, music?.nonce]);
@@ -35,5 +41,11 @@ export function MusicAudio() {
     if (audio && music) audio.volume = music.volume ?? 0.6;
   }, [music?.volume]);
 
-  return <audio ref={audioRef} onEnded={() => post({ action: 'ended' })} />;
+  return (
+    <audio
+      ref={audioRef}
+      onEnded={() => post({ action: 'ended' })}
+      onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime ?? 0)}
+    />
+  );
 }

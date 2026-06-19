@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useStream } from '../../shared/StreamProvider';
+import { useMusicAudioCtx } from '../music/MusicAudioContext';
 
 const post = (body) => fetch('/api/music', {
   method: 'POST',
@@ -17,18 +18,26 @@ const loadPresets = () => {
 };
 const savePresets = (p) => localStorage.setItem(PRESETS_KEY, JSON.stringify(p));
 
+const fmt = (s) => {
+  if (!s || isNaN(s) || s < 0) return '0:00';
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60).toString().padStart(2, '0');
+  return `${m}:${sec}`;
+};
+
 export const MusicPanel = () => {
   const { music } = useStream();
+  const { currentTime, seek } = useMusicAudioCtx();
   const playlists = music?.playlists ?? [];
   const track = music?.track;
   const playing = !!music?.playing;
   const volume100 = Math.round((music?.volume ?? 0.6) * 100);
+  const duration = track?.duration ?? 0;
 
   const [localVol, setLocalVol] = useState(volume100);
   const [presets, setPresets] = useState([]);
   const isFocused = useRef(false);
 
-  // Sincroniza con el servidor solo cuando el input no está activo
   useEffect(() => { if (!isFocused.current) setLocalVol(volume100); }, [volume100]);
   useEffect(() => { setPresets(loadPresets()); }, []);
 
@@ -48,6 +57,12 @@ export const MusicPanel = () => {
     const next = presets.filter((p) => p !== v);
     setPresets(next);
     savePresets(next);
+  };
+
+  const handleSeek = (e) => {
+    if (!duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    seek(((e.clientX - rect.left) / rect.width) * duration);
   };
 
   return (
@@ -81,6 +96,23 @@ export const MusicPanel = () => {
             <button className={ctrlBtn} onClick={() => post({ action: 'prev' })}>⏮</button>
             <button className={ctrlBtn} onClick={() => post({ action: 'toggle' })}>{playing ? '⏸' : '▶'}</button>
             <button className={ctrlBtn} onClick={() => post({ action: 'next' })}>⏭</button>
+          </div>
+
+          {/* Progreso */}
+          <div className="w-full flex flex-col gap-1">
+            <div
+              className="w-full h-2 bg-white/20 rounded-full cursor-pointer group"
+              onClick={handleSeek}
+            >
+              <div
+                className="h-full bg-emerald-400 rounded-full group-hover:bg-emerald-300 transition-colors"
+                style={{ width: `${duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-xs text-white/40">
+              <span>{fmt(currentTime)}</span>
+              <span>{fmt(duration)}</span>
+            </div>
           </div>
 
           {/* Volumen */}

@@ -7,6 +7,7 @@ import { ScenePanel } from './components/ScenePanel';
 import { MusicTab } from './music/MusicTab';
 import { MusicAudio } from './music/MusicAudio';
 import { MusicFloatingPlayer } from './music/MusicFloatingPlayer';
+import { MusicAudioProvider } from './music/MusicAudioContext';
 import { Soundboard } from './sound/Soundboard';
 import { AudioPanel } from './audio/AudioPanel';
 import { ChatPanel } from './chat/ChatPanel';
@@ -87,6 +88,7 @@ export default function Admin() {
   ];
 
   return (
+    <MusicAudioProvider>
     <main className="flex h-screen w-screen bg-neutral-900 text-white overflow-hidden">
       {/* Reproductor de audio siempre montado (no se corta al cambiar de tab) */}
       <MusicAudio />
@@ -106,5 +108,6 @@ export default function Admin() {
         <Tabs tabs={tabs} active={activeTab} onTabChange={setActiveTab} />
       </section>
     </main>
+    </MusicAudioProvider>
   );
 }
