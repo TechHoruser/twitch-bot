@@ -114,7 +114,7 @@ Crea una aplicación con estos datos:
 
 Obtén el token OAuth manualmente ejecutando en tu navegador:
 
-https://id.twitch.tv/oauth2/authorize?client_id=TU_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages+moderator:manage:automod+moderator:read:followers
+https://id.twitch.tv/oauth2/authorize?client_id=TU_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages+moderator:manage:automod+moderator:read:followers+channel:manage:broadcast
 
 Te redirigirá a http://localhost#access_token=TOKEN_GENERADO.
 
@@ -319,7 +319,8 @@ OPENROUTER_MODEL=              # (IA) modelo, por defecto google/gemini-2.0-flas
 > El panel de moderación necesita además `TWITCH_CLIENT_ID`, `TWITCH_OAUTH_TOKEN` y
 > `TWITCH_CHANNEL_NAME` en `apps/web/.env.local`: `npm run setup` los copia del bot.
 > Para los mensajes retenidos (Pendientes de aprobar) el token necesita el scope
-> `moderator:manage:automod`, y para las alertas de follow `moderator:read:followers`.
+> `moderator:manage:automod`, para las alertas de follow `moderator:read:followers`, y
+> para actualizar la información del directo (título y juego) `channel:manage:broadcast`.
 
 ### Música libre con `setup-music.js` (Jamendo)
 

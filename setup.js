@@ -110,7 +110,7 @@ const ENV_FIELDS = [
       'Abre esta URL en el navegador, acepta, y copia el access_token del hash\n' +
       '         de la redirección (http://localhost#access_token=...):\n' +
       `         https://id.twitch.tv/oauth2/authorize?client_id=${values.TWITCH_CLIENT_ID || 'TU_CLIENT_ID'}` +
-      '&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages',
+      '&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages+moderator:manage:automod+moderator:read:followers+channel:manage:broadcast',
   },
   {
     key: 'DISCORD_LINK',
