@@ -237,6 +237,13 @@ el ratón por cada mensaje). A la derecha, en pestañas:
 > alta las suscripciones con el token), así que el token **debe incluir además**
 > `moderator:manage:automod`.
 >
+> **Filtro IA (OpenRouter)**: cada mensaje retenido se envía a un LLM que sugiere
+> **Publicar / Rechazar / Revisar** con un nivel de confianza y un motivo (se muestra en
+> la tarjeta). La clave (`OPENROUTER_API_KEY`) vive solo en el servidor; el panel llama a
+> `/api/admin/automod/triage`. Hay un modo **auto** (opcional, desactivado por defecto) que
+> publica solo los "Publicar" con confianza alta; el resto siempre lo decides tú. El modelo
+> por defecto es gratuito (`OPENROUTER_MODEL`, p.ej. `google/gemini-2.0-flash-exp:free`).
+>
 > **Alertas de primer mensaje y follow**: cuando alguien interviene por primera vez o le da
 > a follow se muestra una **animación en el overlay** (la ve la audiencia) y, por separado,
 > un **aviso de voz privado para ti** en el panel (anuncia el nombre y, si lo activas, lee
@@ -305,6 +312,8 @@ NEXT_PUBLIC_CAM_DEVICE_ID=     # (opcional) deviceId de la webcam a usar
 NEXT_PUBLIC_TWITCH_CHANNEL=    # Canal para el chat de /admin (lo propaga `npm run setup`)
 OBS_WEBSOCKET_URL=             # (audio) por defecto ws://127.0.0.1:4455
 OBS_WEBSOCKET_PASSWORD=        # (audio) si pusiste contraseña en obs-websocket
+OPENROUTER_API_KEY=            # (IA) clave de https://openrouter.ai/keys para el triage
+OPENROUTER_MODEL=              # (IA) modelo, por defecto google/gemini-2.0-flash-exp:free
 ```
 
 > El panel de moderación necesita además `TWITCH_CLIENT_ID`, `TWITCH_OAUTH_TOKEN` y

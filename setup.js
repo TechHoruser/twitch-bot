@@ -298,6 +298,10 @@ async function main() {
   }
   // El chat del panel se conecta en cliente, así que el canal va como pública.
   webContent = upsertEnvVar(webContent, 'NEXT_PUBLIC_TWITCH_CHANNEL', getEnvVar(botContent, 'TWITCH_CHANNEL_NAME'));
+  // Filtro IA de mensajes retenidos (OpenRouter). Se siembran vacías/por defecto;
+  // pon tu clave de https://openrouter.ai/keys en apps/web/.env.local.
+  webContent = upsertEnvVar(webContent, 'OPENROUTER_API_KEY', getEnvVar(botContent, 'OPENROUTER_API_KEY') || getEnvVar(webContent, 'OPENROUTER_API_KEY') || '');
+  webContent = upsertEnvVar(webContent, 'OPENROUTER_MODEL', getEnvVar(webContent, 'OPENROUTER_MODEL') || 'google/gemini-2.0-flash-exp:free');
   fs.writeFileSync(webEnvLocal, webContent);
 
   // 6) Navegador de Playwright (opcional)

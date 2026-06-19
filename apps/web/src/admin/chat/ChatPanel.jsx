@@ -13,7 +13,24 @@ const post = (url) => (body) => fetch(url, {
 
 const mod = post('/api/admin/mod');
 const automod = post('/api/admin/automod');
+const triage = post('/api/admin/automod/triage');
 const fireAlert = post('/api/admin/alert');
+
+// Ajustes del filtro IA (persistidos): enabled = pedir veredicto; auto = publicar
+// solo cuando la IA dice "allow" con alta confianza.
+const AI_KEY = 'aiTriage';
+const loadAi = () => {
+  if (typeof window === 'undefined') return { enabled: true, auto: false };
+  try { return { enabled: true, auto: false, ...JSON.parse(localStorage.getItem(AI_KEY) || '{}') }; }
+  catch { return { enabled: true, auto: false }; }
+};
+const AUTO_ALLOW_MIN = 0.8; // confianza mínima para auto-publicar
+
+const VERDICT_META = {
+  allow: { cls: 'text-emerald-400', label: 'Publicar' },
+  deny: { cls: 'text-red-400', label: 'Rechazar' },
+  review: { cls: 'text-amber-400', label: 'Revisar' },
+};
 
 const BADGE = { broadcaster: '🎥', moderator: '🛡️', vip: '💎', subscriber: '⭐', founder: '⭐', premium: '👑' };
 const badgeIcons = (badges) =>
@@ -32,8 +49,16 @@ export function ChatPanel() {
   const { messages, status } = useTwitchChat(channel);
   const voice = useVoiceAlerts();
   const [toast, setToast] = useState(null);
+  const [verdicts, setVerdicts] = useState({}); // veredictos IA por msgId
+  const [ai, setAi] = useState({ enabled: true, auto: false });
   const endRef = useRef(null);
   const seenRef = useRef(null); // ids de mensajes ya procesados (evita releer el backlog)
+  const triagedRef = useRef(new Set()); // retenidos ya enviados a la IA
+
+  useEffect(() => { setAi(loadAi()); }, []);
+  useEffect(() => {
+    if (typeof window !== 'undefined') localStorage.setItem(AI_KEY, JSON.stringify(ai));
+  }, [ai]);
 
   // Nuevo follow: animación en el overlay + voz privada para el streamer.
   const onFollow = ({ name }) => {
@@ -86,6 +111,30 @@ export function ChatPanel() {
       : `✗ ${res?.error || 'error'}`);
   };
 
+  // Filtro IA: por cada retenido nuevo pide un veredicto a OpenRouter (una sola
+  // vez por mensaje) y, si está activado el modo auto, publica los "allow" con
+  // confianza alta. El humano siempre puede decidir manualmente.
+  useEffect(() => {
+    if (!ai.enabled) return;
+    for (const m of held) {
+      if (triagedRef.current.has(m.msgId)) continue;
+      triagedRef.current.add(m.msgId);
+      setVerdicts((v) => ({ ...v, [m.msgId]: { state: 'loading' } }));
+      triage({ name: m.name, text: m.text })
+        .then((res) => {
+          if (res?.ok) {
+            setVerdicts((v) => ({ ...v, [m.msgId]: { state: 'done', ...res } }));
+            if (ai.auto && res.verdict === 'allow' && res.confidence >= AUTO_ALLOW_MIN) {
+              resolve(m, 'allow');
+            }
+          } else {
+            setVerdicts((v) => ({ ...v, [m.msgId]: { state: 'error', error: res?.error } }));
+          }
+        })
+        .catch(() => setVerdicts((v) => ({ ...v, [m.msgId]: { state: 'error' } })));
+    }
+  }, [held, ai.enabled, ai.auto]);
+
   return (
     <div className="flex flex-col h-full min-h-0 bg-black/20 rounded-lg">
       <div className="flex items-center justify-between px-3 py-2 border-b border-white/10">
@@ -108,28 +157,55 @@ export function ChatPanel() {
           el chat público hasta que se aprueban aquí. */}
       {held.length > 0 && (
         <div className="shrink-0 max-h-[45%] overflow-y-auto border-b border-amber-500/30 bg-amber-500/5">
-          <div className="px-3 py-1.5 text-xs font-semibold text-amber-300">
-            ⏳ Pendientes de aprobar ({held.length})
+          <div className="px-3 py-1.5 flex items-center justify-between text-xs font-semibold text-amber-300">
+            <span>⏳ Pendientes de aprobar ({held.length})</span>
+            <span className="flex items-center gap-3 font-normal opacity-90">
+              <label className="flex items-center gap-1" title="Pedir veredicto a la IA (OpenRouter)">
+                <input type="checkbox" checked={ai.enabled} onChange={(e) => setAi((s) => ({ ...s, enabled: e.target.checked }))} />
+                🤖 IA
+              </label>
+              <label className="flex items-center gap-1" title="Publicar automáticamente los 'allow' con confianza alta">
+                <input type="checkbox" checked={ai.auto} disabled={!ai.enabled} onChange={(e) => setAi((s) => ({ ...s, auto: e.target.checked }))} />
+                auto
+              </label>
+            </span>
           </div>
-          {held.map((m) => (
-            <div key={m.msgId} className="px-3 py-2 text-sm border-t border-white/5">
-              <div className="break-words">
-                <span className="font-bold text-amber-400">{m.name}</span>
-                {m.category && <span className="ml-2 text-xs opacity-50">[{m.category}]</span>}
-                <div className="opacity-90">{m.text}</div>
+          {held.map((m) => {
+            const v = verdicts[m.msgId];
+            const meta = v?.verdict ? VERDICT_META[v.verdict] : null;
+            return (
+              <div key={m.msgId} className="px-3 py-2 text-sm border-t border-white/5">
+                <div className="break-words">
+                  <span className="font-bold text-amber-400">{m.name}</span>
+                  {m.category && <span className="ml-2 text-xs opacity-50">[{m.category}]</span>}
+                  <div className="opacity-90">{m.text}</div>
+                </div>
+
+                {ai.enabled && v && (
+                  <div className="mt-1 text-xs">
+                    {v.state === 'loading' && <span className="opacity-60">🤖 analizando…</span>}
+                    {v.state === 'error' && <span className="text-amber-400/80">🤖 IA no disponible{v.error ? ` · ${v.error}` : ''}</span>}
+                    {v.state === 'done' && meta && (
+                      <span className={meta.cls}>
+                        🤖 {meta.label} · {Math.round(v.confidence * 100)}%{v.reason ? ` · ${v.reason}` : ''}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex gap-2 mt-1.5">
+                  <button
+                    className="px-2 py-0.5 rounded bg-emerald-600/80 hover:bg-emerald-600 text-xs"
+                    onClick={() => resolve(m, 'allow')}
+                  >✓ Publicar</button>
+                  <button
+                    className="px-2 py-0.5 rounded bg-red-600/80 hover:bg-red-600 text-xs"
+                    onClick={() => resolve(m, 'deny')}
+                  >✕ Rechazar</button>
+                </div>
               </div>
-              <div className="flex gap-2 mt-1.5">
-                <button
-                  className="px-2 py-0.5 rounded bg-emerald-600/80 hover:bg-emerald-600 text-xs"
-                  onClick={() => resolve(m, 'allow')}
-                >✓ Publicar</button>
-                <button
-                  className="px-2 py-0.5 rounded bg-red-600/80 hover:bg-red-600 text-xs"
-                  onClick={() => resolve(m, 'deny')}
-                >✕ Rechazar</button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
