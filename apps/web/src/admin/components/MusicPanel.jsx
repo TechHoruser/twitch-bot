@@ -1,4 +1,5 @@
 'use client';
+import { useState, useEffect, useRef } from 'react';
 import { useStream } from '../../shared/StreamProvider';
 
 const post = (body) => fetch('/api/music', {
@@ -9,12 +10,45 @@ const post = (body) => fetch('/api/music', {
 
 const ctrlBtn = 'bg-white/10 hover:bg-white/20 text-white rounded w-12 h-10 text-lg';
 
+const PRESETS_KEY = 'music-volume-presets';
+const loadPresets = () => {
+  try { return JSON.parse(localStorage.getItem(PRESETS_KEY) ?? '[]'); }
+  catch { return []; }
+};
+const savePresets = (p) => localStorage.setItem(PRESETS_KEY, JSON.stringify(p));
+
 export const MusicPanel = () => {
   const { music } = useStream();
   const playlists = music?.playlists ?? [];
   const track = music?.track;
   const playing = !!music?.playing;
-  const volume = music?.volume ?? 0.6;
+  const volume100 = Math.round((music?.volume ?? 0.6) * 100);
+
+  const [localVol, setLocalVol] = useState(volume100);
+  const [presets, setPresets] = useState([]);
+  const isFocused = useRef(false);
+
+  // Sincroniza con el servidor solo cuando el input no está activo
+  useEffect(() => { if (!isFocused.current) setLocalVol(volume100); }, [volume100]);
+  useEffect(() => { setPresets(loadPresets()); }, []);
+
+  const applyVolume = (raw) => {
+    const v = Math.min(100, Math.max(1, Math.round(Number(raw)))) || 1;
+    setLocalVol(v);
+    post({ action: 'volume', value: v / 100 });
+  };
+
+  const memorize = () => {
+    const next = [...new Set([...presets, localVol])].sort((a, b) => a - b);
+    setPresets(next);
+    savePresets(next);
+  };
+
+  const removePreset = (v) => {
+    const next = presets.filter((p) => p !== v);
+    setPresets(next);
+    savePresets(next);
+  };
 
   return (
     <div className="flex flex-col items-center gap-3 rounded-lg p-4 bg-white/5 w-full">
@@ -49,15 +83,44 @@ export const MusicPanel = () => {
             <button className={ctrlBtn} onClick={() => post({ action: 'next' })}>⏭</button>
           </div>
 
+          {/* Volumen */}
           <div className="flex items-center gap-2 w-full">
             <span className="text-xs opacity-60">🔈</span>
             <input
-              type="range" min="0" max="1" step="0.01" value={volume}
-              className="flex-1"
-              onChange={(e) => post({ action: 'volume', value: Number(e.target.value) })}
+              type="number" min="1" max="100" value={localVol}
+              className="w-16 bg-neutral-800 text-white rounded px-2 py-1.5 text-center text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              onFocus={() => { isFocused.current = true; }}
+              onChange={(e) => setLocalVol(e.target.value)}
+              onBlur={(e) => { isFocused.current = false; applyVolume(e.target.value); }}
+              onKeyDown={(e) => e.key === 'Enter' && applyVolume(localVol)}
             />
-            <span className="text-xs opacity-60 w-8 text-right">{Math.round(volume * 100)}</span>
+            <button
+              onClick={memorize}
+              className="text-xs px-2.5 py-1.5 rounded bg-white/10 hover:bg-white/20 text-white transition"
+            >Memorizar</button>
           </div>
+
+          {/* Presets memorizados */}
+          {presets.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 w-full">
+              {presets.map((v) => (
+                <div key={v} className="flex items-stretch rounded overflow-hidden">
+                  <button
+                    onClick={() => applyVolume(v)}
+                    className={`px-3 py-1 text-xs font-semibold transition ${
+                      v === volume100
+                        ? 'bg-emerald-500 text-white'
+                        : 'bg-white/10 hover:bg-white/20 text-white'
+                    }`}
+                  >{v}</button>
+                  <button
+                    onClick={() => removePreset(v)}
+                    className="px-1.5 text-xs bg-white/5 hover:bg-red-500/60 text-white/40 hover:text-white transition"
+                  >×</button>
+                </div>
+              ))}
+            </div>
+          )}
         </>
       )}
     </div>
