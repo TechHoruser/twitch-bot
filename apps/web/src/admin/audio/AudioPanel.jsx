@@ -30,6 +30,10 @@ export function AudioPanel() {
     post({ action: 'volume', input: name, value: db });
   };
   const onMute = (name, muted) => post({ action: 'mute', input: name, value: !muted });
+  const onMonitor = (name, monitoring) => {
+    setState((s) => ({ ...s, inputs: s.inputs.map((i) => (i.name === name ? { ...i, monitoring: !monitoring } : i)) }));
+    post({ action: 'monitor', input: name, value: !monitoring });
+  };
 
   if (state.loading) return <p className="opacity-60 text-sm">Cargando…</p>;
 
@@ -68,6 +72,13 @@ export function AudioPanel() {
             onChange={(e) => onVol(inp.name, Number(e.target.value))}
           />
           <span className="w-14 text-right text-xs opacity-70 shrink-0">{Math.round(inp.volumeDb)} dB</span>
+          <button
+            onClick={() => onMonitor(inp.name, inp.monitoring)}
+            title={inp.monitoring ? 'Desactivar monitorización en OBS' : 'Activar monitorización en OBS'}
+            className={`w-9 h-9 rounded shrink-0 text-base ${inp.monitoring ? 'bg-green-500 hover:bg-green-600' : 'bg-white/10 hover:bg-white/20'}`}
+          >
+            🎧
+          </button>
         </div>
       ))}
     </div>

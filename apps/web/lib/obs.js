@@ -6,24 +6,26 @@ import OBSWebSocket from 'obs-websocket-js';
 const URL = process.env.OBS_WEBSOCKET_URL || 'ws://127.0.0.1:4455';
 const PASSWORD = process.env.OBS_WEBSOCKET_PASSWORD || undefined;
 
-let client = null;
-let connected = false;
-let connecting = null;
+// Guardamos el estado en globalThis para que el singleton sobreviva a los
+// recompilados/recargas de módulos de `next dev`. Sin esto, en desarrollo cada
+// request abría una conexión nueva a OBS (el panel de audio sondea cada 1,5 s),
+// y OBS mostraba la notificación "Nueva conexión WebSocket" sin parar.
+const store = (globalThis.__obsClient ??= { client: null, connected: false, connecting: null });
 
 async function connect() {
   const obs = new OBSWebSocket();
-  obs.on('ConnectionClosed', () => { connected = false; client = null; });
-  obs.on('ConnectionError', () => { connected = false; client = null; });
+  obs.on('ConnectionClosed', () => { store.connected = false; store.client = null; });
+  obs.on('ConnectionError', () => { store.connected = false; store.client = null; });
   await obs.connect(URL, PASSWORD);
-  client = obs;
-  connected = true;
+  store.client = obs;
+  store.connected = true;
   return obs;
 }
 
 export async function getObs() {
-  if (client && connected) return client;
-  if (!connecting) {
-    connecting = connect().finally(() => { connecting = null; });
+  if (store.client && store.connected) return store.client;
+  if (!store.connecting) {
+    store.connecting = connect().finally(() => { store.connecting = null; });
   }
-  return connecting;
+  return store.connecting;
 }

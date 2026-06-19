@@ -8,7 +8,6 @@ import { MusicTab } from './music/MusicTab';
 import { MusicAudio } from './music/MusicAudio';
 import { MusicFloatingPlayer } from './music/MusicFloatingPlayer';
 import { MusicAudioProvider } from './music/MusicAudioContext';
-import { Soundboard } from './sound/Soundboard';
 import { AudioPanel } from './audio/AudioPanel';
 import { ChatPanel } from './chat/ChatPanel';
 import { StreamPanel } from './stream/StreamPanel';
@@ -85,7 +84,6 @@ export default function Admin() {
     { key: 'stream', label: '📡 Directo', content: <StreamPanel /> },
     { key: 'scenes', label: '🎬 Escenas', content: <ScenesTab data={data} /> },
     { key: 'audio', label: '🎚️ Audio', content: <AudioPanel /> },
-    { key: 'sounds', label: '🔊 Sonidos', content: <Soundboard /> },
     { key: 'music', label: '🎵 Música', content: <MusicTab /> },
   ];
 

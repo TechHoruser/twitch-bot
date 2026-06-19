@@ -14,6 +14,10 @@ export function MusicAudio() {
 
   useEffect(() => {
     register(audioRef.current);
+    // El sonido real de la música sale por el overlay (lo captura OBS). En /admin
+    // mantenemos el <audio> reproduciendo solo para mover la barra de progreso y
+    // permitir el seek, pero MUTEADO para que no suene por la pestaña de admin.
+    if (audioRef.current) audioRef.current.muted = true;
     return () => register(null);
   }, []);
 
