@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "setup": "node setup.js",
+    "setup:envs": "node setup-envs.js",
     "setup:obs": "node setup-obs.js",
     "setup:streamdeck": "node setup-streamdeck.js",
     "setup:voicemeeter": "node setup-voicemeeter.js",

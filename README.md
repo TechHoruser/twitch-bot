@@ -479,6 +479,7 @@ hacia tus cascos y añade en OBS una *Captura de audio* del dispositivo
 | Comando | Descripción |
 | --- | --- |
 | `npm run setup` | Instala y configura todo el monorepo |
+| `npm run setup:envs` | Reconfigura solo las variables de entorno (bot + web) |
 | `npm run setup:obs` | Carga las colecciones de escenas en OBS Studio |
 | `npm run setup:streamdeck` | Carga el perfil del stream (3×5) en Elgato Stream Deck |
 | `npm run setup:voicemeeter` | Genera la config de audio para Voicemeeter Banana |
