@@ -11,4 +11,4 @@ if errorlevel 1 goto wait
 
 echo Web lista. Abriendo Chrome y OBS...
 start chrome http://localhost:3000/admin
-start "" "C:\Program Files\obs-studio\bin\64bit\obs64.exe" --enable-media-stream --use-fake-ui-for-media-stream
+start "" /D "C:\Program Files\obs-studio\bin\64bit" "C:\Program Files\obs-studio\bin\64bit\obs64.exe" --enable-media-stream --use-fake-ui-for-media-stream
