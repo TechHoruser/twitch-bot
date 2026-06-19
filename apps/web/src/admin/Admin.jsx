@@ -11,6 +11,17 @@ import { MusicAudioProvider } from './music/MusicAudioContext';
 import { AudioPanel } from './audio/AudioPanel';
 import { ChatPanel } from './chat/ChatPanel';
 import { StreamPanel } from './stream/StreamPanel';
+import { RegistroTab } from './stream/RegistroTab';
+import { usePresence } from './stream/usePresence';
+
+// Canal del que registrar presencia / mostrar el chat (igual que en ChatPanel).
+const resolveChannel = () => {
+  if (typeof window !== 'undefined') {
+    const q = new URLSearchParams(window.location.search).get('channel');
+    if (q) return q;
+  }
+  return process.env.NEXT_PUBLIC_TWITCH_CHANNEL || '';
+};
 
 // Normaliza al formato nuevo (accounts[]) soportando también el antiguo.
 const getAccounts = (element) =>
@@ -79,12 +90,17 @@ function ScenesTab({ data }) {
 export default function Admin() {
   const { data } = useQueue();
   const [activeTab, setActiveTab] = useState('scenes');
+  // Registro de presencia siempre activo (independiente de la pestaña abierta) para
+  // no perder entradas/salidas del chat mientras se navega por el panel.
+  const [channel] = useState(resolveChannel);
+  const { count: presentCount } = usePresence(channel);
 
   const tabs = [
-    { key: 'stream', label: '📡 Directo', content: <StreamPanel /> },
+    { key: 'stream', label: '📡 Directo', content: <StreamPanel presentCount={presentCount} /> },
     { key: 'scenes', label: '🎬 Escenas', content: <ScenesTab data={data} /> },
     { key: 'audio', label: '🎚️ Audio', content: <AudioPanel /> },
     { key: 'music', label: '🎵 Música', content: <MusicTab /> },
+    { key: 'registro', label: '🗒️ Registro', content: <RegistroTab /> },
   ];
 
   return (

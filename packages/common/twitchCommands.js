@@ -133,6 +133,25 @@ const updateChannelInfo = async ({ broadcasterId, title, gameId }, env = process
   return true;
 };
 
+// Lee el estado de emisión del directo (Helix Get Streams). Si el canal está en
+// directo devuelve los espectadores y el inicio; si no, live=false.
+const getStreamInfo = async ({ broadcasterId }, env = process.env, fetchFn = fetch) => {
+  const response = await fetchFn(`${TWITCH_HELIX}/streams?user_id=${broadcasterId}`, {
+    headers: authHeaders(env),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error('Error al leer el estado del directo');
+  const s = data.data?.[0];
+  if (!s) return { live: false, viewerCount: 0, startedAt: null, gameName: '', title: '' };
+  return {
+    live: true,
+    viewerCount: s.viewer_count || 0,
+    startedAt: s.started_at || null,
+    gameName: s.game_name || '',
+    title: s.title || '',
+  };
+};
+
 // Busca categorías/juegos por nombre (para el autocompletado del editor).
 const searchCategories = async (query, env = process.env, fetchFn = fetch) => {
   const response = await fetchFn(`${TWITCH_HELIX}/search/categories?first=10&query=${encodeURIComponent(query)}`, {
@@ -239,6 +258,7 @@ module.exports = {
   deleteMessage,
   getChannelInfo,
   updateChannelInfo,
+  getStreamInfo,
   searchCategories,
   manageHeldMessage,
   createEventSubSubscription,

@@ -219,12 +219,17 @@ usuario o tema con query params: `/tv?user=TU_USUARIO&theme=brown&bg=dark`.
 el **chat de Twitch en vivo con moderación** (borrar mensaje, timeout, ban — al pasar
 el ratón por cada mensaje). A la derecha, en pestañas:
 
-* **📡 Directo** — edita el **título** y el **juego/categoría** del directo en caliente
-  (Helix). El juego se busca con autocompletado; necesita el scope `channel:manage:broadcast`.
+* **📡 Directo** — **inicia/detiene la retransmisión** (vía OBS, obs-websocket) y ve el
+  **número de espectadores**, el tiempo en directo y los usuarios presentes en el chat.
+  Además edita el **título** y el **juego/categoría** del directo en caliente (Helix). El
+  juego se busca con autocompletado; necesita el scope `channel:manage:broadcast`.
 * **🎬 Escenas** — juego/tema + pantalla activa (y la cola del módulo de ajedrez).
 * **🎚️ Audio** — faders y mutes del mezclador de OBS (ver más abajo).
 * **🔊 Sonidos** — soundboard: dispara efectos de `apps/web/public/sounds/` en el overlay.
 * **🎵 Música** — reproductor, **descarga de Jamendo** por tag y **editor de playlists**.
+* **🗒️ Registro** — **línea de tiempo de presencia por directo**: registra quién entra y
+  sale del chat (JOIN/PART del IRC de Twitch) y lo dibuja como un Gantt (una fila por
+  usuario) para cada sesión, junto con el pico de espectadores.
 
 > **Chat/moderación**: el chat se lee en cliente (IRC de Twitch por WebSocket, anónimo).
 > Las acciones de moderación van por `/api/admin/mod` → Helix, así que el **token OAuth
