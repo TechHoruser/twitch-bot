@@ -3,12 +3,11 @@ import { useState } from 'react';
 import { useQueue } from '../shared/hooks/useQueue';
 import { GroupButtons } from './components/GroupButtons';
 import { Tabs } from './components/Tabs';
-import { ScenePanel } from './components/ScenePanel';
 import { MusicTab } from './music/MusicTab';
 import { MusicAudio } from './music/MusicAudio';
 import { MusicFloatingPlayer } from './music/MusicFloatingPlayer';
 import { MusicAudioProvider } from './music/MusicAudioContext';
-import { AudioPanel } from './audio/AudioPanel';
+import { ScenesAudioPanel } from './audio/ScenesAudioPanel';
 import { ChatPanel } from './chat/ChatPanel';
 import { StreamPanel } from './stream/StreamPanel';
 import { RegistroTab } from './stream/RegistroTab';
@@ -72,7 +71,7 @@ function QueueList({ data }) {
 function ScenesTab({ data }) {
   return (
     <div className="flex flex-col gap-4 items-center">
-      <ScenePanel />
+      <ScenesAudioPanel />
       <GroupButtons
         title="Cola"
         buttons={[
@@ -101,8 +100,7 @@ export default function Admin() {
 
   const tabs = [
     { key: 'stream', label: '📡 Directo', content: <StreamPanel presentCount={presentCount} intro={intro} /> },
-    { key: 'scenes', label: '🎬 Escenas', content: <ScenesTab data={data} /> },
-    { key: 'audio', label: '🎚️ Audio', content: <AudioPanel /> },
+    { key: 'scenes', label: '🎬 Escenas y audio', content: <ScenesTab data={data} /> },
     { key: 'music', label: '🎵 Música', content: <MusicTab /> },
     { key: 'registro', label: '🗒️ Registro', content: <RegistroTab /> },
   ];

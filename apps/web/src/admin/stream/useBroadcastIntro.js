@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { COUNTDOWN_MINUTES } from '../../scenes/config';
+import { applyPreset } from '../audio/sceneAudio';
 
 // Gestiona la "escena de entrada" del directo: al iniciar la retransmisión se
 // precarga la pantalla intro de la colección elegida (con su cuenta atrás) y, si
@@ -45,18 +46,22 @@ export function useBroadcastIntro() {
     setState(s);
   }, []);
 
-  // Pasa a la pantalla principal (juego) y cierra la intro.
+  // Pasa a la pantalla principal (juego) y cierra la intro, aplicando el preset de
+  // audio de la escena principal de la colección.
   const goToMain = useCallback(() => {
     firedRef.current = true;
+    const collection = state?.collection;
     setSceneApi({ screen: 'game' });
+    if (collection) applyPreset(collection, 'game');
     persist(null);
-  }, [persist]);
+  }, [persist, state]);
 
   // Arranca la intro de una colección. autoSwitch sólo aplica si hay cuenta atrás.
   const start = useCallback(({ collection, autoSwitch }) => {
     firedRef.current = false;
     const hasCountdown = COUNTDOWN_MINUTES > 0;
     setSceneApi({ game: collection, screen: 'intro' });
+    applyPreset(collection, 'intro');
     persist({
       collection,
       autoSwitch: !!autoSwitch && hasCountdown,

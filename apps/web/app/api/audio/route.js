@@ -31,6 +31,7 @@ export async function GET() {
           name,
           kind: inp.inputKind,
           volumeDb: vol.inputVolumeDb,
+          volumeMul: vol.inputVolumeMul,
           muted: mute.inputMuted,
           monitoring: monitorType !== 'OBS_MONITORING_TYPE_NONE',
         });
@@ -51,6 +52,10 @@ export async function POST(request) {
     const obs = await getObs();
     if (action === 'volume') {
       await obs.call('SetInputVolume', { inputName: input, inputVolumeDb: Number(value) });
+    } else if (action === 'volumeMul') {
+      // Multiplicador lineal 0..1 (0% = silencio, 100% = 0 dB). Lo usan los
+      // presets de audio por escena, que se piensan en porcentaje.
+      await obs.call('SetInputVolume', { inputName: input, inputVolumeMul: Number(value) });
     } else if (action === 'mute') {
       await obs.call('SetInputMute', { inputName: input, inputMuted: !!value });
     } else if (action === 'monitor') {

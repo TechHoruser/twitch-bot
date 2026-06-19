@@ -234,8 +234,12 @@ el ratón por cada mensaje). A la derecha, en pestañas:
   > El aviso a seguidores ("go-live") lo gestiona Twitch automáticamente y **no** es
   > configurable desde la API pública; por eso la "notificación" se resuelve como anuncio de chat.
   > La duración de la cuenta atrás se controla con `NEXT_PUBLIC_COUNTDOWN_MINUTES` (por defecto 5).
-* **🎬 Escenas** — juego/tema + pantalla activa (y la cola del módulo de ajedrez).
-* **🎚️ Audio** — faders y mutes del mezclador de OBS (ver más abajo).
+* **🎬 Escenas y audio** — control de escena (colección/tema con un selector + pantalla
+  con cuadrados) y, debajo, los **niveles de audio del mezclador de OBS guardados por
+  escena**: para cada par colección/escena marcas las fuentes a fijar y su nivel (0–100%),
+  y al activar esa escena se aplican a OBS automáticamente (p. ej. *Valorant · Intro* →
+  micro a 0% y otra fuente al 100%). Los presets se guardan en el navegador y son
+  **exportables/importables** a JSON. Incluye la cola del módulo de ajedrez.
 * **🔊 Sonidos** — soundboard: dispara efectos de `apps/web/public/sounds/` en el overlay.
 * **🎵 Música** — reproductor, **descarga de Jamendo** por tag y **editor de playlists**.
 * **🗒️ Registro** — **línea de tiempo de presencia por directo**: registra quién entra y
@@ -362,7 +366,8 @@ También puedes descargar y crear/editar playlists desde la pestaña **Música**
 
 Una app no puede *crear* dispositivos de audio virtuales (eso lo hace un driver). La
 estrategia: **VB-Cable** separa las fuentes (cada app → su cable) y **OBS** hace de
-mezclador, controlado desde `/admin` (pestaña Audio) vía **obs-websocket**.
+mezclador, controlado desde `/admin` (pestaña **Escenas y audio**) vía **obs-websocket**,
+con presets de niveles por escena.
 
 ```
 Discord → CABLE   ┐
