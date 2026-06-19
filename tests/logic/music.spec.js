@@ -58,6 +58,24 @@ test.describe('music · estado del reproductor', () => {
     expect(music.getMusic().volume).toBe(0);
   });
 
+  test('removeCurrentTrack quita la pista actual y deja sonando la siguiente', () => {
+    music.setPlaylist('lofi');
+    music.next(); // index 1 -> pista B
+    music.removeCurrentTrack();
+    expect(music.tracksOf('lofi').map((t) => t.id)).toEqual(['1', '3']);
+    // el índice se mantiene en 1, que ahora es la pista C (la que seguía)
+    expect(music.getMusic().index).toBe(1);
+    expect(music.currentTrack().file).toBe('3.mp3');
+  });
+
+  test('removeCurrentTrack envuelve el índice al quitar la última pista', () => {
+    music.setPlaylist('lofi');
+    music.prev(); // 0 -> 2 (última)
+    music.removeCurrentTrack();
+    expect(music.tracksOf('lofi').map((t) => t.id)).toEqual(['1', '2']);
+    expect(music.getMusic().index).toBe(0);
+  });
+
   test('savePlaylist / renamePlaylist / deletePlaylist', () => {
     music.savePlaylist('nueva', [{ id: '7', file: '7.mp3', title: 'G', artist: 'q' }]);
     expect(music.getLibrary().playlists.nueva).toHaveLength(1);

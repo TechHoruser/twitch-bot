@@ -83,13 +83,25 @@ export const MusicPanel = () => {
             {playlists.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
 
-          <div className="text-center text-sm min-h-[2.5rem] flex flex-col justify-center">
-            {track ? (
-              <>
-                <span className="font-bold">{track.title}</span>
-                <span className="opacity-70">{track.artist}</span>
-              </>
-            ) : <span className="opacity-50">—</span>}
+          <div className="relative w-full min-h-[2.5rem] flex items-center justify-center">
+            <div className="text-center text-sm flex flex-col justify-center px-8">
+              {track ? (
+                <>
+                  <span className="font-bold">{track.title}</span>
+                  <span className="opacity-70">{track.artist}</span>
+                </>
+              ) : <span className="opacity-50">—</span>}
+            </div>
+            {track && (
+              <button
+                onClick={() => {
+                  if (confirm(`¿Quitar "${track.title}" de la playlist?`)) post({ action: 'removeCurrent' });
+                }}
+                title="Quitar de la playlist"
+                aria-label="Quitar de la playlist"
+                className="absolute right-0 top-1/2 -translate-y-1/2 text-lg text-white/40 hover:text-red-400 transition"
+              >🗑</button>
+            )}
           </div>
 
           <div className="flex gap-2 items-center">

@@ -1,6 +1,6 @@
 import {
   getMusic, currentTrack, playlistNames,
-  setPlaying, togglePlay, next, prev, setVolume, setPlaylist,
+  setPlaying, togglePlay, next, prev, setVolume, setPlaylist, removeCurrentTrack,
 } from '@stream-toolkit/common/music';
 
 const withTrack = (state) => ({ state, track: currentTrack(state), playlists: playlistNames() });
@@ -22,6 +22,7 @@ export async function POST(request) {
     case 'prev': state = prev(); break;
     case 'volume': state = setVolume(value); break;
     case 'playlist': state = setPlaylist(value); break;
+    case 'removeCurrent': state = removeCurrentTrack(); break;
     default:
       return Response.json({ error: 'acción no válida' }, { status: 400 });
   }

@@ -63,6 +63,18 @@ const setVolume = (v) => setMusic({ volume: Math.min(1, Math.max(0, Number(v))) 
 // Pista actual resuelta (para overlay y admin).
 const currentTrack = (m = getMusic()) => tracksOf(m.playlist)[m.index] || null;
 
+// Quita la pista actual de su playlist. El índice se mantiene para que pase a
+// sonar la siguiente pista (o vuelve a 0 si era la última).
+const removeCurrentTrack = () => {
+  const m = getMusic();
+  const tracks = tracksOf(m.playlist);
+  if (!tracks.length) return m;
+  const remaining = tracks.filter((_, i) => i !== m.index);
+  savePlaylist(m.playlist, remaining);
+  m.index = remaining.length ? m.index % remaining.length : 0;
+  return persist(m);
+};
+
 // --- gestión de playlists (panel /admin) ----------------------------------
 const saveLibrary = (lib) => saveJson(LIBRARY_FILE, lib);
 
@@ -92,7 +104,7 @@ const renamePlaylist = (from, to) => {
 
 module.exports = {
   getMusic, setMusic, getLibrary, playlistNames, tracksOf, currentTrack,
-  next, prev, setPlaylist, togglePlay, setPlaying, setVolume,
+  next, prev, setPlaylist, togglePlay, setPlaying, setVolume, removeCurrentTrack,
   savePlaylist, deletePlaylist, renamePlaylist,
   MUSIC_FILE, LIBRARY_FILE, DEFAULT_MUSIC,
 };

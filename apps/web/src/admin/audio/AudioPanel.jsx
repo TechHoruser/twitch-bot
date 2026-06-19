@@ -13,10 +13,17 @@ const post = (body) => fetch('/api/audio', {
 export function AudioPanel() {
   const [state, setState] = useState({ loading: true });
   const dragging = useRef(false);
+  const writing = useRef(0); // escrituras en vuelo: mientras >0 no pisamos el estado con polls
+  const epoch = useRef(0);   // sube con cada cambio local para descartar polls obsoletos
 
   const load = useCallback(async () => {
+    if (writing.current > 0 || dragging.current) return;
+    const myEpoch = epoch.current;
     const d = await fetch('/api/audio').then((r) => r.json());
-    if (!dragging.current) setState(d);
+    // Si el usuario tocó algo mientras la petición estaba en vuelo, descartamos la
+    // respuesta para no revertir el cambio optimista con datos antiguos de OBS.
+    if (writing.current > 0 || dragging.current || epoch.current !== myEpoch) return;
+    setState(d);
   }, []);
 
   useEffect(() => {
@@ -25,15 +32,22 @@ export function AudioPanel() {
     return () => clearInterval(id);
   }, [load]);
 
-  const onVol = (name, db) => {
-    setState((s) => ({ ...s, inputs: s.inputs.map((i) => (i.name === name ? { ...i, volumeDb: db } : i)) }));
-    post({ action: 'volume', input: name, value: db });
-  };
-  const onMute = (name, muted) => post({ action: 'mute', input: name, value: !muted });
-  const onMonitor = (name, monitoring) => {
-    setState((s) => ({ ...s, inputs: s.inputs.map((i) => (i.name === name ? { ...i, monitoring: !monitoring } : i)) }));
-    post({ action: 'monitor', input: name, value: !monitoring });
-  };
+  // Aplica el cambio de forma optimista y lo escribe en OBS, bloqueando el polling
+  // hasta que OBS lo confirma para que ambos lados no se desincronicen.
+  const mutate = useCallback(async (body, patch) => {
+    epoch.current += 1;
+    writing.current += 1;
+    setState((s) => ({ ...s, inputs: s.inputs.map((i) => (i.name === body.input ? { ...i, ...patch } : i)) }));
+    try {
+      await post(body);
+    } finally {
+      writing.current -= 1;
+    }
+  }, []);
+
+  const onVol = (name, db) => mutate({ action: 'volume', input: name, value: db }, { volumeDb: db });
+  const onMute = (name, muted) => mutate({ action: 'mute', input: name, value: !muted }, { muted: !muted });
+  const onMonitor = (name, monitoring) => mutate({ action: 'monitor', input: name, value: !monitoring }, { monitoring: !monitoring });
 
   if (state.loading) return <p className="opacity-60 text-sm">Cargando…</p>;
 
