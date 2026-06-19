@@ -114,7 +114,7 @@ Crea una aplicación con estos datos:
 
 Obtén el token OAuth manualmente ejecutando en tu navegador:
 
-https://id.twitch.tv/oauth2/authorize?client_id=TU_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages+moderator:manage:automod+moderator:read:followers+channel:manage:broadcast
+https://id.twitch.tv/oauth2/authorize?client_id=TU_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages+moderator:manage:automod+moderator:read:followers+channel:manage:broadcast+moderator:manage:announcements
 
 Te redirigirá a http://localhost#access_token=TOKEN_GENERADO.
 
@@ -221,13 +221,19 @@ el ratón por cada mensaje). A la derecha, en pestañas:
 
 * **📡 Directo** — **inicia/detiene la retransmisión** (vía OBS, obs-websocket) y ve el
   **número de espectadores**, el tiempo en directo y los usuarios presentes en el chat.
-  Al pulsar **Iniciar retransmisión** se abre un formulario para fijar **título**,
-  **categoría** y una **notificación** (que se publica como *anuncio destacado en el chat*,
-  scope `moderator:manage:announcements`) antes de ponerte en directo. También puedes editar
-  el título y el juego/categoría en caliente (Helix). El juego se busca con autocompletado;
-  necesita el scope `channel:manage:broadcast`.
+  Al pulsar **Iniciar retransmisión** se abre un formulario para elegir la **colección de
+  escenas** (tema) y fijar **título**, **categoría** y una **notificación** (que se publica
+  como *anuncio destacado en el chat*, scope `moderator:manage:announcements`). Cada colección
+  **recuerda** en el navegador sus últimos título/categoría/notificación. Al iniciar se
+  **precarga la escena de entrada** (pantalla intro de esa colección con su cuenta atrás) y,
+  si se marca la opción, se **pasa automáticamente a la escena principal** cuando la cuenta
+  atrás llega a 0. Tanto si está marcada como si no, hay un botón **"Pasar a la escena
+  principal ahora"** (con confirmación). También puedes editar el título y el juego/categoría
+  en caliente (Helix); el juego se busca con autocompletado y necesita el scope
+  `channel:manage:broadcast`.
   > El aviso a seguidores ("go-live") lo gestiona Twitch automáticamente y **no** es
   > configurable desde la API pública; por eso la "notificación" se resuelve como anuncio de chat.
+  > La duración de la cuenta atrás se controla con `NEXT_PUBLIC_COUNTDOWN_MINUTES` (por defecto 5).
 * **🎬 Escenas** — juego/tema + pantalla activa (y la cola del módulo de ajedrez).
 * **🎚️ Audio** — faders y mutes del mezclador de OBS (ver más abajo).
 * **🔊 Sonidos** — soundboard: dispara efectos de `apps/web/public/sounds/` en el overlay.

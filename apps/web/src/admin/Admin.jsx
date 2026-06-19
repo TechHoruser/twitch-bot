@@ -13,6 +13,7 @@ import { ChatPanel } from './chat/ChatPanel';
 import { StreamPanel } from './stream/StreamPanel';
 import { RegistroTab } from './stream/RegistroTab';
 import { usePresence } from './stream/usePresence';
+import { useBroadcastIntro } from './stream/useBroadcastIntro';
 
 // Canal del que registrar presencia / mostrar el chat (igual que en ChatPanel).
 const resolveChannel = () => {
@@ -94,9 +95,12 @@ export default function Admin() {
   // no perder entradas/salidas del chat mientras se navega por el panel.
   const [channel] = useState(resolveChannel);
   const { count: presentCount } = usePresence(channel);
+  // Intro/cuenta atrás del directo: siempre montado para que el auto-paso a la
+  // escena principal ocurra aunque no estés en la pestaña Directo.
+  const intro = useBroadcastIntro();
 
   const tabs = [
-    { key: 'stream', label: '📡 Directo', content: <StreamPanel presentCount={presentCount} /> },
+    { key: 'stream', label: '📡 Directo', content: <StreamPanel presentCount={presentCount} intro={intro} /> },
     { key: 'scenes', label: '🎬 Escenas', content: <ScenesTab data={data} /> },
     { key: 'audio', label: '🎚️ Audio', content: <AudioPanel /> },
     { key: 'music', label: '🎵 Música', content: <MusicTab /> },
