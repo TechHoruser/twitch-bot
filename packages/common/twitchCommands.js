@@ -152,6 +152,25 @@ const getStreamInfo = async ({ broadcasterId }, env = process.env, fetchFn = fet
   };
 };
 
+// Publica un anuncio destacado en el chat (Helix Send Chat Announcement). Se usa,
+// por ejemplo, para avisar en el chat al iniciar la retransmisión. El moderator_id
+// debe ser el dueño del token. Requiere el scope moderator:manage:announcements.
+const sendChatAnnouncement = async ({ broadcasterId, moderatorId, message, color }, env = process.env, fetchFn = fetch) => {
+  const response = await fetchFn(
+    `${TWITCH_HELIX}/chat/announcements?broadcaster_id=${broadcasterId}&moderator_id=${moderatorId || broadcasterId}`,
+    {
+      method: 'POST',
+      headers: authHeaders(env),
+      body: JSON.stringify({ message, color: color || 'primary' }),
+    },
+  );
+  if (!response.ok && response.status !== 204) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.message || 'Error al enviar el anuncio al chat');
+  }
+  return true;
+};
+
 // Busca categorías/juegos por nombre (para el autocompletado del editor).
 const searchCategories = async (query, env = process.env, fetchFn = fetch) => {
   const response = await fetchFn(`${TWITCH_HELIX}/search/categories?first=10&query=${encodeURIComponent(query)}`, {
@@ -259,6 +278,7 @@ module.exports = {
   getChannelInfo,
   updateChannelInfo,
   getStreamInfo,
+  sendChatAnnouncement,
   searchCategories,
   manageHeldMessage,
   createEventSubSubscription,

@@ -221,8 +221,13 @@ el ratón por cada mensaje). A la derecha, en pestañas:
 
 * **📡 Directo** — **inicia/detiene la retransmisión** (vía OBS, obs-websocket) y ve el
   **número de espectadores**, el tiempo en directo y los usuarios presentes en el chat.
-  Además edita el **título** y el **juego/categoría** del directo en caliente (Helix). El
-  juego se busca con autocompletado; necesita el scope `channel:manage:broadcast`.
+  Al pulsar **Iniciar retransmisión** se abre un formulario para fijar **título**,
+  **categoría** y una **notificación** (que se publica como *anuncio destacado en el chat*,
+  scope `moderator:manage:announcements`) antes de ponerte en directo. También puedes editar
+  el título y el juego/categoría en caliente (Helix). El juego se busca con autocompletado;
+  necesita el scope `channel:manage:broadcast`.
+  > El aviso a seguidores ("go-live") lo gestiona Twitch automáticamente y **no** es
+  > configurable desde la API pública; por eso la "notificación" se resuelve como anuncio de chat.
 * **🎬 Escenas** — juego/tema + pantalla activa (y la cola del módulo de ajedrez).
 * **🎚️ Audio** — faders y mutes del mezclador de OBS (ver más abajo).
 * **🔊 Sonidos** — soundboard: dispara efectos de `apps/web/public/sounds/` en el overlay.

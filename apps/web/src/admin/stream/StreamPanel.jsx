@@ -12,10 +12,10 @@ const searchGames = (q) => fetch(`/api/admin/channel/categories?q=${encodeURICom
 
 const MAX_TITLE = 140;
 
-const setBroadcast = (action) => fetch('/api/admin/stream/broadcast', {
+const setBroadcast = (action, extra = {}) => fetch('/api/admin/stream/broadcast', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ action }),
+  body: JSON.stringify({ action, ...extra }),
 }).then((r) => r.json());
 
 // Tiempo transcurrido desde started_at en formato h:mm:ss.
@@ -28,12 +28,163 @@ const uptimeOf = (startedAt) => {
   return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
 };
 
+const MAX_ANNOUNCE = 500;
+
+// Formulario previo a ponerse en directo: pide título, categoría y la notificación
+// (anuncio de chat) antes de arrancar. Pre-rellena con la info actual del canal.
+function BroadcastSetupModal({ onClose, onStarted }) {
+  const [title, setTitle] = useState('');
+  const [game, setGame] = useState({ id: '', name: '' });
+  const [announcement, setAnnouncement] = useState('');
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+  const debounceRef = useRef(null);
+
+  useEffect(() => {
+    getInfo().then((d) => {
+      if (d?.ok) { setTitle(d.title || ''); setGame({ id: d.gameId || '', name: d.gameName || '' }); }
+      setLoading(false);
+    });
+  }, []);
+
+  const onQuery = (v) => {
+    setQuery(v);
+    setOpen(true);
+    clearTimeout(debounceRef.current);
+    if (v.trim().length < 2) { setResults([]); return; }
+    debounceRef.current = setTimeout(async () => {
+      const d = await searchGames(v.trim());
+      setResults(d?.categories || []);
+    }, 300);
+  };
+
+  const pickGame = (g) => { setGame({ id: g.id, name: g.name }); setQuery(''); setResults([]); setOpen(false); };
+
+  const start = async () => {
+    setSubmitting(true);
+    setError(null);
+    const res = await setBroadcast('start', { title, gameId: game.id, announcement });
+    setSubmitting(false);
+    if (res?.ok) {
+      onStarted(res);
+      onClose();
+    } else {
+      setError(res?.error || 'No se pudo iniciar la retransmisión');
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+      <div
+        className="bg-neutral-800 text-white rounded-lg w-full max-w-lg p-6 flex flex-col gap-4 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-lg font-semibold">▶ Iniciar retransmisión</h2>
+
+        {loading ? (
+          <p className="opacity-60">Cargando datos del directo…</p>
+        ) : (
+          <>
+            <label className="flex flex-col gap-1">
+              <span className="text-xs uppercase tracking-widest opacity-60">Título</span>
+              <textarea
+                value={title}
+                onChange={(e) => setTitle(e.target.value.slice(0, MAX_TITLE))}
+                rows={2}
+                className="bg-white/10 rounded px-3 py-2 resize-none"
+                placeholder="Título del directo"
+              />
+              <span className="text-xs opacity-40 self-end">{title.length}/{MAX_TITLE}</span>
+            </label>
+
+            <div className="flex flex-col gap-1 relative">
+              <span className="text-xs uppercase tracking-widest opacity-60">Juego / categoría</span>
+              <div className="bg-white/10 rounded px-3 py-2 opacity-90">{game.name || 'sin categoría'}</div>
+              <input
+                value={query}
+                onChange={(e) => onQuery(e.target.value)}
+                onFocus={() => setOpen(true)}
+                className="bg-white/10 rounded px-3 py-2 mt-1"
+                placeholder="Buscar otra categoría…"
+              />
+              {open && results.length > 0 && (
+                <ul className="absolute top-full mt-1 w-full z-10 bg-neutral-900 border border-white/10 rounded max-h-60 overflow-y-auto">
+                  {results.map((g) => (
+                    <li key={g.id}>
+                      <button
+                        className="w-full text-left px-3 py-2 hover:bg-white/10 flex items-center gap-2"
+                        onClick={() => pickGame(g)}
+                      >
+                        {g.boxArt && (
+                          <img
+                            src={g.boxArt.replace('{width}', '24').replace('{height}', '32')}
+                            alt=""
+                            className="w-6 h-8 object-cover rounded shrink-0"
+                          />
+                        )}
+                        <span>{g.name}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <label className="flex flex-col gap-1">
+              <span className="text-xs uppercase tracking-widest opacity-60">
+                Notificación (anuncio en el chat)
+              </span>
+              <textarea
+                value={announcement}
+                onChange={(e) => setAnnouncement(e.target.value.slice(0, MAX_ANNOUNCE))}
+                rows={2}
+                className="bg-white/10 rounded px-3 py-2 resize-none"
+                placeholder="Ej.: ¡Ya estamos en directo! Pasad a saludar 👋"
+              />
+              <span className="text-xs opacity-40 self-end">{announcement.length}/{MAX_ANNOUNCE}</span>
+            </label>
+
+            <p className="text-xs opacity-50 -mt-1">
+              La notificación se publica como anuncio destacado en el chat. El aviso a
+              seguidores (go-live) lo gestiona Twitch automáticamente y no se puede fijar por API.
+            </p>
+
+            {error && <div className="text-sm text-red-400">✗ {error}</div>}
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={onClose}
+                disabled={submitting}
+                className="rounded px-4 py-2 bg-white/10 hover:bg-white/20 transition disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={start}
+                disabled={submitting}
+                className="rounded px-4 py-2 font-semibold bg-emerald-500 hover:bg-emerald-600 transition disabled:opacity-50"
+              >
+                {submitting ? 'Iniciando…' : '▶ Iniciar directo'}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Panel de retransmisión: estado en vivo, número de espectadores y botón para
 // iniciar/detener la emisión (vía OBS). `presentCount` = usuarios en el chat ahora.
 function BroadcastPanel({ presentCount }) {
   const { data, loading, refresh } = useStreamStatus();
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState(null);
+  const [showSetup, setShowSetup] = useState(false);
   const [, setTick] = useState(0);
 
   // Refresca el cronómetro de tiempo en directo cada segundo.
@@ -47,16 +198,20 @@ function BroadcastPanel({ presentCount }) {
   // En OBS mandamos: si OBS ya emite (o Twitch detecta directo) → detener; si no → iniciar.
   const streaming = data?.obsStreaming ?? data?.live ?? false;
 
+  // Iniciar abre el formulario previo (título/categoría/notificación); detener es directo.
   const onToggle = async () => {
+    if (!streaming) { setShowSetup(true); return; }
     setBusy(true);
-    const res = await setBroadcast(streaming ? 'stop' : 'start');
+    const res = await setBroadcast('stop');
     setBusy(false);
-    if (res?.ok) {
-      notify(streaming ? '⏹ Retransmisión detenida' : '▶ Retransmisión iniciada');
-      refresh();
-    } else {
-      notify(`✗ ${res?.error || 'error'}`);
-    }
+    notify(res?.ok ? '⏹ Retransmisión detenida' : `✗ ${res?.error || 'error'}`);
+    if (res?.ok) refresh();
+  };
+
+  const onStarted = (res) => {
+    const warn = res?.warnings?.length ? ` (${res.warnings.join('; ')})` : '';
+    notify(`▶ Retransmisión iniciada${warn}`);
+    refresh();
   };
 
   const live = data?.live;
@@ -102,6 +257,10 @@ function BroadcastPanel({ presentCount }) {
       </div>
 
       {toast && <div className="text-sm">{toast}</div>}
+
+      {showSetup && (
+        <BroadcastSetupModal onClose={() => setShowSetup(false)} onStarted={onStarted} />
+      )}
     </div>
   );
 }
