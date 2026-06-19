@@ -92,6 +92,34 @@ test.describe('handleBasicCommands · !banear', () => {
   });
 });
 
+test.describe('canal · info del directo', () => {
+  test('getChannelInfo devuelve título y juego', async () => {
+    const fetch = makeFetch([{ ok: true, body: { data: [{ title: 'T', game_id: '33', game_name: 'Chess' }] } }]);
+    expect(await twitch.getChannelInfo({ broadcasterId: '999' }, ENV, fetch))
+      .toEqual({ title: 'T', gameId: '33', gameName: 'Chess' });
+    expect(fetch.calls[0].url).toContain('/channels?broadcaster_id=999');
+  });
+
+  test('updateChannelInfo hace PATCH con title y game_id', async () => {
+    const fetch = makeFetch([{ ok: true, body: {} }]);
+    await twitch.updateChannelInfo({ broadcasterId: '999', title: 'Nuevo', gameId: '33' }, ENV, fetch);
+    expect(fetch.calls[0].opts.method).toBe('PATCH');
+    expect(JSON.parse(fetch.calls[0].opts.body)).toEqual({ title: 'Nuevo', game_id: '33' });
+  });
+
+  test('updateChannelInfo solo envía los campos presentes', async () => {
+    const fetch = makeFetch([{ ok: true, body: {} }]);
+    await twitch.updateChannelInfo({ broadcasterId: '999', title: 'Solo título' }, ENV, fetch);
+    expect(JSON.parse(fetch.calls[0].opts.body)).toEqual({ title: 'Solo título' });
+  });
+
+  test('searchCategories normaliza los resultados', async () => {
+    const fetch = makeFetch([{ ok: true, body: { data: [{ id: '1', name: 'Chess', box_art_url: 'u' }] } }]);
+    expect(await twitch.searchCategories('che', ENV, fetch))
+      .toEqual([{ id: '1', name: 'Chess', boxArt: 'u' }]);
+  });
+});
+
 test.describe('getUserId / banUser', () => {
   test('getUserId devuelve el id', async () => {
     const fetch = makeFetch([{ ok: true, body: { data: [{ id: '7' }] } }]);
