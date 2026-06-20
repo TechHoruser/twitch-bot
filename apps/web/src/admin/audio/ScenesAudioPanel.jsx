@@ -57,7 +57,12 @@ export function ScenesAudioPanel() {
 
   // Cambiar la escena activa (overlay) y aplicar su preset de audio a OBS.
   const pickCollection = (game) => { setSceneApi({ game }); applyPreset(game, screen); };
-  const pickScreen = (key) => { setSceneApi({ screen: key }); applyPreset(collection, key); };
+  // Al pasar manualmente a la intro limpiamos el fin de cuenta atrás para que el
+  // overlay arranque una nueva desde cero (el fin sincronizado lo fija "Iniciar directo").
+  const pickScreen = (key) => {
+    setSceneApi(key === 'intro' ? { screen: key, countdownEndsAt: null } : { screen: key });
+    applyPreset(collection, key);
+  };
 
   // Editar el nivel de una fuente: la incluye en el preset de la escena y lo aplica
   // a OBS en vivo (para oír el efecto al instante).

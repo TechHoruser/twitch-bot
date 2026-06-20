@@ -24,7 +24,7 @@ export default function Stage() {
 
   return (
     <main style={{ position: 'relative', width: '1920px', height: '1080px', overflow: 'hidden' }}>
-      <div className={layer('intro')}><Intro theme={theme} active={screen === 'intro'} /></div>
+      <div className={layer('intro')}><Intro theme={theme} active={screen === 'intro'} endsAt={scene.countdownEndsAt} /></div>
       <div className={layer('pause')}><Pause theme={theme} /></div>
       <div className={layer('outro')}><Outro theme={theme} /></div>
       <div className={layer('game')}><GameHud theme={theme} /></div>

@@ -8,6 +8,6 @@ export async function GET() {
 
 export async function POST(request) {
   const body = await request.json().catch(() => ({}));
-  const next = setScene({ game: body.game, screen: body.screen });
+  const next = setScene({ game: body.game, screen: body.screen, countdownEndsAt: body.countdownEndsAt });
   return Response.json(next);
 }

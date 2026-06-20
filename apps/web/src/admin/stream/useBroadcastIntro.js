@@ -57,16 +57,21 @@ export function useBroadcastIntro() {
   }, [persist, state]);
 
   // Arranca la intro de una colección. autoSwitch sólo aplica si hay cuenta atrás.
+  // Se calcula un único endsAt y se envía tanto a la escena (lo lee el overlay por
+  // SSE) como a localStorage (lo lee este panel), de modo que ambas cuentas atrás
+  // van hacia el mismo instante y muestran lo mismo.
   const start = useCallback(({ collection, autoSwitch }) => {
     firedRef.current = false;
     const hasCountdown = COUNTDOWN_MINUTES > 0;
-    setSceneApi({ game: collection, screen: 'intro' });
+    const startedAt = Date.now();
+    const endsAt = hasCountdown ? startedAt + COUNTDOWN_MINUTES * 60000 : null;
+    setSceneApi({ game: collection, screen: 'intro', countdownEndsAt: endsAt });
     applyPreset(collection, 'intro');
     persist({
       collection,
       autoSwitch: !!autoSwitch && hasCountdown,
-      startedAt: Date.now(),
-      endsAt: hasCountdown ? Date.now() + COUNTDOWN_MINUTES * 60000 : null,
+      startedAt,
+      endsAt,
     });
   }, [persist]);
 

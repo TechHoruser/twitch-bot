@@ -8,7 +8,10 @@ const SCENE_FILE = 'scene';
 // Juegos/temas disponibles y pantallas posibles.
 const GAMES = ['king', 'valorant', 'mecha'];
 const SCREENS = ['intro', 'game', 'pause', 'outro'];
-const DEFAULT_SCENE = { game: 'king', screen: 'intro' };
+// countdownEndsAt: instante (ms epoch) en que termina la cuenta atrás de la intro,
+// o null si no hay. Lo fija /admin al iniciar el directo para que el overlay y el
+// panel cuenten hacia el MISMO instante (cuenta atrás sincronizada).
+const DEFAULT_SCENE = { game: 'king', screen: 'intro', countdownEndsAt: null };
 
 // Devuelve la escena actual, saneada (valores fuera de rango → por defecto).
 const getScene = () => {
@@ -16,14 +19,19 @@ const getScene = () => {
   return {
     game: GAMES.includes(s.game) ? s.game : DEFAULT_SCENE.game,
     screen: SCREENS.includes(s.screen) ? s.screen : DEFAULT_SCENE.screen,
+    countdownEndsAt: typeof s.countdownEndsAt === 'number' ? s.countdownEndsAt : null,
   };
 };
 
-// Aplica un cambio parcial ({ game?, screen? }) validando cada campo.
+// Aplica un cambio parcial ({ game?, screen?, countdownEndsAt? }) validando cada
+// campo. countdownEndsAt: número fija el fin, null lo limpia, undefined no lo toca.
 const setScene = (partial = {}) => {
   const next = getScene();
   if (GAMES.includes(partial.game)) next.game = partial.game;
   if (SCREENS.includes(partial.screen)) next.screen = partial.screen;
+  if (partial.countdownEndsAt === null || typeof partial.countdownEndsAt === 'number') {
+    next.countdownEndsAt = partial.countdownEndsAt;
+  }
   saveJson(SCENE_FILE, next);
   return next;
 };

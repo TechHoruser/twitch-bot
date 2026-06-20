@@ -4,15 +4,16 @@ import styles from './scene.module.css';
 import Socials from './Socials';
 import { COUNTDOWN_MINUTES } from './config';
 
-// Pantalla "Empezamos pronto". La cuenta atrás se reinicia cada vez que la escena
-// se activa desde /admin.
-export default function Intro({ theme, active }) {
+// Pantalla "Empezamos pronto". Si /admin fijó un fin de cuenta atrás (al iniciar el
+// directo, `endsAt`), contamos hacia ese instante para ir sincronizados con el panel;
+// si no, arrancamos una cuenta atrás nueva desde ahora (cambios manuales de escena).
+export default function Intro({ theme, active, endsAt }) {
   const [count, setCount] = useState('--:--');
   const [boot, setBoot] = useState(theme.boots[0]);
 
   useEffect(() => {
     if (!active || COUNTDOWN_MINUTES <= 0) return;
-    const end = Date.now() + COUNTDOWN_MINUTES * 60000;
+    const end = typeof endsAt === 'number' ? endsAt : Date.now() + COUNTDOWN_MINUTES * 60000;
     const tick = () => {
       const s = Math.max(0, Math.round((end - Date.now()) / 1000));
       const m = String(Math.floor(s / 60)).padStart(2, '0');
@@ -22,7 +23,7 @@ export default function Intro({ theme, active }) {
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [active, theme]);
+  }, [active, theme, endsAt]);
 
   useEffect(() => {
     let i = 0;

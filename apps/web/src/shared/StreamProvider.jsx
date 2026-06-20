@@ -6,7 +6,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 const StreamContext = createContext(null);
 
 export const useStream = () => useContext(StreamContext) ?? {
-  scene: { game: 'king', screen: 'intro' },
+  scene: { game: 'king', screen: 'intro', countdownEndsAt: null },
   music: null,
   overload: null,
   queue: [],
@@ -15,7 +15,7 @@ export const useStream = () => useContext(StreamContext) ?? {
   alert: null,
 };
 
-const DEFAULT_SCENE = { game: 'king', screen: 'intro' };
+const DEFAULT_SCENE = { game: 'king', screen: 'intro', countdownEndsAt: null };
 
 export function StreamProvider({ children }) {
   const [scene, setScene] = useState(DEFAULT_SCENE);
