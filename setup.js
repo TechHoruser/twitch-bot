@@ -332,6 +332,7 @@ async function main() {
   log('  · StreamDeck:npm run setup:streamdeck(carga el perfil 3x5 en Stream Deck)');
   log('  · Voicemeeter:npm run setup:voicemeeter (config de audio Banana)');
   log('  · Música:    npm run setup:music     (descarga música libre de Jamendo)');
+  log('  · Voz (TTS): npm run setup:tts       (voz natural en español para leer el chat)');
   log('  · Tests:     npm run test:logic');
   log('  · Stack:     npm run up             (docker compose)\n');
 }

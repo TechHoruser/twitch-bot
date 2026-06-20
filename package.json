@@ -15,6 +15,7 @@
     "setup:voicemeeter": "node setup-voicemeeter.js",
     "setup:music": "node setup-music.js",
     "setup:audio": "node setup-audio.js",
+    "setup:tts": "node setup-tts.js",
     "dev": "concurrently --names \"bot,web,overlays\" --prefix-colors \"cyan,magenta,yellow\" \"npm run bot:dev\" \"npm run web:dev\" \"npm run overlays\"",
     "bot": "npm --workspace apps/bot run start",
     "bot:dev": "npm --workspace apps/bot run start:dev",

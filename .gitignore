@@ -10,6 +10,9 @@ apps/overlays/streamdeck/Stream-Toolkit.rendered.json
 # Config de Voicemeeter renderizada (generada por setup-voicemeeter.js fuera de Windows)
 apps/overlays/voicemeeter/Stream-Toolkit-Banana.rendered.xml
 
+# Binario y voces de Piper (TTS), descargados por setup-tts.js
+tools/piper/
+
 # Test artifacts
 .test-data/
 test-results/

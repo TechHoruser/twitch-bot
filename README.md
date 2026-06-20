@@ -284,12 +284,21 @@ en pestañas:
 > **Alertas de primer mensaje y follow**: cuando alguien interviene por primera vez o le da
 > a follow se muestra una **animación en el overlay** (la ve la audiencia) y, por separado,
 > un **aviso de voz privado para ti** en el panel (anuncia el nombre y, si lo activas, lee
-> el chat). La voz usa la síntesis del navegador (gratis, offline) y **no se emite al
-> overlay**, así no se captura en el directo. Los follows llegan por EventSub
-> (`channel.follow`), así que el token **debe incluir además** `moderator:read:followers`.
-> En los ajustes de voz (🔈, arriba del chat) puedes elegir voz, volumen y **dispositivo de
-> salida** del chime; para que la voz tampoco se capture, enruta la salida de audio del
-> navegador a ese mismo dispositivo (Voicemeeter / cable virtual).
+> el chat). La voz **no se emite al overlay**, así no se captura en el directo. Los follows
+> llegan por EventSub (`channel.follow`), así que el token **debe incluir además**
+> `moderator:read:followers`.
+>
+> **Motor de voz** (elegible en los ajustes 🔈, arriba del chat):
+> - **Voz natural (Piper)** — recomendada. Síntesis neuronal local en español, mucho más
+>   natural, gratis y offline. Se instala una vez con `npm run setup:tts` (descarga el motor
+>   y una voz). Como suena por WebAudio, el **chime y la voz** salen por el **dispositivo de
+>   salida** que elijas, así que nada se captura en el directo sin tocar el audio del sistema.
+> - **Navegador** — síntesis básica del navegador (sin instalar nada), más robótica; la voz
+>   sigue la salida del sistema, así que para que no se capture hay que enrutar el audio del
+>   navegador al dispositivo elegido (Voicemeeter / cable virtual).
+>
+> Si eliges Piper pero aún no lo has instalado, el aviso cae automáticamente a la voz del
+> navegador para no quedarse mudo.
 
 ### Escenas precargadas en la web
 
@@ -524,6 +533,7 @@ hacia tus cascos y añade en OBS una *Captura de audio* del dispositivo
 | `npm run setup:voicemeeter` | Genera la config de audio para Voicemeeter Banana |
 | `npm run setup:music` | Descarga música libre (Jamendo) para el reproductor de la web |
 | `npm run setup:audio` | Crea en OBS las fuentes de audio (VB-Cable) que controla `/admin` |
+| `npm run setup:tts` | Descarga Piper + una voz en español para la lectura natural del chat |
 | `npm run bot` / `npm run bot:dev` | Arranca el bot (prod / con recarga) |
 | `npm run web:dev` / `web:build` / `web:start` / `web:lint` | App Next.js |
 | `npm run overlays` | Sirve los overlays HTML para OBS |
