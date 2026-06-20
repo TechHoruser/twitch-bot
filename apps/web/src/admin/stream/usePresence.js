@@ -31,7 +31,9 @@ export function usePresence(channel) {
       if (type === 'join') presentRef.current.add(lower);
       else presentRef.current.delete(lower);
       setPresent(new Set(presentRef.current));
-      bufferRef.current.push({ login: lower, name: login, type });
+      // Marca la hora real del evento (no la del envío en tanda) para que la
+      // línea de tiempo del registro refleje cuándo entró/salió cada uno.
+      bufferRef.current.push({ login: lower, name: login, type, ts: new Date().toISOString() });
     };
 
     const flush = () => {

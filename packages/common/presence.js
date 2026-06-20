@@ -30,20 +30,43 @@ const findOpen = (data) => {
   return null;
 };
 
+// Usuarios actualmente presentes en una sesión (su último evento es un 'join'),
+// en orden de aparición. Sirve para arrastrar la presencia al abrir un directo.
+const presentUsers = (events) => {
+  const state = new Map(); // login -> { name, present } (preserva orden de entrada)
+  for (const e of events) state.set(e.login, { name: e.name, present: e.type === 'join' });
+  return [...state.entries()]
+    .filter(([, v]) => v.present)
+    .map(([login, v]) => ({ login, name: v.name }));
+};
+
 // Abre una nueva sesión de directo (cerrando antes cualquier sesión abierta).
+// Quien ya estuviera en el chat al iniciar (presente en la sesión anterior) se
+// arrastra como un 'join' al comienzo del nuevo directo, para que su línea de
+// tiempo no empiece vacía: el flujo normal abre antes una sesión automática con
+// los presentes (NAMES del IRC) y "Iniciar retransmisión" crearía una sesión sin
+// ellos, ya que Twitch no reenvía JOIN de quienes ya estaban.
 const startSession = ({ title } = {}) => {
   const data = getData();
   const open = findOpen(data);
-  if (open) open.endedAt = new Date().toISOString();
+  const startedAt = new Date().toISOString();
+  // Arrastra la presencia de la sesión más reciente (esté abierta o recién
+  // cerrada) para que un directo iniciado tras la sesión automática —o tras
+  // detener y reanudar— no empiece con la línea de tiempo vacía.
+  const prev = data.sessions[data.sessions.length - 1];
+  const carryOver = prev ? presentUsers(data.events[prev.id] || []) : [];
+  if (open) open.endedAt = startedAt;
   const session = {
     id: newId(),
     title: title || `Directo ${new Date().toLocaleString('es-ES')}`,
-    startedAt: new Date().toISOString(),
+    startedAt,
     endedAt: null,
     peakViewers: 0,
   };
   data.sessions.push(session);
-  data.events[session.id] = [];
+  data.events[session.id] = carryOver.map((u) => ({
+    login: u.login, name: u.name, type: 'join', ts: startedAt,
+  }));
   save(data);
   return session;
 };
@@ -92,13 +115,17 @@ const logEvents = (incoming = []) => {
   const data = getData();
   const session = ensureSession(data);
   const events = data.events[session.id] || (data.events[session.id] = []);
-  const ts = new Date().toISOString();
+  const now = new Date().toISOString();
   let added = 0;
   for (const ev of incoming) {
     const login = (ev.login || '').toLowerCase();
     const type = ev.type === 'part' ? 'part' : 'join';
     if (!login) continue;
     if (lastStateOf(events, login) === type) continue; // sin cambio real
+    // Usa la hora real del evento (la marca el cliente al producirse); si no
+    // viene o es inválida, cae a la del servidor. Así la línea de tiempo no
+    // colapsa todos los eventos de una misma tanda en un único instante.
+    const ts = ev.ts && !Number.isNaN(Date.parse(ev.ts)) ? ev.ts : now;
     events.push({ login, name: ev.name || login, type, ts });
     added += 1;
   }

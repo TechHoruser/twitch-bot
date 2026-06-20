@@ -24,6 +24,31 @@ test.describe('presence · registro de directos', () => {
     expect(detail.session.endedAt).not.toBeNull();
   });
 
+  test('startSession arrastra a los presentes al nuevo directo', () => {
+    // Sesión automática (al abrir el panel) con tres presentes; uno se va.
+    presence.logEvents([
+      { login: 'ana', type: 'join' },
+      { login: 'bob', type: 'join' },
+      { login: 'carl', type: 'join' },
+    ]);
+    presence.logEvents([{ login: 'bob', type: 'part' }]);
+
+    // Al iniciar el directo, los que siguen presentes aparecen como 'join'.
+    const live = presence.startSession({ title: 'Directo' });
+    const { events } = presence.getSessionDetail(live.id);
+    expect(events.every((e) => e.type === 'join')).toBe(true);
+    expect(events.map((e) => e.login).sort()).toEqual(['ana', 'carl']);
+    expect(events.every((e) => e.ts === live.startedAt)).toBe(true);
+  });
+
+  test('logEvents respeta la hora real (ts) que envía el cliente', () => {
+    const s = presence.startSession({ title: 'live' });
+    const ts = '2026-06-20T18:30:00.000Z';
+    presence.logEvents([{ login: 'ana', type: 'join', ts }]);
+    const { events } = presence.getSessionDetail(s.id);
+    expect(events[0].ts).toBe(ts);
+  });
+
   test('logEvents sólo guarda transiciones reales (sin ruido)', () => {
     const s = presence.startSession({ title: 'live' });
     presence.logEvents([{ login: 'Ana', type: 'join' }]);
