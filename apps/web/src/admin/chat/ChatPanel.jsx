@@ -54,6 +54,8 @@ export function ChatPanel() {
   const [verdicts, setVerdicts] = useState({}); // veredictos IA por msgId
   const [ai, setAi] = useState({ enabled: true, auto: false });
   const [assistant, setAssistant] = useState(null); // ayuda IA del chat: { state, text, error }
+  const [draft, setDraft] = useState(''); // mensaje que se escribe manualmente
+  const [sending, setSending] = useState(false);
   const endRef = useRef(null);
   const seenRef = useRef(null); // ids de mensajes ya procesados (evita releer el backlog)
   const triagedRef = useRef(new Set()); // retenidos ya enviados a la IA
@@ -118,9 +120,20 @@ export function ChatPanel() {
   const sendAssistant = async () => {
     const text = assistant?.text?.trim();
     if (!text) return;
-    const res = await sayToChat({ message: text });
+    const res = await sayToChat({ message: text, announce: true });
     notify(res?.ok ? '✓ respuesta enviada al chat' : `✗ ${res?.error || 'error'}`);
     if (res?.ok) setAssistant(null);
+  };
+
+  // Escribir manualmente en el chat como un mensaje normal (no destacado).
+  const sendMessage = async () => {
+    const text = draft.trim();
+    if (!text || sending) return;
+    setSending(true);
+    const res = await sayToChat({ message: text });
+    notify(res?.ok ? '✓ mensaje enviado al chat' : `✗ ${res?.error || 'error'}`);
+    if (res?.ok) setDraft('');
+    setSending(false);
   };
 
   // Publicar (allow) / Rechazar (deny) un mensaje retenido. Se quita de la lista
@@ -309,6 +322,31 @@ export function ChatPanel() {
         ))}
         <div ref={endRef} />
       </div>
+
+      {/* Escribir manualmente en el chat (mensaje normal, no destacado). */}
+      {channel && (
+        <div className="shrink-0 flex items-end gap-2 px-3 py-2 border-t border-white/10">
+          <textarea
+            className="flex-1 bg-black/30 rounded p-2 text-sm resize-none h-9 max-h-24 outline-none focus:ring-1 focus:ring-fuchsia-500/50"
+            placeholder="Escribe en el chat…"
+            value={draft}
+            maxLength={500}
+            rows={1}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
+          />
+          <button
+            className="px-3 py-1.5 rounded bg-fuchsia-600/80 hover:bg-fuchsia-600 disabled:opacity-40 text-sm"
+            disabled={!draft.trim() || sending}
+            onClick={sendMessage}
+          >Enviar</button>
+        </div>
+      )}
 
       {toast && <div className="px-3 py-2 text-xs border-t border-white/10 bg-white/5">{toast}</div>}
     </div>

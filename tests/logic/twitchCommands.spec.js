@@ -145,6 +145,32 @@ test.describe('canal · info del directo', () => {
     await expect(twitch.sendChatAnnouncement({ broadcasterId: '999', moderatorId: '7', message: 'x' }, ENV, fetch))
       .rejects.toThrow('anuncio');
   });
+
+  test('sendChatMessage publica un mensaje normal con broadcaster y sender', async () => {
+    const fetch = makeFetch([{ ok: true, body: { data: [{ message_id: 'm1', is_sent: true }] } }]);
+    await twitch.sendChatMessage({ broadcasterId: '999', senderId: '7', message: 'hola' }, ENV, fetch);
+    expect(fetch.calls[0].url).toContain('/chat/messages');
+    expect(fetch.calls[0].opts.method).toBe('POST');
+    expect(JSON.parse(fetch.calls[0].opts.body)).toEqual({ broadcaster_id: '999', sender_id: '7', message: 'hola' });
+  });
+
+  test('sendChatMessage usa el broadcaster como sender por defecto', async () => {
+    const fetch = makeFetch([{ ok: true, body: { data: [{ message_id: 'm1', is_sent: true }] } }]);
+    await twitch.sendChatMessage({ broadcasterId: '999', message: 'hola' }, ENV, fetch);
+    expect(JSON.parse(fetch.calls[0].opts.body).sender_id).toBe('999');
+  });
+
+  test('sendChatMessage lanza si Twitch descarta el mensaje', async () => {
+    const fetch = makeFetch([{ ok: true, body: { data: [{ is_sent: false, drop_reason: { message: 'rejected' } }] } }]);
+    await expect(twitch.sendChatMessage({ broadcasterId: '999', message: 'x' }, ENV, fetch))
+      .rejects.toThrow('rejected');
+  });
+
+  test('sendChatMessage lanza si la API falla', async () => {
+    const fetch = makeFetch([{ ok: false, body: { message: 'fallo' } }]);
+    await expect(twitch.sendChatMessage({ broadcasterId: '999', message: 'x' }, ENV, fetch))
+      .rejects.toThrow('fallo');
+  });
 });
 
 test.describe('getUserId / banUser', () => {

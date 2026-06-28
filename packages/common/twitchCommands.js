@@ -171,6 +171,31 @@ const sendChatAnnouncement = async ({ broadcasterId, moderatorId, message, color
   return true;
 };
 
+// Publica un mensaje normal en el chat (Helix Send Chat Message), como si lo
+// escribiera el dueño del token. Lo usa la caja de "escribir en el chat" del
+// panel de admin. Requiere el scope user:write:chat. El sender_id es el dueño
+// del token (por defecto el propio broadcaster).
+const sendChatMessage = async ({ broadcasterId, senderId, message }, env = process.env, fetchFn = fetch) => {
+  const response = await fetchFn(`${TWITCH_HELIX}/chat/messages`, {
+    method: 'POST',
+    headers: authHeaders(env),
+    body: JSON.stringify({
+      broadcaster_id: broadcasterId,
+      sender_id: senderId || broadcasterId,
+      message,
+    }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.message || 'Error al enviar el mensaje al chat');
+  }
+  const sent = data.data?.[0];
+  if (sent && sent.is_sent === false) {
+    throw new Error(sent.drop_reason?.message || 'El mensaje fue rechazado por Twitch');
+  }
+  return true;
+};
+
 // Busca categorías/juegos por nombre (para el autocompletado del editor).
 const searchCategories = async (query, env = process.env, fetchFn = fetch) => {
   const response = await fetchFn(`${TWITCH_HELIX}/search/categories?first=10&query=${encodeURIComponent(query)}`, {
@@ -279,6 +304,7 @@ module.exports = {
   updateChannelInfo,
   getStreamInfo,
   sendChatAnnouncement,
+  sendChatMessage,
   searchCategories,
   manageHeldMessage,
   createEventSubSubscription,
