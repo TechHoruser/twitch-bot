@@ -114,7 +114,7 @@ Crea una aplicación con estos datos:
 
 Obtén el token OAuth manualmente ejecutando en tu navegador:
 
-https://id.twitch.tv/oauth2/authorize?client_id=TU_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages+moderator:manage:automod+moderator:read:followers+channel:manage:broadcast+moderator:manage:announcements
+https://id.twitch.tv/oauth2/authorize?client_id=TU_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=chat:edit+chat:read+channel:moderate+moderator:manage:banned_users+moderator:manage:chat_messages+moderator:manage:automod+moderator:read:followers+channel:manage:broadcast+moderator:manage:announcements+user:write:chat
 
 Te redirigirá a http://localhost#access_token=TOKEN_GENERADO.
 
@@ -281,6 +281,12 @@ en pestañas:
 > contexto (`DISCORD_LINK`, `CHESS_PROVIDER` y los enlaces de Lichess/Chess.com) las copia
 > `npm run setup` del `.env.local` del bot al de la web.
 >
+> **Escribir en el chat**: en la parte inferior del panel hay una **caja de texto** para
+> participar en el chat sin salir del panel. A diferencia de la respuesta de la IA (que va
+> como anuncio destacado), esto publica un **mensaje normal** del chat (Helix Send Chat
+> Message, vía `/api/admin/chat/say`). Envía con **Enter** (Mayús+Enter para salto de línea)
+> o con el botón **Enviar**. El token necesita el scope `user:write:chat`.
+>
 > **Alertas de primer mensaje y follow**: cuando alguien interviene por primera vez o le da
 > a follow se muestra una **animación en el overlay** (la ve la audiencia) y, por separado,
 > un **aviso de voz privado para ti** en el panel (anuncia el nombre y, si lo activas, lee
@@ -365,8 +371,9 @@ OPENROUTER_MODEL=              # (IA) modelo, por defecto openrouter/free (auto-
 > El panel de moderación necesita además `TWITCH_CLIENT_ID`, `TWITCH_OAUTH_TOKEN` y
 > `TWITCH_CHANNEL_NAME` en `apps/web/.env.local`: `npm run setup` los copia del bot.
 > Para los mensajes retenidos (Pendientes de aprobar) el token necesita el scope
-> `moderator:manage:automod`, para las alertas de follow `moderator:read:followers`, y
-> para actualizar la información del directo (título y juego) `channel:manage:broadcast`.
+> `moderator:manage:automod`, para las alertas de follow `moderator:read:followers`,
+> para actualizar la información del directo (título y juego) `channel:manage:broadcast`, y
+> para escribir en el chat desde el panel `user:write:chat`.
 
 ### Música libre con `setup-music.js` (Jamendo)
 
