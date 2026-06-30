@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStreamStatus } from './useStreamStatus';
 import { GAMES, THEMES } from '../../scenes/themes';
-import { COUNTDOWN_MINUTES } from '../../scenes/config';
+import { COUNTDOWN_MINUTES, INTRO_GRACE_SECONDS } from '../../scenes/config';
 
 const getInfo = () => fetch('/api/admin/channel').then((r) => r.json());
 const save = (body) => fetch('/api/admin/channel', {
@@ -238,7 +238,7 @@ function BroadcastSetupModal({ onClose, onStarted, intro }) {
                   className="mt-0.5"
                 />
                 <span>
-                  Pasar a la escena principal automáticamente cuando la cuenta atrás llegue a 0
+                  Pasar a la escena principal automáticamente {INTRO_GRACE_SECONDS}s después de que la cuenta atrás llegue a 0 (mostrando ¡EMPEZAMOS!)
                   <span className="opacity-50"> ({COUNTDOWN_MINUTES} min)</span>
                 </span>
               </label>
@@ -361,6 +361,10 @@ function BroadcastPanel({ presentCount, intro }) {
               <span className="text-sm tabular-nums">
                 Escena principal en <span className="font-bold">{mmss(intro.remainingMs)}</span>
                 <span className="opacity-50">{intro.state?.autoSwitch ? ' · automático' : ' · manual'}</span>
+              </span>
+            ) : intro.expired && intro.graceRemainingMs != null ? (
+              <span className="text-sm tabular-nums">
+                ¡EMPEZAMOS! · escena principal en <span className="font-bold">{mmss(intro.graceRemainingMs)}</span>
               </span>
             ) : intro.expired ? (
               <span className="text-sm opacity-60">cuenta atrás finalizada</span>

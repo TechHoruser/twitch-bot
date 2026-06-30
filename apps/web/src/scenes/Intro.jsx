@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import styles from './scene.module.css';
 import Socials from './Socials';
-import { COUNTDOWN_MINUTES } from './config';
+import { COUNTDOWN_MINUTES, COUNTDOWN_END_TEXT } from './config';
 
 // Pantalla "Empezamos pronto". Si /admin fijó un fin de cuenta atrás (al iniciar el
 // directo, `endsAt`), contamos hacia ese instante para ir sincronizados con el panel;
@@ -18,7 +18,7 @@ export default function Intro({ theme, active, endsAt }) {
       const s = Math.max(0, Math.round((end - Date.now()) / 1000));
       const m = String(Math.floor(s / 60)).padStart(2, '0');
       const ss = String(s % 60).padStart(2, '0');
-      setCount(s > 0 ? `${m}:${ss}` : theme.countdownEnd);
+      setCount(s > 0 ? `${m}:${ss}` : COUNTDOWN_END_TEXT);
     };
     tick();
     const id = setInterval(tick, 1000);

@@ -1,14 +1,16 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { COUNTDOWN_MINUTES } from '../../scenes/config';
+import { COUNTDOWN_MINUTES, INTRO_GRACE_SECONDS } from '../../scenes/config';
 import { applyPreset } from '../audio/sceneAudio';
 
 // Gestiona la "escena de entrada" del directo: al iniciar la retransmisión se
 // precarga la pantalla intro de la colección elegida (con su cuenta atrás) y, si
-// se marcó la opción, pasa automáticamente a la pantalla principal (juego) cuando
-// la cuenta atrás llega a cero. El estado se guarda en localStorage para sobrevivir
-// a recargas, y el hook se monta en <Admin> (siempre presente) para que el cambio
-// automático ocurra aunque no se esté viendo la pestaña Directo.
+// se marcó la opción, pasa automáticamente a la pantalla principal (juego) un
+// margen de INTRO_GRACE_SECONDS después de que la cuenta atrás llegue a cero
+// (durante ese margen la intro muestra "¡EMPEZAMOS!"). El estado se guarda en
+// localStorage para sobrevivir a recargas, y el hook se monta en <Admin> (siempre
+// presente) para que el cambio automático ocurra aunque no se esté viendo la
+// pestaña Directo.
 const KEY = 'broadcastIntro';
 
 const setSceneApi = (partial) => fetch('/api/admin/scene', {
@@ -79,11 +81,15 @@ export function useBroadcastIntro() {
 
   const remainingMs = state?.endsAt ? Math.max(0, state.endsAt - now) : null;
   const expired = state?.endsAt ? now >= state.endsAt : false;
+  // Margen restante mostrando "¡EMPEZAMOS!" antes del paso automático a juego.
+  const graceRemainingMs = state?.endsAt && state.autoSwitch && now >= state.endsAt
+    ? Math.max(0, state.endsAt + INTRO_GRACE_SECONDS * 1000 - now)
+    : null;
 
-  // Auto-paso a la principal al agotarse la cuenta atrás (si se marcó la opción).
+  // Auto-paso a la principal tras el margen de gracia (si se marcó la opción).
   useEffect(() => {
     if (!state || !state.autoSwitch || firedRef.current) return;
-    if (state.endsAt && now >= state.endsAt) goToMain();
+    if (state.endsAt && now >= state.endsAt + INTRO_GRACE_SECONDS * 1000) goToMain();
   }, [state, now, goToMain]);
 
   return {
@@ -91,6 +97,7 @@ export function useBroadcastIntro() {
     active: !!state,
     remainingMs,
     expired,
+    graceRemainingMs,
     hasCountdown: COUNTDOWN_MINUTES > 0,
     start,
     goToMain,
