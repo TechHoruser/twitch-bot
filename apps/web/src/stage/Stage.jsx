@@ -1,6 +1,6 @@
 'use client';
 import { useStream } from '../shared/StreamProvider';
-import { getTheme } from '../scenes/themes';
+import { useScenes, themeOf } from '../scenes/ScenesProvider';
 import Intro from '../scenes/Intro';
 import Pause from '../scenes/Pause';
 import Outro from '../scenes/Outro';
@@ -17,10 +17,17 @@ import styles from '../scenes/scene.module.css';
 // fija /admin (recibida por SSE). Encima: webcam, popups de cola y música.
 export default function Stage() {
   const { scene } = useStream();
-  const theme = getTheme(scene.game);
+  const { themes } = useScenes();
+  const theme = themeOf(themes, scene.game);
   const screen = scene.screen;
 
   const layer = (name) => `${styles.layer} ${screen === name ? styles.layerActive : ''}`;
+
+  // Sin tema disponible (carpeta vacía o aún sin hidratar) no pintamos pantallas
+  // para no romper los componentes que esperan `theme`.
+  if (!theme) {
+    return <main style={{ position: 'relative', width: '1920px', height: '1080px', overflow: 'hidden' }} />;
+  }
 
   return (
     <main style={{ position: 'relative', width: '1920px', height: '1080px', overflow: 'hidden' }}>

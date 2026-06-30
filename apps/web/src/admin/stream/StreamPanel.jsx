@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { useStreamStatus } from './useStreamStatus';
-import { GAMES, THEMES } from '../../scenes/themes';
+import { useScenes } from '../../scenes/ScenesProvider';
 import { COUNTDOWN_MINUTES, INTRO_GRACE_SECONDS } from '../../scenes/config';
 
 const getInfo = () => fetch('/api/admin/channel').then((r) => r.json());
@@ -27,9 +27,11 @@ const saveSetup = (collection, data) => {
   localStorage.setItem(SETUP_KEY(collection), JSON.stringify(data));
   localStorage.setItem(LAST_KEY, collection);
 };
+// Última colección usada (o null si no hay/aún no hay temas cargados). El respaldo
+// al primer juego disponible se resuelve donde se conocen los temas.
 const loadLastCollection = () => {
-  if (typeof window === 'undefined') return GAMES[0];
-  return localStorage.getItem(LAST_KEY) || GAMES[0];
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(LAST_KEY) || null;
 };
 
 // mm:ss a partir de milisegundos.
@@ -61,7 +63,8 @@ const MAX_ANNOUNCE = 500;
 // localStorage sus últimos valores. Al iniciar, precarga la pantalla de entrada de
 // la colección y (si se marca) programa el paso automático a la principal.
 function BroadcastSetupModal({ onClose, onStarted, intro }) {
-  const [collection, setCollection] = useState(loadLastCollection);
+  const { games: GAMES, themes: THEMES } = useScenes();
+  const [collection, setCollection] = useState('');
   const [title, setTitle] = useState('');
   const [game, setGame] = useState({ id: '', name: '' });
   const [announcement, setAnnouncement] = useState('');
@@ -70,10 +73,12 @@ function BroadcastSetupModal({ onClose, onStarted, intro }) {
   const [results, setResults] = useState([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [channelReady, setChannelReady] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const debounceRef = useRef(null);
   const channelRef = useRef({ title: '', gameId: '', gameName: '' });
+  const prefilledRef = useRef(false);
 
   // Aplica al formulario los valores guardados de una colección; si no hay, usa la
   // info actual del canal (título/categoría) y notificación vacía.
@@ -93,13 +98,29 @@ function BroadcastSetupModal({ onClose, onStarted, intro }) {
     }
   };
 
+  // Carga la info actual del canal (para los respaldos del formulario).
   useEffect(() => {
     getInfo().then((d) => {
       if (d?.ok) channelRef.current = { title: d.title || '', gameId: d.gameId || '', gameName: d.gameName || '' };
-      applyCollection(collection);
-      setLoading(false);
+      setChannelReady(true);
     });
   }, []);
+
+  // Resuelve la colección inicial cuando los temas están disponibles: la última
+  // usada si sigue existiendo, o el primer juego del registro.
+  useEffect(() => {
+    if (collection || GAMES.length === 0) return;
+    const stored = loadLastCollection();
+    setCollection(GAMES.includes(stored) ? stored : GAMES[0]);
+  }, [GAMES, collection]);
+
+  // Pre-rellena el formulario una sola vez, cuando canal y colección están listos.
+  useEffect(() => {
+    if (prefilledRef.current || !channelReady || !collection) return;
+    prefilledRef.current = true;
+    applyCollection(collection);
+    setLoading(false);
+  }, [channelReady, collection]);
 
   const onPickCollection = (col) => { setCollection(col); applyCollection(col); };
 
@@ -156,7 +177,7 @@ function BroadcastSetupModal({ onClose, onStarted, intro }) {
                       collection === g ? 'bg-emerald-500 text-white' : 'bg-white/10 hover:bg-white/20 text-white/80'
                     }`}
                   >
-                    {THEMES[g].label}
+                    {THEMES[g]?.label ?? g}
                   </button>
                 ))}
               </div>
@@ -274,6 +295,7 @@ function BroadcastSetupModal({ onClose, onStarted, intro }) {
 // `intro` = control de la escena de entrada / cuenta atrás (useBroadcastIntro).
 function BroadcastPanel({ presentCount, intro }) {
   const { data, loading, refresh } = useStreamStatus();
+  const { themes: THEMES } = useScenes();
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState(null);
   const [showSetup, setShowSetup] = useState(false);

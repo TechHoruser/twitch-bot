@@ -1,0 +1,26 @@
+{
+  "label": "Kingdom Rush",
+  "order": 3,
+  "font": "'Cinzel', serif",
+  "emoji": "🏰",
+  "gameLabel": "🏰 KINGDOM RUSH",
+  "kicker": "defendiendo el reino",
+  "introTitle": ["EMPEZAMOS", "PRONTO"],
+  "introSub": "preparando las torres…",
+  "pauseTitle": "PAUSA",
+  "pauseSub": "reagrupando tropas… volvemos enseguida",
+  "outroTitle": ["GRACIAS POR", "DEFENDER EL REINO"],
+  "outroSub": "nos vemos en la próxima oleada",
+  "outroCta": "¡Síguenos para no perderte la próxima oleada! 🏰",
+  "boots": ["construyendo torres…", "reclutando soldados…", "reforzando murallas…", "afilando lanzas…", "desplegando arqueros…"],
+  "hudSub": "defendiendo el reino",
+  "hudTag": "🏰 EN PARTIDA",
+  "ticker": "que no caiga ninguna torre…  ✦  síguenos para más oleadas  ✦  !nivel  !redes  !discord",
+  "crest": "🏰🛡️🏹",
+  "vars": {
+    "--bg": "#241608", "--bg2": "#3a2417", "--text": "#f1e3c4",
+    "--accent": "#e0b15c", "--accent2": "#3f7a4f",
+    "--panel": "rgba(58,36,23,.92)", "--panelBorder": "rgba(224,177,92,.5)",
+    "--glow": "rgba(63,122,79,.4)"
+  }
+}

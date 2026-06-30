@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useStream } from '../../shared/StreamProvider';
-import { GAMES, THEMES } from '../../scenes/themes';
+import { useScenes } from '../../scenes/ScenesProvider';
 import {
   getPreset, setSource, removeSource, applyPreset, exportPresets, importPresets,
 } from './sceneAudio';
@@ -28,7 +28,8 @@ const pctOf = (mul) => Math.round(Math.max(0, Math.min(1, mul)) * 100);
 // de audio de OBS guardados para esa escena (preset por colección/escena).
 export function ScenesAudioPanel() {
   const { scene } = useStream();
-  const collection = GAMES.includes(scene.game) ? scene.game : GAMES[0];
+  const { games: GAMES, themes: THEMES } = useScenes();
+  const collection = GAMES.includes(scene.game) ? scene.game : (GAMES[0] ?? scene.game);
   const screen = scene.screen;
 
   const [state, setState] = useState({ loading: true });
@@ -127,7 +128,7 @@ export function ScenesAudioPanel() {
             className="bg-white/10 rounded px-3 py-2 text-sm"
           >
             {GAMES.map((g) => (
-              <option key={g} value={g} className="bg-neutral-800">{THEMES[g].label}</option>
+              <option key={g} value={g} className="bg-neutral-800">{THEMES[g]?.label ?? g}</option>
             ))}
           </select>
 

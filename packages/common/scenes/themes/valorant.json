@@ -1,0 +1,26 @@
+{
+  "label": "Valorant",
+  "order": 1,
+  "font": "'Oswald', sans-serif",
+  "emoji": "🎯",
+  "gameLabel": "🎯 VALORANT",
+  "kicker": "preparando al agente",
+  "introTitle": ["EMPEZAMOS", "PRONTO"],
+  "introSub": "cargando el mapa…",
+  "pauseTitle": "PAUSA",
+  "pauseSub": "descanso táctico — volvemos ya",
+  "outroTitle": ["GRACIAS POR", "VER EL DIRECTO"],
+  "outroSub": "nos vemos en la próxima partida",
+  "outroCta": "¡Síguenos para no perderte la próxima! 🎯",
+  "boots": ["cargando el mapa…", "seleccionando agente…", "comprando armas…", "plantando la spike…", "afinando la puntería…"],
+  "hudSub": "en partida",
+  "hudTag": "🎯 EN PARTIDA",
+  "ticker": "clutch or kick  ✦  ¡síguenos si te mola el directo!  ✦  !redes  !discord",
+  "crest": "🔫💣🎯",
+  "vars": {
+    "--bg": "#0f1923", "--bg2": "#1b2733", "--text": "#ece8e1",
+    "--accent": "#ff4655", "--accent2": "#18e3b9",
+    "--panel": "rgba(27,39,51,.92)", "--panelBorder": "rgba(255,70,85,.5)",
+    "--glow": "rgba(255,70,85,.4)"
+  }
+}

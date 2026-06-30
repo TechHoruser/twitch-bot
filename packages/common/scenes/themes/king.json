@@ -1,0 +1,26 @@
+{
+  "label": "The King is Watching",
+  "order": 0,
+  "font": "'Cinzel', serif",
+  "emoji": "👑",
+  "gameLabel": "👁 THE KING IS WATCHING",
+  "kicker": "la corte se prepara",
+  "introTitle": ["EMPEZAMOS", "PRONTO"],
+  "introSub": "el rey ya observa su reino…",
+  "pauseTitle": "PAUSA",
+  "pauseSub": "el rey descansa… volvemos enseguida",
+  "outroTitle": ["GRACIAS POR", "ACOMPAÑARNOS"],
+  "outroSub": "el reino te espera en el próximo directo",
+  "outroCta": "¡Síguenos y únete a la corte! 👑",
+  "boots": ["forjando la corona…", "alzando los estandartes…", "el rey toma su trono…", "afilando las espadas…", "convocando a la corte…"],
+  "hudSub": "su majestad observa",
+  "hudTag": "👁 EN PARTIDA",
+  "ticker": "el rey observa su reino…  ✦  ¡síguenos y únete a la corte!  ✦  !redes  !discord",
+  "crest": "🛡️⚔️👑",
+  "vars": {
+    "--bg": "#160c2e", "--bg2": "#2a1a4a", "--text": "#f3e7c9",
+    "--accent": "#f5c542", "--accent2": "#b89bff",
+    "--panel": "rgba(42,26,74,.9)", "--panelBorder": "rgba(245,197,66,.5)",
+    "--glow": "rgba(139,92,255,.5)"
+  }
+}

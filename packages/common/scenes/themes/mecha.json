@@ -1,0 +1,26 @@
+{
+  "label": "Meccha Chameleon",
+  "order": 2,
+  "font": "'Fredoka', sans-serif",
+  "emoji": "🦎",
+  "gameLabel": "🎨 MECCHA CHAMELEON",
+  "kicker": "¡prepara los pinceles!",
+  "introTitle": ["EMPEZAMOS", "PRONTO"],
+  "introSub": "nos camuflamos en un momentito…",
+  "pauseTitle": "PAUSA",
+  "pauseSub": "cambiando de color… volvemos enseguida",
+  "outroTitle": ["GRACIAS POR", "ACOMPAÑARNOS"],
+  "outroSub": "¡nos vemos en el próximo camuflaje!",
+  "outroCta": "¡Síguenos si te mola el directo! 🦎",
+  "boots": ["mezclando colores…", "mojando el pincel…", "eligiendo el mejor escondite…", "modo camuflaje: ON 🦎", "afinando la pose perfecta…"],
+  "hudSub": "¡en modo camuflaje!",
+  "hudTag": "🎨 EN PARTIDA",
+  "ticker": "¿me encontrarás camuflado?  ✦  ¡síguenos si te mola el directo!  ✦  !redes  !discord",
+  "crest": "🎨🖌️🦎",
+  "vars": {
+    "--bg": "#fffaf2", "--bg2": "#ffffff", "--text": "#2a2433",
+    "--accent": "#ff6ec7", "--accent2": "#4ea8ff",
+    "--panel": "rgba(255,255,255,.94)", "--panelBorder": "rgba(176,107,255,.25)",
+    "--glow": "rgba(176,107,255,.25)"
+  }
+}
