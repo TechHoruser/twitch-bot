@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<!-- KINGDOM RUSH · Pantalla "GRACIAS POR VENIR / CERRANDO" (fullscreen 1920x1080) -->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&display=swap');
+  :root{--gold:#e0b15c;--wood:#3a2417;--wood2:#52331f;--green:#3f7a4f;--cream:#f1e3c4}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;overflow:hidden;font-family:'Cinzel',serif;color:var(--cream)}
+  #bg{position:absolute;inset:0;background:radial-gradient(1100px 700px at 50% 40%, var(--wood2), var(--wood) 70%),var(--wood)}
+  #grid{position:absolute;inset:0;opacity:.4;background-image:linear-gradient(rgba(224,177,92,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(224,177,92,.07) 1px,transparent 1px);background-size:54px 54px}
+  .scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 2px,transparent 2px 4px);opacity:.5}
+  .vign{position:absolute;inset:0;box-shadow:inset 0 0 320px rgba(0,0,0,.88)}
+  .corner{position:absolute;width:84px;height:84px;border:5px solid var(--gold)}
+  .tl{top:40px;left:40px;border-right:0;border-bottom:0}.tr{top:40px;right:40px;border-left:0;border-bottom:0}
+  .bl{bottom:40px;left:40px;border-right:0;border-top:0}.br{bottom:40px;right:40px;border-left:0;border-top:0}
+  .corner::after{content:"";position:absolute;width:12px;height:12px;background:var(--green)}
+  .tl::after{top:-5px;left:-5px}.tr::after{top:-5px;right:-5px}.bl::after{bottom:-5px;left:-5px}.br::after{bottom:-5px;right:-5px}
+  #wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;z-index:2}
+  .kicker{font-weight:600;font-size:22px;letter-spacing:8px;text-transform:uppercase;color:#fff;background:var(--green);padding:8px 28px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%)}
+  h1{font-weight:800;font-size:100px;letter-spacing:3px;text-transform:uppercase;color:#fff;margin:10px 0;text-shadow:0 0 30px rgba(224,177,92,.4)}
+  h1 span{color:var(--gold)}
+  .subt{font-weight:600;font-size:24px;letter-spacing:6px;text-transform:uppercase;color:var(--gold)}
+  .gg{margin-top:6px;font-weight:700;font-size:30px;letter-spacing:8px;text-transform:uppercase;color:var(--gold)}
+  #down{margin-top:30px;width:580px;height:14px;background:var(--wood2);border:1px solid rgba(224,177,92,.5);overflow:hidden;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)}
+  #down>div{height:100%;width:100%;background:linear-gradient(90deg,var(--green),var(--gold));animation:drain 6s linear infinite}
+  @keyframes drain{from{width:100%}to{width:4%}}
+  .boot{margin-top:14px;font-weight:500;font-size:18px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);opacity:.85}
+  #foot{position:absolute;bottom:60px;left:0;right:0;display:flex;justify-content:center;gap:30px;z-index:2}
+  .soc{display:flex;align-items:center;gap:10px;background:var(--wood2);border-left:3px solid var(--gold);padding:10px 22px;font-weight:600;font-size:18px;letter-spacing:2px;text-transform:uppercase}
+  .soc b{color:var(--gold)}
+</style>
+</head>
+<body>
+  <div id="bg"></div><div id="grid"></div><div class="scan"></div><div class="vign"></div>
+  <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+  <div id="wrap">
+    <div class="kicker">// Fin del asedio</div>
+    <h1>¡GRACIAS POR <span>VENIR!</span></h1>
+    <div class="subt">nos vemos en el próximo directo</div>
+    <div class="gg">REINO A SALVO · ¡DEJA UN FOLLOW!</div>
+    <div id="down"><div></div></div>
+    <div class="boot" id="boot">guardando la partida…</div>
+  </div>
+  <div id="foot">
+    <span class="soc">TWITCH <b id="tw">/HORUSER</b></span>
+    <span class="soc">YOUTUBE <b id="yt">/HORUSER</b></span>
+    <span class="soc">DISCORD <b id="dc">/HORUSER</b></span>
+  </div>
+<script>
+  const HANDLE="HORUSER";
+  tw.textContent=yt.textContent=dc.textContent="/"+HANDLE;
+  const boots=["guardando la partida…","¡gracias por el apoyo!","comparte el directo","recontando héroes…","hasta la próxima, equipo"];
+  let i=0;setInterval(()=>boot.textContent=boots[i=(i+1)%boots.length],2400);
+</script>
+</body>
+</html>
