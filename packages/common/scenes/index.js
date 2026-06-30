@@ -7,14 +7,35 @@
 const fs = require('fs');
 const path = require('path');
 
-const THEMES_DIR = path.join(__dirname, 'themes');
+// Localiza la carpeta de temas de forma robusta. Bajo Next el paquete se empaqueta
+// con webpack y __dirname deja de apuntar al código fuente (acaba en .next/server/…),
+// así que no podemos fiarnos solo de él. Probamos primero la ruta local (Node plano:
+// bot y tests, donde __dirname es correcto) y, si no, subimos desde el cwd buscando
+// un packages/common/scenes/themes (cubre Next con cwd=apps/web, la raíz del repo y
+// Docker). La ruta encontrada se cachea, pero los ficheros se releen en cada llamada.
+let cachedDir = null;
+const themesDir = () => {
+  if (cachedDir && fs.existsSync(cachedDir)) return cachedDir;
+  const local = path.join(__dirname, 'themes');
+  if (fs.existsSync(local)) { cachedDir = local; return cachedDir; }
+  let dir = process.cwd();
+  for (let i = 0; i < 8; i++) {
+    const candidate = path.join(dir, 'packages', 'common', 'scenes', 'themes');
+    if (fs.existsSync(candidate)) { cachedDir = candidate; return cachedDir; }
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return local; // último recurso; loadThemes hará catch si no existe.
+};
 
 // Lee y parsea todos los temas del directorio. Se lee en cada llamada (frecuencia
 // baja) para que añadir o editar un tema se refleje sin reiniciar el proceso.
 const loadThemes = () => {
+  const dir = themesDir();
   let files;
   try {
-    files = fs.readdirSync(THEMES_DIR);
+    files = fs.readdirSync(dir);
   } catch {
     return {};
   }
@@ -23,7 +44,7 @@ const loadThemes = () => {
     if (!file.endsWith('.json')) continue;
     const key = path.basename(file, '.json');
     try {
-      themes[key] = JSON.parse(fs.readFileSync(path.join(THEMES_DIR, file), 'utf8'));
+      themes[key] = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
     } catch {
       // Ignora ficheros corruptos para no tumbar todo el selector por uno malo.
     }
@@ -61,5 +82,5 @@ module.exports = {
   getGames,
   getTheme,
   getDefaultGame,
-  THEMES_DIR,
+  themesDir,
 };
